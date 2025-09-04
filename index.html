@@ -48,27 +48,29 @@
 
         /* Default Theme: Light Mode */
         body[data-theme="default-light"] {
-            --bg-primary: #f3f4f6; /* Light gray */
-            --bg-secondary: #ffffff; /* White */
-            --text-primary: #1f2937; /* Dark gray */
-            --text-secondary: #4b5563; /* Medium gray */
-            --border-color: #e5e7eb; /* Light border gray */
-            --card-bg: #ffffff; /* White */
-            --card-border: #e5e7eb; /* Light gray border */
-            --header-bg: #f9fafb; /* Lighter gray for header */
-            --accent-primary: #6366f1; /* Indigo-500 */
-            --accent-primary-hover: #4f46e5; /* Indigo-600 */
-            --accent-secondary: #22d3ee; /* Cyan-400 */
-            --accent-error: #ef4444; /* Red-500 */
-            --accent-success: #22c55e; /* Green-500 */
-            --user-bubble-bg: #e0f2fe; /* Light blue */
-            --user-bubble-text: #1e40af; /* Dark blue */
-            --ai-bubble-bg: #f3f4f6; /* Light gray */
-            --ai-bubble-text: #374151; /* Dark gray */
-            --sidebar-bg: #ffffff; /* White */
-            --sidebar-border: #e5e7eb; /* Light gray border */
-            --sidebar-item-hover: #f3f4f6; /* Light gray hover */
+            --bg-primary: #f3f4f6;
+            --bg-secondary: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --border-color: #e5e7eb;
+            --card-bg: #ffffff;
+            --card-border: #e5e7eb;
+            --header-bg: #f9fafb;
+            --accent-primary: #6366f1;
+            --accent-primary-hover: #4f46e5;
+            --accent-secondary: #22d3ee;
+            --accent-error: #ef4444;
+            --accent-success: #22c55e;
+            --user-bubble-bg: #e0f2fe;
+            --user-bubble-text: #1e40af;
+            --ai-bubble-bg: #f3f4f6;
+            --ai-bubble-text: #374151;
+            --sidebar-bg: #ffffff;
+            --sidebar-border: #e5e7eb;
+            --sidebar-item-hover: #f3f4f6;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8); /* Slightly transparent */
+
             background-image: radial-gradient(at 0% 0%, hsl(210, 30%, 95%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(200, 20%, 90%) 0%, transparent 50%);
             background-size: cover;
@@ -77,27 +79,29 @@
 
         /* Default Theme: Dark Mode */
         body[data-theme="default-dark"] {
-            --bg-primary: #0a0a0f; /* Deep dark blue-black */
-            --bg-secondary: #13131a; /* Slightly lighter dark blue-black */
-            --text-primary: #e5e7eb; /* Off-white */
-            --text-secondary: #a1a1aa; /* Gray 400 */
-            --border-color: #2d3748; /* Darker blue-gray border */
-            --card-bg: #13131a; /* Slightly lighter dark blue-black */
-            --card-border: #2d3748; /* Darker blue-gray border */
-            --header-bg: #1f2937; /* Darker gray for header */
-            --accent-primary: #818cf8; /* Indigo-400 for dark mode */
-            --accent-primary-hover: #6366f1; /* Indigo-500 */
-            --accent-secondary: #67e8f9; /* Cyan-300 for dark mode */
-            --accent-error: #f87171; /* Red-400 */
-            --accent-success: #4ade80; /* Green-400 */
-            --user-bubble-bg: #1a237e; /* Darker blue */
-            --user-bubble-text: #e0e7ff; /* Lighter blue */
-            --ai-bubble-bg: #2d3748; /* Darker gray */
-            --ai-bubble-text: #f9fafb; /* Lighter gray */
-            --sidebar-bg: #13131a; /* Dark background */
-            --sidebar-border: #2d3748; /* Darker border */
-            --sidebar-item-hover: #1f2937; /* Darker hover */
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #13131a;
+            --text-primary: #e5e7eb;
+            --text-secondary: #a1a1aa;
+            --border-color: #2d3748;
+            --card-bg: #13131a;
+            --card-border: #2d3748;
+            --header-bg: #1f2937;
+            --accent-primary: #818cf8;
+            --accent-primary-hover: #6366f1;
+            --accent-secondary: #67e8f9;
+            --accent-error: #f87171;
+            --accent-success: #4ade80;
+            --user-bubble-bg: #1a237e;
+            --user-bubble-text: #e0e7ff;
+            --ai-bubble-bg: #2d3748;
+            --ai-bubble-text: #f9fafb;
+            --sidebar-bg: #13131a;
+            --sidebar-border: #2d3748;
+            --sidebar-item-hover: #1f2937;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(19, 19, 26, 0.9); /* Slightly transparent */
+
             background-image: radial-gradient(at 0% 0%, hsl(240, 60%, 8%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(260, 50%, 8%) 0%, transparent 50%);
             background-size: cover;
@@ -127,6 +131,8 @@
             --sidebar-border: #30363D;
             --sidebar-item-hover: #1F2633;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(22, 27, 34, 0.9);
+
             background-image: radial-gradient(at 0% 0%, hsl(220, 40%, 10%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(260, 40%, 10%) 0%, transparent 50%),
                               url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="f1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="0.3" /></filter></defs><rect width="100" height="100" fill="%230D1117" /><g filter="url(%23f1)" opacity="0.6"><circle cx="10" cy="15" r="0.2" fill="%23c9d1d9" /><circle cx="30" cy="5" r="0.3" fill="%2358A6FF" /><circle cx="50" cy="20" r="0.25" fill="%23c9d1d9" /><circle cx="70" cy="10" r="0.35" fill="%2358A6FF" /><circle cx="90" cy="25" r="0.3" fill="%23c9d1d9" /><circle cx="20" cy="40" r="0.3" fill="%2358A6FF" /><circle cx="45" cy="35" r="0.2" fill="%23c9d1d9" /><circle cx="65" cy="50" r="0.35" fill="%2358A6FF" /><circle cx="85" cy="40" r="0.25" fill="%23c9d1d9" /><circle cx="5" cy="60" r="0.35" fill="%2358A6FF" /><circle cx="25" cy="70" r="0.25" fill="%23c9d1d9" /><circle cx="40" cy="85" r="0.3" fill="%2358A6FF" /><circle cx="60" cy="75" r="0.2" fill="%23c9d1d9" /><circle cx="80" cy="90" r="0.35" fill="%2358A6FF" /><circle cx="95" cy="65" r="0.3" fill="%23c9d1d9" /></g></svg>');
@@ -158,6 +164,8 @@
             --sidebar-border: #E2E8F0;
             --sidebar-item-hover: #F0F4F8;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(200, 50%, 98%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(240, 50%, 95%) 0%, transparent 50%);
             background-size: cover;
@@ -166,27 +174,29 @@
 
         /* Verdant Calm Theme: Dark Mode (Renamed from Forest Whisper) */
         body[data-theme="verdant-calm-dark"] {
-            --bg-primary: #1a2a22; /* Deep forest green */
-            --bg-secondary: #21362d; /* Slightly lighter green */
-            --text-primary: #e0f2e8; /* Pale mint */
-            --text-secondary: #99bbaa; /* Muted green-gray */
-            --border-color: #3f544c; /* Darker green border */
-            --card-bg: #294237; /* Darker card background */
+            --bg-primary: #1a2a22;
+            --bg-secondary: #21362d;
+            --text-primary: #e0f2e8;
+            --text-secondary: #99bbaa;
+            --border-color: #3f544c;
+            --card-bg: #294237;
             --card-border: #4a6356;
             --header-bg: #2c493c;
-            --accent-primary: #3cb878; /* Emerald green */
+            --accent-primary: #3cb878;
             --accent-primary-hover: #2fa163;
             --accent-secondary: #60c58e;
             --accent-error: #f87171;
             --accent-success: #4ade80;
-            --user-bubble-bg: #1e8449; /* Medium green */
+            --user-bubble-bg: #1e8449;
             --user-bubble-text: #e0f2e8;
-            --ai-bubble-bg: #34495e; /* Darker blue-gray for AI */
+            --ai-bubble-bg: #34495e;
             --ai-bubble-text: #e0f2e8;
             --sidebar-bg: #21362d;
             --sidebar-border: #3f544c;
             --sidebar-item-hover: #2c493c;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(33, 54, 45, 0.9);
+
             background-image: radial-gradient(at 0% 0%, hsl(150, 20%, 15%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(120, 20%, 12%) 0%, transparent 50%),
                               linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
@@ -198,27 +208,29 @@
 
         /* Verdant Calm Theme: Light Mode */
         body[data-theme="verdant-calm-light"] {
-            --bg-primary: #edf9f5; /* Very light green */
-            --bg-secondary: #ffffff; /* White */
-            --text-primary: #2d3f35; /* Dark forest green text */
-            --text-secondary: #5e7d6b; /* Muted green-gray */
+            --bg-primary: #edf9f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #2d3f35;
+            --text-secondary: #5e7d6b;
             --border-color: #dbeae5;
             --card-bg: #ffffff;
             --card-border: #dbeae5;
             --header-bg: #f5fcf9;
-            --accent-primary: #3cb878; /* Emerald green */
+            --accent-primary: #3cb878;
             --accent-primary-hover: #2fa163;
             --accent-secondary: #60c58e;
             --accent-error: #ef4444;
             --accent-success: #22c55e;
-            --user-bubble-bg: #c8e6c9; /* Light mint green */
-            --user-bubble-text: #1b5e20; /* Dark green */
-            --ai-bubble-bg: #e8f5e9; /* Even lighter green */
-            --ai-bubble-text: #388e3c; /* Medium green */
+            --user-bubble-bg: #c8e6c9;
+            --user-bubble-text: #1b5e20;
+            --ai-bubble-bg: #e8f5e9;
+            --ai-bubble-text: #388e3c;
             --sidebar-bg: #ffffff;
             --sidebar-border: #dbeae5;
             --sidebar-item-hover: #edf9f5;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(140, 20%, 98%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(100, 15%, 95%) 0%, transparent 50%);
             background-size: cover;
@@ -227,27 +239,29 @@
 
         /* Cybernetic Pulse Theme: Dark Mode */
         body[data-theme="cybernetic-pulse-dark"] {
-            --bg-primary: #0a0e1a; /* Very dark blue-grey */
-            --bg-secondary: #161c28; /* Dark blue-grey */
-            --text-primary: #e2e8f0; /* Off-white */
-            --text-secondary: #94a3b8; /* Muted blue-gray */
-            --border-color: #2f3e52; /* Darker blue-grey border */
-            --card-bg: #1f2a3a; /* Dark card background */
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #161c28;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border-color: #2f3e52;
+            --card-bg: #1f2a3a;
             --card-border: #3a4b5e;
             --header-bg: #1f2a3a;
-            --accent-primary: #0ea5e9; /* Sky blue-500 */
-            --accent-primary-hover: #0284c7; /* Sky blue-600 */
-            --accent-secondary: #38bdf8; /* Sky blue-400 */
+            --accent-primary: #0ea5e9;
+            --accent-primary-hover: #0284c7;
+            --accent-secondary: #38bdf8;
             --accent-error: #f87171;
             --accent-success: #4ade80;
-            --user-bubble-bg: #0c4a6e; /* Darker blue */
-            --user-bubble-text: #e0f2fe; /* Light blue */
-            --ai-bubble-bg: #2d3748; /* Dark gray */
-            --ai-bubble-text: #f0f8ff; /* Lighter white */
+            --user-bubble-bg: #0c4a6e;
+            --user-bubble-text: #e0f2fe;
+            --ai-bubble-bg: #2d3748;
+            --ai-bubble-text: #f0f8ff;
             --sidebar-bg: #161c28;
             --sidebar-border: #2f3e52;
             --sidebar-item-hover: #1f2a3a;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(22, 28, 40, 0.9);
+
             background-image: radial-gradient(at 0% 0%, hsl(210, 50%, 8%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(230, 40%, 8%) 0%, transparent 50%),
                               linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
@@ -259,27 +273,29 @@
 
         /* Cybernetic Pulse Theme: Light Mode */
         body[data-theme="cybernetic-pulse-light"] {
-            --bg-primary: #f8fafc; /* Very light blue-gray */
-            --bg-secondary: #ffffff; /* White */
-            --text-primary: #1e293b; /* Dark blue-gray */
-            --text-secondary: #475569; /* Medium blue-gray */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
             --border-color: #e0e7f2;
             --card-bg: #ffffff;
             --card-border: #e0e7f2;
             --header-bg: #f1f5f9;
-            --accent-primary: #0ea5e9; /* Sky blue-500 */
+            --accent-primary: #0ea5e9;
             --accent-primary-hover: #0284c7;
             --accent-secondary: #38bdf8;
             --accent-error: #ef4444;
             --accent-success: #22c55e;
-            --user-bubble-bg: #bfdbfe; /* Light blue */
-            --user-bubble-text: #1e3a8a; /* Dark blue */
-            --ai-bubble-bg: #e0f2fe; /* Very light blue */
-            --ai-bubble-text: #0284c7; /* Darker sky blue */
+            --user-bubble-bg: #bfdbfe;
+            --user-bubble-text: #1e3a8a;
+            --ai-bubble-bg: #e0f2fe;
+            --ai-bubble-text: #0284c7;
             --sidebar-bg: #ffffff;
             --sidebar-border: #e0e7f2;
             --sidebar-item-hover: #f1f5f9;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(200, 30%, 98%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(220, 20%, 95%) 0%, transparent 50%);
             background-size: cover;
@@ -309,6 +325,8 @@
             --sidebar-border: #38383B;
             --sidebar-item-hover: #242426;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(36, 36, 38, 0.9);
+
             background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 L 0 10" fill="none" stroke="%23303030" stroke-width="0.3" /></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>');
             background-size: cover, auto;
             background-position: center center;
@@ -338,6 +356,8 @@
             --sidebar-border: #DDE2E8;
             --sidebar-item-hover: #E8F0F5;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(210, 30%, 98%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(200, 20%, 95%) 0%, transparent 50%);
             background-size: cover;
@@ -346,15 +366,15 @@
 
         /* Rustic Ember Theme: Dark Mode */
         body[data-theme="rustic-ember-dark"] {
-            --bg-primary: #3E2723; /* Dark earthy brown */
+            --bg-primary: #3E2723;
             --bg-secondary: #4E342E;
-            --text-primary: #FBE9E7; /* Light rustic white */
-            --text-secondary: #BCAAA4; /* Muted brown-gray */
+            --text-primary: #FBE9E7;
+            --text-secondary: #BCAAA4;
             --border-color: #5D4037;
             --card-bg: #4E342E;
             --card-border: #5D4037;
             --header-bg: #3E2723;
-            --accent-primary: #D84315; /* Deep Orange */
+            --accent-primary: #D84315;
             --accent-primary-hover: #BF360C;
             --accent-secondary: #FF8A65;
             --accent-error: #F87171;
@@ -367,6 +387,8 @@
             --sidebar-border: #5D4037;
             --sidebar-item-hover: #4E342E;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(78, 52, 46, 0.9);
+
             background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="woodgrain" x="-50%" y="-50%" width="200%" height="200%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="4" stitchTiles="stitch" result="texture"/><feColorMatrix type="saturate" values="0.2"/><feComponentTransfer><feFuncR type="linear" slope="0.5" intercept="0.2"/><feFuncG type="linear" slope="0.5" intercept="0.1"/><feFuncB type="linear" slope="0.5" intercept="0"/></feComponentTransfer></filter></defs><rect width="100" height="100" fill="%233E2723" filter="url(%23woodgrain)"/></svg>');
             background-size: cover, cover;
             background-position: center center;
@@ -375,7 +397,7 @@
 
         /* Rustic Ember Theme: Light Mode */
         body[data-theme="rustic-ember-light"] {
-            --bg-primary: #F5E8DC; /* Light earthy beige */
+            --bg-primary: #F5E8DC;
             --bg-secondary: #FFFFFF;
             --text-primary: #4E342E;
             --text-secondary: #8D6E63;
@@ -383,7 +405,7 @@
             --card-bg: #FFFFFF;
             --card-border: #E6DCCD;
             --header-bg: #F8EFE5;
-            --accent-primary: #E65100; /* Orange */
+            --accent-primary: #E65100;
             --accent-primary-hover: #D84315;
             --accent-secondary: #FFB74D;
             --accent-error: #EF4444;
@@ -396,6 +418,8 @@
             --sidebar-border: #E6DCCD;
             --sidebar-item-hover: #F8EFE5;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(30, 40%, 98%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(15, 30%, 95%) 0%, transparent 50%);
             background-size: cover;
@@ -404,20 +428,20 @@
 
         /* Neon Mirage Theme: Dark Mode */
         body[data-theme="neon-mirage-dark"] {
-            --bg-primary: #05001C; /* Very dark blue-purple */
+            --bg-primary: #05001C;
             --bg-secondary: #120033;
-            --text-primary: #E0FFFF; /* Light cyan */
-            --text-secondary: #8A2BE2; /* Blue Violet */
+            --text-primary: #E0FFFF;
+            --text-secondary: #8A2BE2;
             --border-color: #2F004F;
             --card-bg: #1A0040;
             --card-border: #2F004F;
             --header-bg: #120033;
-            --accent-primary: #FF1493; /* Deep Pink Neon */
+            --accent-primary: #FF1493;
             --accent-primary-hover: #C7007C;
-            --accent-secondary: #00BFFF; /* Deep Sky Blue Neon */
+            --accent-secondary: #00BFFF;
             --accent-error: #F87171;
             --accent-success: #4ADE80;
-            --user-bubble-bg: #4B0082; /* Indigo */
+            --user-bubble-bg: #4B0082;
             --user-bubble-text: #E0FFFF;
             --ai-bubble-bg: #2E0854;
             --ai-bubble-text: #E0FFFF;
@@ -425,10 +449,12 @@
             --sidebar-border: #2F004F;
             --sidebar-item-hover: #1A0040;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(26, 0, 64, 0.9);
+
             background-image: radial-gradient(at 0% 0%, hsl(300, 80%, 15%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(240, 80%, 15%) 0%, transparent 50%),
-                              linear-gradient(to top right, rgba(255, 20, 147, 0.1), transparent), /* Pink glow */
-                              linear-gradient(to bottom left, rgba(0, 191, 255, 0.1), transparent); /* Blue glow */
+                              linear-gradient(to top right, rgba(255, 20, 147, 0.1), transparent),
+                              linear-gradient(to bottom left, rgba(0, 191, 255, 0.1), transparent);
             background-size: cover, cover, cover, cover;
             background-position: center center;
             background-attachment: fixed;
@@ -444,9 +470,9 @@
             --card-bg: #FFFFFF;
             --card-border: #EBD9FC;
             --header-bg: #F2E0FF;
-            --accent-primary: #FF69B4; /* Hot Pink */
+            --accent-primary: #FF69B4;
             --accent-primary-hover: #E0509B;
-            --accent-secondary: #87CEEB; /* Sky Blue */
+            --accent-secondary: #87CEEB;
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #FCE4EC;
@@ -457,6 +483,8 @@
             --sidebar-border: #EBD9FC;
             --sidebar-item-hover: #F2E0FF;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(330, 80%, 98%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(270, 80%, 95%) 0%, transparent 50%);
             background-size: cover;
@@ -465,15 +493,15 @@
 
         /* Ivory Bloom Theme: Dark Mode */
         body[data-theme="ivory-bloom-dark"] {
-            --bg-primary: #2B2D42; /* Dark desaturated blue */
+            --bg-primary: #2B2D42;
             --bg-secondary: #4A4E69;
-            --text-primary: #DCDCDC; /* Off-white */
+            --text-primary: #DCDCDC;
             --text-secondary: #A0A4B8;
             --border-color: #5D607E;
             --card-bg: #4A4E69;
             --card-border: #5D607E;
             --header-bg: #373A50;
-            --accent-primary: #9B59B6; /* Amethyst purple */
+            --accent-primary: #9B59B6;
             --accent-primary-hover: #8E44AD;
             --accent-secondary: #66CCFF;
             --accent-error: #F87171;
@@ -486,6 +514,8 @@
             --sidebar-border: #5D607E;
             --sidebar-item-hover: #373A50;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(74, 78, 105, 0.9);
+
             background-image: radial-gradient(at 0% 0%, hsl(240, 20%, 20%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(200, 20%, 18%) 0%, transparent 50%),
                               linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
@@ -497,7 +527,7 @@
 
         /* Ivory Bloom Theme: Light Mode */
         body[data-theme="ivory-bloom-light"] {
-            --bg-primary: #FDFDFD; /* Near white ivory */
+            --bg-primary: #FDFDFD;
             --bg-secondary: #FFFFFF;
             --text-primary: #333333;
             --text-secondary: #777777;
@@ -505,7 +535,7 @@
             --card-bg: #FFFFFF;
             --card-border: #EAEAEA;
             --header-bg: #F5F5F5;
-            --accent-primary: #8E44AD; /* Amethyst purple */
+            --accent-primary: #8E44AD;
             --accent-primary-hover: #7F3C9E;
             --accent-secondary: #BA68C8;
             --accent-error: #EF4444;
@@ -518,6 +548,8 @@
             --sidebar-border: #EAEAEA;
             --sidebar-item-hover: #F5F5F5;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(300, 10%, 99%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(280, 15%, 97%) 0%, transparent 50%),
                               url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="flower" width="15" height="15" patternUnits="userSpaceOnUse"><path d="M7.5 0 L9 4 L13 6 L9 8 L7.5 12 L6 8 L2 6 L6 4 Z" fill="%23EAEAEA" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23flower)"/></svg>');
@@ -528,7 +560,7 @@
 
         /* Obsidian Night Theme: Dark Mode */
         body[data-theme="obsidian-night-dark"] {
-            --bg-primary: #121212; /* Deepest black */
+            --bg-primary: #121212;
             --bg-secondary: #1E1E1E;
             --text-primary: #F0F0F0;
             --text-secondary: #A0A0A0;
@@ -536,9 +568,9 @@
             --card-bg: #1E1E1E;
             --card-border: #333333;
             --header-bg: #121212;
-            --accent-primary: #BB86FC; /* Light purple for accent */
+            --accent-primary: #BB86FC;
             --accent-primary-hover: #9E65E2;
-            --accent-secondary: #03DAC6; /* Teal for secondary */
+            --accent-secondary: #03DAC6;
             --accent-error: #CF6679;
             --accent-success: #03DAC6;
             --user-bubble-bg: #3700B3;
@@ -549,6 +581,8 @@
             --sidebar-border: #333333;
             --sidebar-item-hover: #1E1E1E;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(30, 30, 30, 0.9);
+
             background-image: radial-gradient(at 0% 0%, hsl(250, 10%, 10%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(200, 10%, 10%) 0%, transparent 50%),
                               linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
@@ -560,7 +594,7 @@
 
         /* Obsidian Night Theme: Light Mode */
         body[data-theme="obsidian-night-light"] {
-            --bg-primary: #E0E0E0; /* Light gray */
+            --bg-primary: #E0E0E0;
             --bg-secondary: #FFFFFF;
             --text-primary: #2C2C2C;
             --text-secondary: #6B6B6B;
@@ -568,9 +602,9 @@
             --card-bg: #FFFFFF;
             --card-border: #C0C0C0;
             --header-bg: #D0D0D0;
-            --accent-primary: #6200EE; /* Deep purple */
+            --accent-primary: #6200EE;
             --accent-primary-hover: #5B00D9;
-            --accent-secondary: #018786; /* Dark teal */
+            --accent-secondary: #018786;
             --accent-error: #B00020;
             --accent-success: #018786;
             --user-bubble-bg: #BBDEFB;
@@ -581,6 +615,8 @@
             --sidebar-border: #C0C0C0;
             --sidebar-item-hover: #D0D0D0;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(240, 10%, 95%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(200, 10%, 92%) 0%, transparent 50%);
             background-size: cover;
@@ -589,17 +625,17 @@
 
         /* Solar Dawn Theme: Dark Mode */
         body[data-theme="solar-dawn-dark"] {
-            --bg-primary: #1A0E2A; /* Deep indigo */
+            --bg-primary: #1A0E2A;
             --bg-secondary: #2C1840;
-            --text-primary: #FCE8D8; /* Pale orange-white */
-            --text-secondary: #D8BFD8; /* Muted lavender */
+            --text-primary: #FCE8D8;
+            --text-secondary: #D8BFD8;
             --border-color: #40265B;
             --card-bg: #2C1840;
             --card-border: #40265B;
             --header-bg: #1A0E2A;
-            --accent-primary: #FF5722; /* Deep Orange */
+            --accent-primary: #FF5722;
             --accent-primary-hover: #E64A19;
-            --accent-secondary: #FFCC80; /* Light Orange */
+            --accent-secondary: #FFCC80;
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #7C4F9B;
@@ -610,6 +646,8 @@
             --sidebar-border: #40265B;
             --sidebar-item-hover: #2C1840;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(44, 24, 64, 0.9);
+
             background-image: linear-gradient(to top right, #3C096C, #6D2B7E, #FF5722);
             background-size: cover;
             background-position: center center;
@@ -618,15 +656,15 @@
 
         /* Solar Dawn Theme: Light Mode */
         body[data-theme="solar-dawn-light"] {
-            --bg-primary: #FFFBEA; /* Very light yellow */
+            --bg-primary: #FFFBEA;
             --bg-secondary: #FFFFFF;
-            --text-primary: #3E2723; /* Dark brown */
+            --text-primary: #3E2723;
             --text-secondary: #8D6E63;
             --border-color: #FFE0B2;
             --card-bg: #FFFFFF;
             --card-border: #FFE0B2;
             --header-bg: #FFF3E0;
-            --accent-primary: #FF8F00; /* Amber */
+            --accent-primary: #FF8F00;
             --accent-primary-hover: #FF6F00;
             --accent-secondary: #FFD54F;
             --accent-error: #EF4444;
@@ -639,6 +677,8 @@
             --sidebar-border: #FFE0B2;
             --sidebar-item-hover: #FFF3E0;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: linear-gradient(to top left, #FFD54F, #FFECB3, #FFFDE7);
             background-size: cover;
             background-position: center center;
@@ -647,15 +687,15 @@
 
         /* Aurora Drift Theme: Dark Mode */
         body[data-theme="aurora-drift-dark"] {
-            --bg-primary: #0A192F; /* Dark blue */
+            --bg-primary: #0A192F;
             --bg-secondary: #172A45;
-            --text-primary: #E6F0FF; /* Light blue-white */
+            --text-primary: #E6F0FF;
             --text-secondary: #A0B3D6;
             --border-color: #2F476D;
             --card-bg: #172A45;
             --card-border: #2F476D;
             --header-bg: #0A192F;
-            --accent-primary: #66CCCC; /* Cyan */
+            --accent-primary: #66CCCC;
             --accent-primary-hover: #55B3B3;
             --accent-secondary: #99CCFF;
             --accent-error: #F87171;
@@ -668,6 +708,8 @@
             --sidebar-border: #2F476D;
             --sidebar-item-hover: #172A45;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(23, 42, 69, 0.9);
+
             background-image: linear-gradient(to top right, #0A192F, #172A45, #2F476D, #336699);
             background-size: cover;
             background-position: center center;
@@ -677,7 +719,7 @@
 
         /* Aurora Drift Theme: Light Mode */
         body[data-theme="aurora-drift-light"] {
-            --bg-primary: #E0F2F7; /* Pale aqua */
+            --bg-primary: #E0F2F7;
             --bg-secondary: #FFFFFF;
             --text-primary: #2B4550;
             --text-secondary: #5E7A8A;
@@ -685,7 +727,7 @@
             --card-bg: #FFFFFF;
             --card-border: #B2EBF2;
             --header-bg: #CCEEF0;
-            --accent-primary: #00BCD4; /* Cyan */
+            --accent-primary: #00BCD4;
             --accent-primary-hover: #00ACC1;
             --accent-secondary: #4DD0E1;
             --accent-error: #EF4444;
@@ -698,6 +740,8 @@
             --sidebar-border: #B2EBF2;
             --sidebar-item-hover: #CCEEF0;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: linear-gradient(to bottom left, #E0F7FA, #B2EBF2, #80DEEA);
             background-size: cover;
             background-position: center center;
@@ -710,7 +754,7 @@
 
         /* Timeless Echo Theme: Dark Mode */
         body[data-theme="timeless-echo-dark"] {
-            --bg-primary: #2C2C2C; /* Dark charcoal */
+            --bg-primary: #2C2C2C;
             --bg-secondary: #3D3D3D;
             --text-primary: #E0E0E0;
             --text-secondary: #B0B0B0;
@@ -718,7 +762,7 @@
             --card-bg: #3D3D3D;
             --card-border: #555555;
             --header-bg: #2C2C2C;
-            --accent-primary: #A57C52; /* Aged bronze */
+            --accent-primary: #A57C52;
             --accent-primary-hover: #8B653D;
             --accent-secondary: #C8A87C;
             --accent-error: #F87171;
@@ -731,6 +775,8 @@
             --sidebar-border: #555555;
             --sidebar-item-hover: #3D3D3D;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(61, 61, 61, 0.9);
+
             background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="f3" x="-50%" y="-50%" width="200%" height="200%"><feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" result="noise" /><feColorMatrix type="saturate" values="0.3"/><feComponentTransfer><feFuncR type="linear" slope="0.8" intercept="0.1"/><feFuncG type="linear" slope="0.7" intercept="0.1"/><feFuncB type="linear" slope="0.6" intercept="0.1"/></feComponentTransfer></filter></defs><rect width="100" height="100" fill="%232C2C2C" filter="url(%23f3)" /></svg>');
             background-size: cover, cover;
             background-position: center center;
@@ -739,7 +785,7 @@
 
         /* Timeless Echo Theme: Light Mode */
         body[data-theme="timeless-echo-light"] {
-            --bg-primary: #FDF7E5; /* Creamy beige */
+            --bg-primary: #FDF7E5;
             --bg-secondary: #FFFFFF;
             --text-primary: #4A4A4A;
             --text-secondary: #808080;
@@ -747,7 +793,7 @@
             --card-bg: #FFFFFF;
             --card-border: #E6E0D3;
             --header-bg: #F5EFEB;
-            --accent-primary: #8D6E63; /* Muted brown */
+            --accent-primary: #8D6E63;
             --accent-primary-hover: #795548;
             --accent-secondary: #BCAAA4;
             --accent-error: #EF4444;
@@ -760,6 +806,8 @@
             --sidebar-border: #E6E0D3;
             --sidebar-item-hover: #F5EFEB;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(40, 30%, 98%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(20, 20%, 95%) 0%, transparent 50%),
                               url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="vintage-pattern" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 0 0 L 10 10 M 10 0 L 0 10" stroke="%23E6E0D3" stroke-width="0.5" opacity="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23vintage-pattern)"/></svg>');
@@ -770,15 +818,15 @@
 
         /* Mystic Void Theme: Dark Mode (Bonus Theme) */
         body[data-theme="mystic-void-dark"] {
-            --bg-primary: #110B1D; /* Very dark deep purple */
+            --bg-primary: #110B1D;
             --bg-secondary: #1F1731;
-            --text-primary: #ECE4F7; /* Light lavender-grey */
+            --text-primary: #ECE4F7;
             --text-secondary: #B29BCE;
             --border-color: #372A4F;
             --card-bg: #1F1731;
             --card-border: #372A4F;
             --header-bg: #110B1D;
-            --accent-primary: #9400D3; /* Dark Orchid */
+            --accent-primary: #9400D3;
             --accent-primary-hover: #7B00B0;
             --accent-secondary: #8A2BE2;
             --accent-error: #F87171;
@@ -791,6 +839,8 @@
             --sidebar-border: #372A4F;
             --sidebar-item-hover: #1F1731;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(31, 23, 49, 0.9);
+
             background-image: radial-gradient(at 0% 0%, hsl(270, 60%, 10%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(300, 50%, 10%) 0%, transparent 50%),
                               linear-gradient(to top right, rgba(138, 43, 226, 0.1), transparent),
@@ -802,7 +852,7 @@
 
         /* Mystic Void Theme: Light Mode */
         body[data-theme="mystic-void-light"] {
-            --bg-primary: #F7EDFF; /* Lightest lavender */
+            --bg-primary: #F7EDFF;
             --bg-secondary: #FFFFFF;
             --text-primary: #330066;
             --text-secondary: #663399;
@@ -810,7 +860,7 @@
             --card-bg: #FFFFFF;
             --card-border: #EBD9FC;
             --header-bg: #F2E0FF;
-            --accent-primary: #8A2BE2; /* Blue Violet */
+            --accent-primary: #8A2BE2;
             --accent-primary-hover: #7B1FB2;
             --accent-secondary: #9370DB;
             --accent-error: #EF4444;
@@ -823,6 +873,8 @@
             --sidebar-border: #EBD9FC;
             --sidebar-item-hover: #F2E0FF;
             --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
+
             background-image: radial-gradient(at 0% 0%, hsl(270, 30%, 98%) 0%, transparent 50%),
                               radial-gradient(at 100% 100%, hsl(300, 20%, 95%) 0%, transparent 50%);
             background-size: cover;
@@ -851,8 +903,8 @@
         .bg-gray-100 { background-color: var(--bg-primary); }
         .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
         body[data-theme$="-dark"] .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45); }
-        #error-message { background-color: #fee2e2; color: #b91c1c; } /* Light red for error, always visible */
-        body[data-theme$="-dark"] #error-message { background-color: #fca5a5; color: #7f1d1d; }
+        #error-message { background-color: var(--accent-error); color: white; } /* Light red for error, always visible */
+        body[data-theme$="-dark"] #error-message { background-color: var(--accent-error); color: white; }
 
         /* Custom styles for glowing effects on buttons */
         .glow-button {
@@ -860,6 +912,7 @@
             z-index: 10;
             transition: all 0.4s ease;
             box-shadow: 0 0 10px var(--accent-primary);
+            background-color: var(--accent-primary); /* Ensure button uses accent primary directly */
         }
         .glow-button:hover {
             box-shadow: 0 0 15px var(--accent-primary), 0 0 25px var(--accent-primary), 0 0 35px var(--accent-primary);
@@ -880,11 +933,10 @@
 
         /* Custom styles for dark mode toggle switch */
         .switch { margin-left: 0.5rem; }
-        .slider { background-color: #d1d5db; transition: .4s; }
-        body[data-theme$="-dark"] .slider { background-color: #4b5563; }
-        .slider:before { background-color: white; transition: .4s; }
+        .slider { background-color: var(--text-secondary); transition: .4s; } /* Use theme secondary text for inactive */
         input:checked + .slider { background-color: var(--accent-primary); }
         input:checked + .slider:before { transform: translateX(24px); }
+        .slider:before { background-color: var(--bg-secondary); transition: .4s; } /* Use a lighter background for the thumb */
 
         /* Custom scrollbar for a sleek look (hidden) */
         #chat-history::-webkit-scrollbar, 
@@ -919,23 +971,21 @@
 
         /* Main Chat Window Styling */
         #main-chat-window {
-            flex: 1; /* Allow chat window to take remaining space */
-            max-width: 100%; /* Default for mobile */
-            min-height: 100vh; /* Full viewport height */
+            flex: 1;
+            max-width: 100%;
+            min-height: 100vh;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 0; /* No border radius on edges of screen */
+            background-color: var(--main-chat-window-bg); /* Use theme variable for transparency */
+            border-radius: 0;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border-left: 1px solid rgba(229, 231, 235, 0.7);
+            border-left: 1px solid var(--border-color); /* Use theme border color */
             transition: all 0.3s ease-in-out;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
         body[data-theme$="-dark"] #main-chat-window {
-            background-color: rgba(19, 19, 26, 0.9);
-            border-color: rgba(45, 55, 72, 0.7);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
         }
 
@@ -950,7 +1000,7 @@
             padding: 1rem;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             position: relative;
-            z-index: 30; /* Ensure sidebar is above main content for mobile overlay */
+            z-index: 30;
             height: 100vh;
             overflow-y: auto;
             transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
@@ -963,24 +1013,23 @@
         }
         @media (min-width: 768px) { /* md breakpoint */
             body {
-                /* On desktop, main body is flex, sidebar and chat window are its children */
-                justify-content: flex-start; /* Align sidebar to start */
-                align-items: stretch; /* Stretch children to fill height */
+                justify-content: flex-start;
+                align-items: stretch;
             }
             #sidebar {
-                position: relative; /* Fixed position on desktop */
+                position: relative;
                 transform: translateX(0%);
-                border-radius: 0; /* No radius if edge-to-edge */
+                border-radius: 0;
             }
             #sidebar.hidden-mobile {
-                transform: translateX(0%); /* Always visible on desktop */
+                transform: translateX(0%);
                 position: relative;
             }
             #main-chat-window {
-                max-width: none; /* No max width, fill all available space */
-                border-radius: 0; /* No radius if edge-to-edge */
+                max-width: none;
+                border-radius: 0;
             }
-            #hamburger-menu-button { display: none !important; } /* Hide hamburger on desktop */
+            #hamburger-menu-button { display: none !important; }
         }
         
         /* New chat message styles */
@@ -1048,7 +1097,7 @@
 
         /* Code block specific styling */
         .code-block-container {
-            position: relative; background-color: #27272a; color: #f8f8f2;
+            position: relative; background-color: #27272a; color: #f8f8f2; /* Hardcoded for contrast on any theme, can be themed if desired */
             border-radius: 0.75rem; margin-top: 1rem; margin-bottom: 1rem;
             overflow: hidden; border: 1px solid #3f3f46; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
@@ -1059,27 +1108,25 @@
         }
         .code-block-header {
             display: flex; justify-content: space-between; align-items: center;
-            background-color: #374151; color: #d1d5db; padding: 0.5rem 1rem;
-            border-bottom: 1px solid #4b5563; font-size: 0.85em;
+            background-color: #374151; color: #d1d5db; padding: 0.5rem 1rem; /* Hardcoded */
+            border-bottom: 1px solid #4b5563; font-size: 0.85em; /* Hardcoded */
             border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem;
         }
         .code-block-copy-button {
-            background-color: transparent; border: none; color: #d1d5db;
+            background-color: transparent; border: none; color: #d1d5db; /* Hardcoded */
             cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 0.375rem;
             transition: background-color 0.2s ease, color 0.2s ease;
             display: flex; align-items: center; gap: 0.25rem; font-size: 0.85em;
         }
-        .code-block-copy-button:hover { background-color: #4b5563; color: white; }
+        .code-block-copy-button:hover { background-color: #4b5563; color: white; } /* Hardcoded */
         .code-block-copy-button:active { transform: scale(0.95); }
 
         /* Smallest font size for inline code blocks if any */
         .chat-message.ai .message-content code:not(pre > code) {
-            background-color: rgba(100, 116, 139, 0.2); border-radius: 0.25rem;
+            background-color: color-mix(in srgb, var(--accent-primary) 15%, transparent); /* Themed */
+            border-radius: 0.25rem;
             padding: 0.2em 0.4em; font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 0.9em; color: #5b21b6;
-        }
-        body[data-theme$="-dark"] .chat-message.ai .message-content code:not(pre > code) {
-            background-color: rgba(100, 116, 139, 0.4); color: #a78bfa;
+            font-size: 0.9em; color: var(--accent-primary); /* Themed */
         }
 
         /* Ensure links are distinguishable */
@@ -1091,22 +1138,20 @@
         /* Styles for message action buttons (copy/dictate) */
         .message-actions {
             position: absolute; bottom: 0.5rem; right: 1rem; display: flex; gap: 0.5rem;
-            padding: 0.25rem 0.5rem; background-color: rgba(255, 255, 255, 0.6);
+            padding: 0.25rem 0.5rem; background-color: var(--header-bg); /* Use a themed background for the actions panel */
             border-radius: 0.75rem; backdrop-filter: blur(5px); transition: opacity 0.3s ease;
             opacity: 0; z-index: 10;
+            border: 1px solid var(--border-color);
         }
         .chat-message:hover .message-actions { opacity: 1; }
-        body[data-theme$="-dark"] .message-actions { background-color: rgba(0, 0, 0, 0.4); }
         .message-actions button {
             background: none; border: none; cursor: pointer; padding: 0.25rem;
             border-radius: 0.375rem; transition: background-color 0.2s ease, color 0.2s ease;
             display: flex; align-items: center; justify-content: center;
         }
-        .message-actions button .lucide { color: #6b7280; width: 1rem; height: 1rem; }
-        body[data-theme$="-dark"] .message-actions button .lucide { color: #9ca3af; }
+        .message-actions button .lucide { color: var(--text-secondary); width: 1rem; height: 1rem; }
         .message-actions button:hover .lucide { color: var(--text-primary); }
-        .message-actions button:hover { background-color: rgba(0, 0, 0, 0.1); }
-        body[data-theme$="-dark"] .message-actions button:hover { background-color: rgba(255,255,255,0.1); }
+        .message-actions button:hover { background-color: var(--sidebar-item-hover); } /* Themed hover */
         .chat-message.user .message-actions { right: 1rem; left: auto; }
         .chat-message.ai .message-actions { left: 1rem; right: auto; }
 
@@ -1116,8 +1161,8 @@
             animation: pulse-red 1s infinite cubic-bezier(0.4, 0, 0.6, 1);
         }
         @keyframes pulse-red {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-error) 70%, transparent); }
+            50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent-error) 0%, transparent); }
         }
         
         /* Drag and Drop visual feedback for chat input area */
@@ -1125,11 +1170,7 @@
             border: 2px dashed var(--accent-primary);
             box-shadow: 0 0 20px var(--accent-primary), 0 0 30px var(--accent-primary) inset;
         }
-        body[data-theme$="-dark"] #chat-input-area-container.drag-over-active {
-            border: 2px dashed var(--accent-primary);
-            box-shadow: 0 0 20px var(--accent-primary), 0 0 30px var(--accent-primary) inset;
-        }
-
+        
         /* Sidebar chat list item styling */
         .sidebar-chat-item {
             display: flex;
@@ -1141,7 +1182,7 @@
             transition: background-color 0.2s ease, color 0.2s ease;
             color: var(--text-secondary);
             margin-bottom: 0.5rem;
-            text-align: left; /* Ensure text alignment for truncation */
+            text-align: left;
         }
         .sidebar-chat-item:hover {
             background-color: var(--sidebar-item-hover);
@@ -1153,7 +1194,7 @@
             font-weight: 600;
         }
         .sidebar-chat-item.active .lucide {
-            color: white; /* Active icon color */
+            color: white;
         }
         .sidebar-chat-item.active:hover {
             background-color: var(--accent-primary-hover);
@@ -1162,20 +1203,20 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            flex-grow: 1; /* Allow content to grow and push buttons to end */
-            min-width: 0; /* Allow text to truncate */
+            flex-grow: 1;
+            min-width: 0;
         }
         .sidebar-chat-item-title {
             flex-grow: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            min-width: 0; /* Needed for text-overflow to work in flex container */
+            min-width: 0;
         }
         .sidebar-chat-item-actions {
             display: flex;
             gap: 0.25rem;
-            flex-shrink: 0; /* Prevent actions from shrinking */
+            flex-shrink: 0;
             opacity: 0;
             transition: opacity 0.2s ease;
         }
@@ -1193,21 +1234,18 @@
         .sidebar-chat-item-actions button .lucide {
             width: 1rem;
             height: 1rem;
-            color: var(--text-secondary); /* Default icon color */
+            color: var(--text-secondary);
         }
         .sidebar-chat-item-actions button:hover {
-            background-color: rgba(0,0,0,0.1);
-        }
-        body[data-theme$="-dark"] .sidebar-chat-item-actions button:hover {
-            background-color: rgba(255,255,255,0.1);
+            background-color: var(--sidebar-item-hover);
         }
         .sidebar-chat-item.active .sidebar-chat-item-actions button .lucide {
-            color: white; /* Active icon color */
+            color: white;
         }
 
         /* Responsive menu button for sidebar */
         #hamburger-menu-button {
-            display: flex; /* Show on mobile */
+            display: flex;
             margin-right: 1rem;
             align-items: center;
             justify-content: center;
@@ -1232,7 +1270,7 @@
             right: 0;
             bottom: 0;
             background-color: rgba(0,0,0,0.5);
-            z-index: 29; /* Below sidebar, above chat window */
+            z-index: 29;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
@@ -1250,32 +1288,32 @@
 
     <!-- Sidebar -->
     <aside id="sidebar" class="hidden-mobile">
-        <div class="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700 mb-4">
-            <h2 class="text-xl font-bold flex items-center gap-2">
-                <span data-lucide="sparkles" class="w-6 h-6 text-indigo-500"></span> Small AI v2
+        <div class="flex items-center justify-between pb-4 border-b border-[var(--sidebar-border)] mb-4">
+            <h2 class="text-xl font-bold flex items-center gap-2" style="color: var(--text-primary);">
+                <span data-lucide="sparkles" class="w-6 h-6" style="color: var(--accent-primary);"></span> Small AI v2
             </h2>
-            <button id="close-sidebar-btn" aria-label="Close Sidebar" title="Close Sidebar" class="md:hidden text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+            <button id="close-sidebar-btn" aria-label="Close Sidebar" title="Close Sidebar" class="md:hidden" style="color: var(--text-secondary); background-color: transparent; border: none;">
                 <span data-lucide="x" class="w-6 h-6"></span>
             </button>
         </div>
 
         <!-- New Chat Button -->
-        <button id="new-chat-button" class="w-full flex items-center justify-center p-3 rounded-xl bg-indigo-600 text-white font-semibold shadow-lg hover:bg-indigo-700 transition-colors mb-4 glow-button" style="--accent-primary: #6366f1; --accent-primary-dark: #818cf8;">
+        <button id="new-chat-button" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4 glow-button" style="background-color: var(--accent-primary); color: white;">
             <span data-lucide="plus" class="w-5 h-5 mr-2"></span> New Chat
         </button>
 
         <!-- Previous Chats Section -->
         <div class="flex-1 overflow-y-auto mb-4">
-            <h3 class="text-sm font-semibold uppercase text-gray-500 mb-2">Previous Chats</h3>
+            <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Previous Chats</h3>
             <ul id="sidebar-chat-list" class="space-y-1">
                 <!-- Chat items will be dynamically loaded here -->
             </ul>
         </div>
 
         <!-- Theme Selector (Dropdown for different themes) -->
-        <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-            <h3 class="text-sm font-semibold uppercase text-gray-500 mb-2">Themes</h3>
-            <select id="app-theme-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" aria-label="Select App Theme">
+        <div class="mt-auto pt-4 border-t border-[var(--sidebar-border)]">
+            <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Themes</h3>
+            <select id="app-theme-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select App Theme">
                 <option value="default">Small AI v2 (Default)</option>
                 <option value="celestial-horizon">Celestial Horizon</option>
                 <option value="verdant-calm">Verdant Calm</option>
@@ -1293,9 +1331,9 @@
         </div>
 
         <!-- Version Selector -->
-        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <h3 class="text-sm font-semibold uppercase text-gray-500 mb-2">Version</h3>
-            <select id="version-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" aria-label="Select Chatbot Version">
+        <div class="mt-4 pt-4 border-t border-[var(--sidebar-border)]">
+            <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Version</h3>
+            <select id="version-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select Chatbot Version">
                 <option value="https://mystic-vision-ai-standalone-chatbot.netlify.app/">Main Version</option>
                 <option value="https://mystic-vision-ai-lite.netlify.app/">Lite Version</option>
                 <option value="https://mystic-vision-ai-basic.netlify.app/">Basic Version</option>
@@ -1310,19 +1348,19 @@
     <!-- Main Chat Container -->
     <div id="main-chat-window">
         <!-- Header for the chat -->
-        <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]" style="background-color: var(--header-bg);">
             <div class="flex items-center">
                 <!-- Hamburger menu button for mobile -->
-                <button id="hamburger-menu-button" aria-label="Open Sidebar Menu" title="Open Menu">
+                <button id="hamburger-menu-button" aria-label="Open Sidebar Menu" title="Open Menu" style="background-color: var(--header-bg); border-color: var(--border-color); color: var(--text-primary);">
                     <span data-lucide="menu" class="w-6 h-6"></span>
                 </button>
-                <h1 class="text-xl font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                    <span data-lucide="sparkles" class="w-6 h-6 text-indigo-500"></span> Small AI v2
+                <h1 class="text-xl font-bold flex items-center gap-2" style="color: var(--text-primary);">
+                    <span data-lucide="sparkles" class="w-6 h-6" style="color: var(--accent-primary);"></span> Current Chat
                 </h1>
             </div>
             <!-- Dark Mode Toggle (MOVED TO HEADER) -->
             <div class="flex items-center gap-2">
-                <span class="text-gray-500 text-sm">Dark Mode</span>
+                <span class="text-sm" style="color: var(--text-secondary);">Dark Mode</span>
                 <label class="switch relative inline-block w-14 h-8">
                     <input type="checkbox" id="dark-mode-toggle" class="opacity-0 w-0 h-0">
                     <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full before:absolute before:content-[''] before:h-6 before:w-6 before:left-1 before:bottom-1 before:rounded-full"></span>
@@ -1336,27 +1374,27 @@
         </div>
         
         <!-- Chat input section with attachment, voice and send button -->
-        <div id="chat-input-area-container" class="p-4 border-t border-gray-200 dark:border-gray-700 relative bg-gray-50 dark:bg-gray-800 transition-all duration-300">
+        <div id="chat-input-area-container" class="p-4 border-t border-[var(--border-color)] relative transition-all duration-300" style="background-color: var(--header-bg);">
             <!-- Attachment preview -->
             <div id="chat-attachments-preview-container" class="mb-2 flex flex-wrap items-center gap-2 hidden">
                 <!-- Attachments previews will be dynamically added here -->
             </div>
 
-            <div class="flex gap-2 items-end flex-wrap"> <!-- Added flex-wrap for responsiveness -->
+            <div class="flex gap-2 items-end flex-wrap">
                 <!-- Voice Input Button -->
-                <button id="voice-input-btn" aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-lg hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer transition-all duration-300 flex-shrink-0">
+                <button id="voice-input-btn" aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="mic" class="w-5 h-5"></span>
                 </button>
                 
                 <!-- Attach File Button -->
-                <label for="chat-file-upload" aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-lg hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer transition-all duration-300 flex-shrink-0">
+                <label for="chat-file-upload" aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="paperclip" class="w-5 h-5"></span>
                 </label>
                 <input type="file" id="chat-file-upload" accept="image/*, .txt, .pdf, .csv, .json, .xml, .md" class="hidden" multiple>
 
-                <textarea id="chat-input" class="flex-1 p-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white min-w-0 resize-none max-h-[120px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1"></textarea>
+                <textarea id="chat-input" class="flex-1 p-3 rounded-2xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[120px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);"></textarea>
                 
-                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-600 text-white shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 disabled:bg-indigo-400 disabled:cursor-not-allowed glow-button flex-shrink-0" style="--accent-primary: #6366f1; --accent-primary-dark: #818cf8;">
+                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: white;">
                     <span data-lucide="send" class="w-5 h-5"></span>
                 </button>
             </div>
@@ -1409,7 +1447,7 @@
 
         const errorContainer = document.createElement('div');
         errorContainer.id = 'error-message';
-        errorContainer.classList.add('hidden', 'bg-red-100', 'border', 'border-red-400', 'text-red-700', 'px-6', 'py-4', 'rounded-xl', 'relative', 'shadow-md', 'my-4', 'fixed', 'top-4', 'left-1/2', '-translate-x-1/2', 'z-50', 'w-11/12', 'max-w-md');
+        errorContainer.classList.add('hidden', 'px-6', 'py-4', 'rounded-xl', 'relative', 'shadow-md', 'my-4', 'fixed', 'top-4', 'left-1/2', '-translate-x-1/2', 'z-50', 'w-11/12', 'max-w-md');
         const errorText = document.createElement('span');
         errorText.id = 'error-text';
         errorText.classList.add('block', 'sm:inline');
@@ -1419,7 +1457,7 @@
         // --- Global State and Constants ---
         const CHAT_SESSIONS_KEY = 'smallAI_chat_sessions';
         const CURRENT_SESSION_ID_KEY = 'smallAI_current_session_id';
-        const THEME_STORAGE_KEY = 'smallAI_selected_theme'; // Stores theme name (e.g., 'cosmic-voyage')
+        const THEME_STORAGE_KEY = 'smallAI_selected_theme'; // Stores theme name (e.g., 'celestial-horizon')
         const MODE_STORAGE_KEY = 'smallAI_theme_mode'; // Stores 'dark' or 'light'
         const DEFAULT_THEME_NAME = 'default';
         const DEFAULT_MODE = 'dark';
@@ -1598,7 +1636,7 @@
 
                 li.innerHTML = `
                     <div class="sidebar-chat-item-content">
-                        <span data-lucide="message-square" class="w-5 h-5 text-indigo-400"></span>
+                        <span data-lucide="message-square" class="w-5 h-5" style="color: inherit;"></span>
                         <span class="sidebar-chat-item-title" title="${session.title}">${session.title}</span>
                     </div>
                     <div class="sidebar-chat-item-actions">
@@ -1728,7 +1766,7 @@
                 } else {
                     renderSidebarChats(); // Just re-render sidebar
                 }
-                showCopyMessage('Chat deleted successfully!', 'bg-red-500'); // Use generic show message
+                showCopyMessage('Chat deleted successfully!', `var(--accent-error)`); // Use generic show message
             }
         }
 
@@ -1778,21 +1816,21 @@
                     actualCodeContent = code;
                 }
 
-                const languageDisplay = lang ? `<span class="text-xs font-semibold uppercase text-gray-400">${lang}</span>` : '';
+                const languageDisplay = lang ? `<span class="text-xs font-semibold uppercase" style="color: var(--text-secondary);">${lang}</span>` : '';
                 const uniqueId = `code-block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 
                 const escapedCode = actualCodeContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
                 return `
-                    <div class="code-block-container">
-                        <div class="code-block-header">
+                    <div class="code-block-container" style="background-color: var(--bg-secondary); border-color: var(--border-color);">
+                        <div class="code-block-header" style="background-color: var(--header-bg); color: var(--text-secondary); border-bottom-color: var(--border-color);">
                             ${languageDisplay}
-                            <button class="code-block-copy-button" data-copy-target="${uniqueId}">
+                            <button class="code-block-copy-button" data-copy-target="${uniqueId}" style="color: var(--text-secondary);">
                                 <span data-lucide="clipboard" class="w-4 h-4"></span>
                                 Copy code
                             </button>
                         </div>
-                        <pre><code id="${uniqueId}">${escapedCode}</code></pre>
+                        <pre style="color: var(--text-primary);"><code id="${uniqueId}">${escapedCode}</code></pre>
                     </div>
                 `;
             }
@@ -1843,8 +1881,8 @@
                             contentHTML += `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name || 'User attachment'}" class="chat-image w-24 h-24 object-cover">`;
                         } else {
                             contentHTML += `
-                                <div class="flex items-center space-x-1 p-2 bg-gray-100 dark:bg-gray-600 rounded-md text-sm">
-                                    <span data-lucide="${getFileIcon(attachment.mimeType)}" class="w-4 h-4 flex-shrink-0"></span>
+                                <div class="flex items-center space-x-1 p-2 rounded-md text-sm" style="background-color: var(--bg-secondary); color: var(--text-primary);">
+                                    <span data-lucide="${getFileIcon(attachment.mimeType)}" class="w-4 h-4 flex-shrink-0" style="color: var(--accent-secondary);"></span>
                                     <span class="truncate max-w-[120px]">${attachment.name || 'File'}</span>
                                 </div>
                             `;
@@ -2013,12 +2051,13 @@
             
             const loadingMessage = document.createElement('div');
             loadingMessage.id = 'chat-loading';
-            loadingMessage.classList.add('p-4', 'text-center', 'text-gray-500', 'text-sm');
+            loadingMessage.classList.add('p-4', 'text-center', 'text-sm');
+            loadingMessage.style.color = 'var(--text-secondary)'; /* Themed */
             loadingMessage.innerHTML = `
                 <div class="loader-container h-8">
-                    <div class="loader-dot bg-gray-500"></div>
-                    <div class="loader-dot bg-gray-500"></div>
-                    <div class="loader-dot bg-gray-500"></div>
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
                 </div>
                 <span class="mt-2 block">AI is typing...</span>
             `;
