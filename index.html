@@ -939,17 +939,45 @@
         .slider:before { background-color: var(--bg-secondary); transition: .4s; } /* Use a lighter background for the thumb */
 
         /* Custom scrollbar for a sleek look (hidden) */
-        #chat-history::-webkit-scrollbar, 
         #sidebar-chat-list::-webkit-scrollbar,
-        #chat-input::-webkit-scrollbar { /* Added for textarea */
+        #chat-input::-webkit-scrollbar {
             width: 0 !important;
             height: 0 !important;
         }
-        #chat-history, 
         #sidebar-chat-list,
-        #chat-input { /* Added for textarea */
+        #chat-input {
             -ms-overflow-style: none; /* Internet Explorer and Edge */
             scrollbar-width: none; /* Firefox */
+        }
+
+        /* Styles specifically for #chat-history scrollbar */
+        #chat-history {
+            overflow-y: auto; /* Ensure vertical scrolling is enabled */
+            overflow-x: hidden; /* Keep hidden to prevent horizontal content overflow */
+
+            /* Firefox scrollbar styles */
+            scrollbar-width: thin; /* 'auto' or 'thin' */
+            scrollbar-color: var(--accent-primary) var(--sidebar-item-hover); /* thumb color track color */
+        }
+
+        /* Webkit (Chrome, Safari, Edge) scrollbar styles for #chat-history */
+        #chat-history::-webkit-scrollbar {
+            width: 8px; /* Width of the vertical scrollbar */
+        }
+
+        #chat-history::-webkit-scrollbar-track {
+            background: var(--sidebar-item-hover); /* Background of the scrollbar track */
+            border-radius: 10px;
+        }
+
+        #chat-history::-webkit-scrollbar-thumb {
+            background-color: var(--accent-primary); /* Color of the scrollbar thumb */
+            border-radius: 10px; /* Rounded corners for the thumb */
+            border: 2px solid var(--sidebar-item-hover); /* Creates a border effect and separates from track */
+        }
+
+        #chat-history::-webkit-scrollbar-thumb:hover {
+            background-color: var(--accent-primary-hover); /* Darker thumb on hover */
         }
         
         /* Modern loading animation */
@@ -1346,7 +1374,7 @@
     </aside>
 
     <!-- Main Chat Container -->
-    <div id="main-chat-window">
+    <div id="main-chat-window" class="min-w-0">
         <!-- Header for the chat -->
         <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]" style="background-color: var(--header-bg);">
             <div class="flex items-center">

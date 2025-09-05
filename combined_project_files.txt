@@ -2474,4 +2474,4 @@
 
 -------------------------------------------------------------------------------------------------------------------------------
 
-here either the message container or code block container is malfunctioning in desktop. in case of lengthy responses it's pushing into the user's message area. it's expanding towards the right. fix this behavior
+Go through the code carefully and find out why the message bubbles are. Overflowing. And extending towards the right. And extending towards the right so much that the user messages are going invisible and out of the. Window. 
