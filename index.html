@@ -954,7 +954,10 @@
         #chat-history {
             overflow-y: auto; /* Ensure vertical scrolling is enabled */
             overflow-x: hidden; /* Keep hidden to prevent horizontal content overflow */
-
+            flex-grow: 1; /* Explicitly state grow factor, though flex-1 already implies this */
+            flex-shrink: 1; /* Explicitly state shrink factor, though flex-1 already implies this */
+            flex-basis: 0%; /* Explicitly state flex basis, though flex-1 already implies this */
+            width: 100%;
             /* Firefox scrollbar styles */
             scrollbar-width: thin; /* 'auto' or 'thin' */
             scrollbar-color: var(--accent-primary) var(--sidebar-item-hover); /* thumb color track color */
