@@ -3561,3 +3561,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 --- END FILE: sw.js ---
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+how to add a new theme for darkest black and white theme
