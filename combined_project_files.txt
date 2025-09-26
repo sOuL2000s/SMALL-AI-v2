@@ -963,6 +963,71 @@
             background-attachment: fixed;
         }
 
+        /* Darkest Black & White Theme: Dark Mode (Corrected Bubbles & Icons) */
+        body[data-theme="darkest-bw-dark"] {
+            --bg-primary: #000000; /* Pure black main body background */
+            --bg-secondary: #111111; /* Slightly off-black for card/secondary elements */
+            --text-primary: #FFFFFF; /* Pure white main text */
+            --text-secondary: #AAAAAA; /* Light gray for subtle text */
+            --border-color: #333333; /* Dark gray borders */
+            --card-bg: #111111;
+            --card-border: #333333;
+            --header-bg: #0A0A0A; /* Very dark gray for header */
+            --accent-primary: #E0E0E0; /* Bright light gray for primary accents (buttons, active states) */
+            --accent-primary-hover: #FFFFFF; /* Pure white for hover glow */
+            --accent-secondary: #888888; /* Mid-gray for secondary accents */
+            --accent-error: #F87171; /* Keep standard error color for usability */
+            --accent-success: #4ADE80; /* Keep standard success color for usability */
+            --user-bubble-bg: #222222; /* Dark gray for user chat bubbles */
+            --user-bubble-text: #FFFFFF; /* White text for user chat bubbles */
+            --ai-bubble-bg: #333333; /* Dark gray for AI chat bubbles */
+            --ai-bubble-text: #FFFFFF; /* White text for AI chat bubbles */
+            --sidebar-bg: #000000;
+            --sidebar-border: #333333;
+            --sidebar-item-hover: #111111;
+            --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: #000000; /* Solid off-black for chat window */
+            --conversation-bg: #000000; /* Solid pure black for conversation overlay */
+            --conversation-text: #FFFFFF;
+            --conversation-indicator: #FFFFFF;
+
+            background-image: none;
+            background-color: var(--bg-primary);
+        }
+
+        /* Darkest Black & White Theme: Light Mode (Revised) */
+        body[data-theme="darkest-bw-light"] {
+            --bg-primary: #FFFFFF; /* Pure white main body background */
+            --bg-secondary: #F0F0F0; /* Slightly off-white for card/secondary elements */
+            --text-primary: #000000; /* Pure black main text */
+            --text-secondary: #555555; /* Dark gray for subtle text */
+            --border-color: #DDDDDD; /* Light gray borders */
+            --card-bg: #F0F0F0;
+            --card-border: #DDDDDD;
+            --header-bg: #F5F5F5; /* Very light gray for header */
+            --accent-primary: #333333; /* Dark gray for primary accents (buttons, active states) */
+            --accent-primary-hover: #000000; /* Pure black for hover */
+            --accent-secondary: #777777; /* Mid-gray for secondary accents */
+            --accent-error: #EF4444; /* Keep standard error color for usability */
+            --accent-success: #22C55E; /* Keep standard success color for usability */
+            --user-bubble-bg: #EEEEEE; /* Very light gray for user chat bubbles */
+            --user-bubble-text: #000000;
+            --ai-bubble-bg: #DDDDDD; /* Slightly darker light gray for AI chat bubbles */
+            --ai-bubble-text: #000000;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-border: #DDDDDD;
+            --sidebar-item-hover: #F0F0F0;
+            --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: #F0F0F0; /* Solid off-white for chat window */
+            --conversation-bg: #FFFFFF; /* Solid pure white for conversation overlay */
+            --conversation-text: #000000;
+            --conversation-indicator: #000000; /* Pure black indicator for conversation mode */
+
+            /* Removed all background-image properties for a solid background */
+            background-image: none;
+            background-color: var(--bg-primary); /* Explicitly set body background to primary color */
+        }
+
         /* --- Global Styles & Overrides --- */
 
         /* Apply theme colors */
@@ -1092,8 +1157,9 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             border-left: 1px solid var(--border-color); /* Use theme border color */
             transition: all 0.3s ease-in-out;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            /* REMOVE THESE TWO LINES: */
+            /* backdrop-filter: blur(8px); */
+            /* -webkit-backdrop-filter: blur(8px); */
         }
         body[data-theme$="-dark"] #main-chat-window {
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
@@ -1300,11 +1366,11 @@
         }
         .sidebar-chat-item.active {
             background-color: var(--accent-primary);
-            color: white;
+            color: black; /* Changed to black */
             font-weight: 600;
         }
         .sidebar-chat-item.active .lucide {
-            color: white;
+            color: black; /* Changed to black */
         }
         .sidebar-chat-item.active:hover {
             background-color: var(--accent-primary-hover);
@@ -1764,7 +1830,7 @@
         </div>
 
         <!-- New Chat Button -->
-        <button id="new-chat-button" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4 glow-button" style="background-color: var(--accent-primary); color: white;">
+        <button id="new-chat-button" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4 glow-button" style="background-color: var(--accent-primary); color: black;">
             <span data-lucide="plus" class="w-5 h-5 mr-2"></span> New Chat
         </button>
 
@@ -1793,6 +1859,7 @@
                 <option value="aurora-drift">Aurora Drift</option>
                 <option value="timeless-echo">Timeless Echo</option>
                 <option value="mystic-void">Mystic Void</option>
+                <option value="darkest-bw">The Darkest Night</option>
             </select>
         </div>
 
@@ -3445,7 +3512,7 @@ Website Link : https://small-ai-big-vision-v2.netlify.app/
 
 --- START FILE: sw.js ---
 
-const CACHE_NAME = 'small-ai-v2-cache-v1.2'; // Increment this version number when you make significant changes to cached assets!
+const CACHE_NAME = 'small-ai-v2-cache-v1.3'; // Increment this version number when you make significant changes to cached assets!
 const urlsToCache = [
     '/', // The root HTML page
     'index.html', // The specific HTML file
@@ -3562,6 +3629,10 @@ self.addEventListener('fetch', (event) => {
 
 --- END FILE: sw.js ---
 
-----------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
 
-how to add a new theme for darkest black and white theme
+prompt : 
+
+add a button for setting a custom prompt or using the current no prompt mode. when a custom prompt is set then the ai will act accordingly.
+
+which lines to modify guide me please.
