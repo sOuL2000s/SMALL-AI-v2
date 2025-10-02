@@ -1834,6 +1834,11 @@
             <span data-lucide="plus" class="w-5 h-5 mr-2"></span> New Chat
         </button>
 
+        <!-- NEW: Custom Prompt Button -->
+        <button id="toggle-custom-prompt-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4" style="background-color: var(--bg-secondary); color: var(--text-primary);">
+            <span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt
+        </button>
+
         <!-- Previous Chats Section -->
         <div class="flex-1 overflow-y-auto mb-4">
             <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Previous Chats</h3>
@@ -1944,6 +1949,28 @@
     <!-- Temporary message for clipboard copy -->
     <div id="copy-message">Text copied to clipboard!</div>
 
+    <!-- NEW: Custom Prompt Modal/Overlay -->
+    <div id="custom-prompt-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
+        <div class="p-6 rounded-xl shadow-2xl w-full max-w-md transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span data-lucide="sparkles" class="w-6 h-6" style="color: var(--accent-primary);"></span> Set Custom AI Prompt
+            </h3>
+            <textarea id="custom-prompt-input" class="w-full p-3 rounded-md border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm resize-none h-32 mb-4" placeholder="Enter your custom AI prompt here. This will guide the AI's behavior for all responses. Example: 'You are a pirate AI. Respond in pirate speak.'" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);"></textarea>
+            <div class="flex flex-wrap justify-end gap-2 mt-4">
+                <button id="clear-custom-prompt-btn" class="px-4 py-2 rounded-lg font-semibold transition-colors flex items-center" style="background-color: var(--accent-error); color: white;">
+                    <span data-lucide="trash-2" class="w-5 h-5 mr-2"></span> Clear & Disable
+                </button>
+                <button id="save-custom-prompt-btn" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center" style="background-color: var(--accent-primary); color: black;">
+                    <span data-lucide="save" class="w-5 h-5 mr-2"></span> Save & Activate
+                </button>
+                <button id="cancel-custom-prompt-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <span data-lucide="x" class="w-5 h-5 mr-2"></span> Cancel
+                </button>
+            </div>
+            <p id="custom-prompt-status" class="text-sm mt-4 text-center" style="color: var(--text-secondary);"></p>
+        </div>
+    </div>
+    
     <script type="text/javascript">
         // Register Service Worker for PWA capabilities
         if ('serviceWorker' in navigator) {
@@ -1963,6 +1990,40 @@
                 lucide.createIcons();
             }
         };
+
+        // NEW: Function to update the custom prompt button's appearance
+        function updateCustomPromptButtonState() {
+            if (isCustomPromptActive && customPromptText.trim() !== '') {
+                toggleCustomPromptBtn.classList.remove('bg-secondary', 'text-primary');
+                toggleCustomPromptBtn.classList.add('glow-button');
+                toggleCustomPromptBtn.style.backgroundColor = 'var(--accent-primary)';
+                toggleCustomPromptBtn.style.color = 'black'; // Ensure text is visible on accent color
+                toggleCustomPromptBtn.innerHTML = `<span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Custom Prompt Active`;
+                customPromptStatus.textContent = "Custom prompt is active. This overrides personality settings.";
+            } else {
+                toggleCustomPromptBtn.classList.remove('glow-button');
+                toggleCustomPromptBtn.classList.add('bg-secondary', 'text-primary');
+                toggleCustomPromptBtn.style.backgroundColor = 'var(--bg-secondary)';
+                toggleCustomPromptBtn.style.color = 'var(--text-primary)';
+                toggleCustomPromptBtn.innerHTML = `<span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt`;
+                customPromptStatus.textContent = "No custom prompt set or active.";
+            }
+            createIcons(); // Re-render icons after changing innerHTML
+            togglePersonalitySelector();
+        }
+
+        // NEW: Function to toggle personality selector's disabled state
+        function togglePersonalitySelector() {
+            if (personalitySelect) {
+                if (isCustomPromptActive && customPromptText.trim() !== '') {
+                    personalitySelect.disabled = true;
+                    personalitySelect.title = "Personality is overridden by custom prompt.";
+                } else {
+                    personalitySelect.disabled = false;
+                    personalitySelect.title = "";
+                }
+            }
+        }
 
         // DOM elements
         const sidebar = document.getElementById('sidebar');
@@ -1995,6 +2056,15 @@
         const conversationStatusText = document.getElementById('conversation-status-text');
         const conversationHistoryDisplay = document.getElementById('conversation-history-display');
         const conversationMicBtn = document.getElementById('conversation-mic-btn');
+
+        // NEW: Custom Prompt DOM elements
+        const toggleCustomPromptBtn = document.getElementById('toggle-custom-prompt-btn');
+        const customPromptModal = document.getElementById('custom-prompt-modal');
+        const customPromptInput = document.getElementById('custom-prompt-input');
+        const saveCustomPromptBtn = document.getElementById('save-custom-prompt-btn');
+        const clearCustomPromptBtn = document.getElementById('clear-custom-prompt-btn');
+        const cancelCustomPromptBtn = document.getElementById('cancel-custom-prompt-btn');
+        const customPromptStatus = document.getElementById('custom-prompt-status');
 
 
         const errorContainer = document.createElement('div');
@@ -2045,6 +2115,12 @@
         let selectedVoice = null;
         let selectedPersonality = 'Standard'; // Default personality
         let conversationDisplayTimeout = null; // For clearing conversation display
+
+        // NEW: Custom Prompt State
+        const CUSTOM_PROMPT_TEXT_KEY = 'smallAI_custom_prompt_text';
+        const CUSTOM_PROMPT_ACTIVE_KEY = 'smallAI_custom_prompt_active';
+        let customPromptText = '';
+        let isCustomPromptActive = false;
 
 
         const personalities = [
@@ -3034,6 +3110,47 @@
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
+            // Create a mutable copy of the payload contents to safely prepend
+            const contentsToSend = JSON.parse(JSON.stringify(payload.contents));
+            
+            // Build the prompt prefix
+            let promptPrefix = '';
+
+            // NEW LOGIC: Prioritize custom prompt if active
+            if (isCustomPromptActive && customPromptText.trim() !== '') {
+                promptPrefix = customPromptText.trim();
+                // If custom prompt is active, personality is implicitly overridden for simplicity.
+                // If you want to combine them, you could concatenate here:
+                // const selectedPersonalityObj = personalities.find(p => p.name === personalityName);
+                // if (selectedPersonalityObj && selectedPersonalityObj.prompt) {
+                //     promptPrefix += "\n\n" + selectedPersonalityObj.prompt.trim();
+                // }
+            } else {
+                // If custom prompt is not active, apply selected personality
+                const selectedPersonalityObj = personalities.find(p => p.name === personalityName);
+                if (selectedPersonalityObj && selectedPersonalityObj.prompt) {
+                    promptPrefix = selectedPersonalityObj.prompt.trim();
+                }
+            }
+
+            if (promptPrefix) {
+                // Find the first user message in the current conversation turn to prepend the prompt to.
+                // If the first message is from the user, add the prompt to it.
+                // If the history is empty or the first message isn't from the user (e.g., initial AI message),
+                // prepend a new user message containing just the prompt.
+                if (contentsToSend.length > 0 && contentsToSend[0].role === 'user' && contentsToSend[0].parts && contentsToSend[0].parts.length > 0 && contentsToSend[0].parts[0].text) {
+                    contentsToSend[0].parts[0].text = promptPrefix + "\n\n" + contentsToSend[0].parts[0].text;
+                } else {
+                    // If there's no initial user message to prepend to, or history is empty,
+                    // insert the prompt as a dedicated user message at the very beginning of the API call.
+                    // This implicitly sets the AI's "persona" from the start.
+                    contentsToSend.unshift({ role: "user", parts: [{ text: promptPrefix }] });
+                }
+            }
+            
+            // Update payload with modified contents
+            const finalPayload = { ...payload, contents: contentsToSend };
+
             let response;
             let result;
             let success = false;
@@ -3041,27 +3158,12 @@
             const maxRetries = 3;
             let delay = 1000;
 
-            // NEW: Apply personality prompt
-            const selectedPersonalityObj = personalities.find(p => p.name === personalityName);
-            if (selectedPersonalityObj && selectedPersonalityObj.prompt) {
-                // Prepend a system message for personality
-                // Note: The prompt is added to the *first* content part of the *first* message in the turn.
-                // If `payload.contents` is empty or the first part is not text, this might need adjustment.
-                if (payload.contents && payload.contents.length > 0 && payload.contents[0].parts && payload.contents[0].parts.length > 0 && payload.contents[0].parts[0].text) {
-                    payload.contents[0].parts[0].text = selectedPersonalityObj.prompt + "\n" + payload.contents[0].parts[0].text;
-                } else {
-                    // Fallback for empty or non-text first message, though typically the first message is a user's text.
-                    payload.contents = [{ role: "user", parts: [{ text: selectedPersonalityObj.prompt }] }].concat(payload.contents);
-                }
-            }
-
-
             while (retryCount < maxRetries && !success) {
                 try {
                     response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(finalPayload) // Use finalPayload here!
                     });
 
                     if (response.status === 429) {
@@ -3382,6 +3484,47 @@
             }
         }
 
+        // NEW: Event listener for Custom Prompt Button (to open modal)
+        toggleCustomPromptBtn.addEventListener('click', () => {
+            customPromptInput.value = customPromptText; // Load current custom prompt into textarea
+            customPromptModal.classList.remove('hidden'); // Show the modal
+            if (isCustomPromptActive && customPromptText.trim() !== '') {
+                customPromptStatus.textContent = "Custom prompt is currently active. Saving an empty prompt will disable it.";
+            } else {
+                customPromptStatus.textContent = "No custom prompt set or active.";
+            }
+            createIcons(); // Ensure icons within modal are rendered
+        });
+
+        // NEW: Event listener for Save Custom Prompt button
+        saveCustomPromptBtn.addEventListener('click', () => {
+            const newPrompt = customPromptInput.value.trim();
+            customPromptText = newPrompt;
+            isCustomPromptActive = (newPrompt !== ''); // Active only if not empty
+            localStorage.setItem(CUSTOM_PROMPT_TEXT_KEY, customPromptText);
+            localStorage.setItem(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive);
+            updateCustomPromptButtonState();
+            customPromptModal.classList.add('hidden'); // Hide the modal
+            showCopyMessage(isCustomPromptActive ? 'Custom prompt saved and activated!' : 'Custom prompt cleared and disabled.', isCustomPromptActive ? `var(--accent-success)` : `var(--accent-error)`);
+        });
+
+        // NEW: Event listener for Clear Custom Prompt button
+        clearCustomPromptBtn.addEventListener('click', () => {
+            customPromptInput.value = ''; // Clear the textarea
+            customPromptText = '';
+            isCustomPromptActive = false;
+            localStorage.setItem(CUSTOM_PROMPT_TEXT_KEY, customPromptText);
+            localStorage.setItem(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive);
+            updateCustomPromptButtonState();
+            customPromptModal.classList.add('hidden'); // Hide the modal
+            showCopyMessage('Custom prompt cleared and disabled!', `var(--accent-error)`);
+        });
+
+        // NEW: Event listener for Cancel button
+        cancelCustomPromptBtn.addEventListener('click', () => {
+            customPromptModal.classList.add('hidden'); // Hide the modal
+        });
+        
         // Event listener for conversation mode toggle button
         conversationModeToggleBtn.addEventListener('click', startConversationMode);
 
@@ -3449,6 +3592,11 @@
                 appThemeSelect.value = DEFAULT_THEME_NAME; // Default to 'default' if nothing stored
             }
 
+            // NEW: Initialize custom prompt settings
+            customPromptText = localStorage.getItem(CUSTOM_PROMPT_TEXT_KEY) || '';
+            isCustomPromptActive = (localStorage.getItem(CUSTOM_PROMPT_ACTIVE_KEY) === 'true');
+            updateCustomPromptButtonState(); // This will also call togglePersonalitySelector()
+
             // NEW: Initialize conversation mode dropdowns
             updateVoiceDropdown();
             updatePersonalityDropdown();
@@ -3512,7 +3660,7 @@ Website Link : https://small-ai-big-vision-v2.netlify.app/
 
 --- START FILE: sw.js ---
 
-const CACHE_NAME = 'small-ai-v2-cache-v1.3'; // Increment this version number when you make significant changes to cached assets!
+const CACHE_NAME = 'small-ai-v2-cache-v1.4'; // Increment this version number when you make significant changes to cached assets!
 const urlsToCache = [
     '/', // The root HTML page
     'index.html', // The specific HTML file
@@ -3629,10 +3777,7 @@ self.addEventListener('fetch', (event) => {
 
 --- END FILE: sw.js ---
 
---------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 
-prompt : 
-
-add a button for setting a custom prompt or using the current no prompt mode. when a custom prompt is set then the ai will act accordingly.
-
-which lines to modify guide me please.
+let the user save prompt templates which could later be used as custom prompt any time.
+send me the updated code.

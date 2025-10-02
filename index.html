@@ -1771,6 +1771,90 @@
             50% { box-shadow: 0 0 0 15px color-mix(in srgb, var(--accent-error) 0%, transparent); } /* Larger pulse */
         }
 
+        /* Styling for the prompt templates list */
+        .template-item {
+            display: flex;
+            flex-direction: column;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .template-item:hover {
+            background-color: var(--sidebar-item-hover);
+            border-color: var(--accent-primary);
+        }
+        .template-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .template-item-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+        }
+        .template-item-content {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            max-height: 3em; /* Limit content preview */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+        .template-item-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+        .template-item-actions button {
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .template-item-actions .use-btn {
+            background-color: var(--accent-primary);
+            color: black; /* Ensure black text for contrast */
+        }
+        .template-item-actions .use-btn:hover {
+            background-color: var(--accent-primary-hover);
+            box-shadow: 0 0 10px var(--accent-primary);
+            transform: translateY(-1px);
+        }
+        .template-item-actions .edit-btn {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .template-item-actions .edit-btn:hover {
+            background-color: var(--sidebar-item-hover);
+            border-color: var(--accent-secondary);
+            transform: translateY(-1px);
+        }
+        .template-item-actions .delete-btn {
+            background-color: var(--accent-error);
+            color: white;
+        }
+        .template-item-actions .delete-btn:hover {
+            background-color: color-mix(in srgb, var(--accent-error) 80%, black 20%);
+            box-shadow: 0 0 8px var(--accent-error);
+            transform: translateY(-1px);
+        }
+
     </style>
 </head>
 <body class="antialiased" data-theme="default-dark">
@@ -1832,8 +1916,13 @@
         </button>
 
         <!-- NEW: Custom Prompt Button -->
-        <button id="toggle-custom-prompt-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4" style="background-color: var(--bg-secondary); color: var(--text-primary);">
+        <button id="toggle-custom-prompt-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-2" style="background-color: var(--bg-secondary); color: var(--text-primary);">
             <span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt
+        </button>
+        
+        <!-- NEW: Manage Prompt Templates Button -->
+        <button id="manage-templates-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4" style="background-color: var(--bg-secondary); color: var(--text-primary);">
+            <span data-lucide="layout-template" class="w-5 h-5 mr-2"></span> Manage Templates
         </button>
 
         <!-- Previous Chats Section -->
@@ -1967,6 +2056,43 @@
             <p id="custom-prompt-status" class="text-sm mt-4 text-center" style="color: var(--text-secondary);"></p>
         </div>
     </div>
+
+    <!-- NEW: Prompt Templates Modal/Overlay -->
+    <div id="prompt-templates-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
+        <div class="p-6 rounded-xl shadow-2xl w-full max-w-2xl transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span data-lucide="layout-template" class="w-6 h-6" style="color: var(--accent-primary);"></span> Manage Prompt Templates
+            </h3>
+            
+            <!-- Template Input Form -->
+            <div class="mb-6 p-4 rounded-lg" style="background-color: var(--bg-primary); border: 1px solid var(--border-color);">
+                <input type="text" id="template-name-input" class="w-full p-2 rounded-md border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm mb-2" placeholder="Template Name (e.g., 'Sarcastic AI')" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                <textarea id="template-content-input" class="w-full p-3 rounded-md border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm resize-none h-24 mb-4" placeholder="Enter the prompt content here. (e.g., 'Respond as a highly sarcastic AI.')" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button id="clear-template-form-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                        <span data-lucide="eraser" class="w-5 h-5 mr-2"></span> Clear Form
+                    </button>
+                    <button id="save-template-btn" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center" style="background-color: var(--accent-primary); color: black;">
+                        <span data-lucide="plus" class="w-5 h-5 mr-2"></span> Save Template
+                    </button>
+                </div>
+            </div>
+
+            <!-- Saved Templates List -->
+            <h4 class="text-lg font-bold mb-3 flex items-center gap-2" style="color: var(--text-primary);">
+                <span data-lucide="bookmark" class="w-5 h-5" style="color: var(--accent-secondary);"></span> Your Saved Templates
+            </h4>
+            <ul id="saved-templates-list" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+                <!-- Templates will be dynamically loaded here -->
+            </ul>
+
+            <div class="flex justify-end mt-6">
+                <button id="cancel-template-modal-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <span data-lucide="x" class="w-5 h-5 mr-2"></span> Close
+                </button>
+            </div>
+        </div>
+    </div>
     
     <script type="text/javascript">
         // Register Service Worker for PWA capabilities
@@ -2063,6 +2189,16 @@
         const cancelCustomPromptBtn = document.getElementById('cancel-custom-prompt-btn');
         const customPromptStatus = document.getElementById('custom-prompt-status');
 
+        // NEW: Prompt Templates DOM elements
+        const manageTemplatesBtn = document.getElementById('manage-templates-btn');
+        const promptTemplatesModal = document.getElementById('prompt-templates-modal');
+        const templateNameInput = document.getElementById('template-name-input');
+        const templateContentInput = document.getElementById('template-content-input');
+        const saveTemplateBtn = document.getElementById('save-template-btn');
+        const clearTemplateFormBtn = document.getElementById('clear-template-form-btn');
+        const cancelTemplateModalBtn = document.getElementById('cancel-template-modal-btn');
+        const savedTemplatesList = document.getElementById('saved-templates-list');
+
 
         const errorContainer = document.createElement('div');
         errorContainer.id = 'error-message';
@@ -2082,6 +2218,9 @@
         const DEFAULT_MODE = 'dark';
         const CONVERSATION_VOICE_KEY = 'smallAI_conversation_voice'; // NEW
         const CONVERSATION_PERSONALITY_KEY = 'smallAI_conversation_personality'; // NEW
+        const CUSTOM_PROMPT_TEXT_KEY = 'smallAI_custom_prompt_text';
+        const CUSTOM_PROMPT_ACTIVE_KEY = 'smallAI_custom_prompt_active';
+        const PROMPT_TEMPLATES_KEY = 'smallAI_prompt_templates'; // NEW
 
         let allChatSessions = {}; // Maps session ID to {id, title, history, timestamp}
         let currentSessionId = null;
@@ -2114,10 +2253,12 @@
         let conversationDisplayTimeout = null; // For clearing conversation display
 
         // NEW: Custom Prompt State
-        const CUSTOM_PROMPT_TEXT_KEY = 'smallAI_custom_prompt_text';
-        const CUSTOM_PROMPT_ACTIVE_KEY = 'smallAI_custom_prompt_active';
         let customPromptText = '';
         let isCustomPromptActive = false;
+
+        // NEW: Prompt Templates State
+        let promptTemplates = []; // Array of { id: string, name: string, content: string }
+        let editingTemplateId = null; // Stores the ID of the template currently being edited
 
 
         const personalities = [
@@ -2232,6 +2373,7 @@
                 updateButtonIcon(conversationMicBtn, 'mic-off', 'w-8 h-8');
                 conversationMicBtn.classList.add('voice-input-active');
                 updateConversationStatus('Listening...', 'listening');
+                setSoundBlobState('listening');
                 conversationFinalTranscript = '';
                 conversationInterimTranscript = '';
                 clearConversationDisplay();
@@ -3019,7 +3161,7 @@
                     .catch(err => {
                         console.error('Failed to copy: ', err);
                         showError('Failed to copy text. Please copy manually.');
-                    });
+                    }); // Corrected: closing the catch block
             } else {
                 const tempTextArea = document.createElement('textarea');
                 tempTextArea.value = text;
@@ -3135,6 +3277,7 @@
                 // If the first message is from the user, add the prompt to it.
                 // If the history is empty or the first message isn't from the user (e.g., initial AI message),
                 // prepend a new user message containing just the prompt.
+                // This implicitly sets the AI's "persona" from the start.
                 if (contentsToSend.length > 0 && contentsToSend[0].role === 'user' && contentsToSend[0].parts && contentsToSend[0].parts.length > 0 && contentsToSend[0].parts[0].text) {
                     contentsToSend[0].parts[0].text = promptPrefix + "\n\n" + contentsToSend[0].parts[0].text;
                 } else {
@@ -3546,6 +3689,181 @@
         // Event for when voices are loaded/changed
         window.speechSynthesis.onvoiceschanged = updateVoiceDropdown;
 
+
+        // --- NEW: Prompt Templates Management Functions ---
+
+        function loadPromptTemplates() {
+            const storedTemplates = localStorage.getItem(PROMPT_TEMPLATES_KEY);
+            promptTemplates = storedTemplates ? JSON.parse(storedTemplates) : [];
+        }
+
+        function savePromptTemplates() {
+            localStorage.setItem(PROMPT_TEMPLATES_KEY, JSON.stringify(promptTemplates));
+        }
+
+        function clearTemplateForm() {
+            templateNameInput.value = '';
+            templateContentInput.value = '';
+            editingTemplateId = null;
+            saveTemplateBtn.innerHTML = `<span data-lucide="plus" class="w-5 h-5 mr-2"></span> Save Template`;
+            createIcons();
+            templateNameInput.focus();
+        }
+
+        function renderPromptTemplates() {
+            savedTemplatesList.innerHTML = '';
+            if (promptTemplates.length === 0) {
+                const emptyMsg = document.createElement('li');
+                emptyMsg.classList.add('text-center', 'text-sm', 'p-4');
+                emptyMsg.style.color = 'var(--text-secondary)';
+                emptyMsg.textContent = 'No templates saved yet. Add one above!';
+                savedTemplatesList.appendChild(emptyMsg);
+                return;
+            }
+
+            promptTemplates.forEach(template => {
+                const li = document.createElement('li');
+                li.classList.add('template-item');
+                li.dataset.templateId = template.id;
+                li.innerHTML = `
+                    <div class="template-item-header">
+                        <span class="template-item-name" title="${template.name}">${template.name}</span>
+                    </div>
+                    <p class="template-item-content">${template.content.substring(0, 150) + (template.content.length > 150 ? '...' : '')}</p>
+                    <div class="template-item-actions">
+                        <button class="use-btn" title="Use as Custom Prompt">
+                            <span data-lucide="check-circle" class="w-4 h-4"></span> Use
+                        </button>
+                        <button class="edit-btn" title="Edit Template">
+                            <span data-lucide="edit" class="w-4 h-4"></span> Edit
+                        </button>
+                        <button class="delete-btn" title="Delete Template">
+                            <span data-lucide="trash-2" class="w-4 h-4"></span> Delete
+                        </button>
+                    </div>
+                `;
+                savedTemplatesList.appendChild(li);
+            });
+            createIcons(); // Re-render Lucide icons
+        }
+
+        function addOrUpdateTemplate() {
+            const name = templateNameInput.value.trim();
+            const content = templateContentInput.value.trim();
+
+            if (!name) {
+                showError('Template name cannot be empty.');
+                return;
+            }
+            if (!content) {
+                showError('Template content cannot be empty.');
+                return;
+            }
+
+            if (editingTemplateId) {
+                // Update existing template
+                const index = promptTemplates.findIndex(t => t.id === editingTemplateId);
+                if (index !== -1) {
+                    promptTemplates[index] = { ...promptTemplates[index], name, content };
+                    showCopyMessage('Template updated successfully!', `var(--accent-success)`);
+                }
+            } else {
+                // Add new template
+                const newId = generateUniqueId();
+                promptTemplates.push({ id: newId, name, content });
+                showCopyMessage('Template saved successfully!', `var(--accent-success)`);
+            }
+            savePromptTemplates();
+            renderPromptTemplates();
+            clearTemplateForm();
+        }
+
+        function useTemplate(templateId) {
+            const template = promptTemplates.find(t => t.id === templateId);
+            if (template) {
+                customPromptInput.value = template.content; // Populate custom prompt textarea
+                // Simulate click on save custom prompt to activate it
+                saveCustomPromptBtn.click();
+                promptTemplatesModal.classList.add('hidden'); // Close templates modal
+                showCopyMessage(`Custom prompt set from template: "${template.name}"`, `var(--accent-success)`);
+            }
+        }
+
+        function editTemplate(templateId) {
+            const template = promptTemplates.find(t => t.id === templateId);
+            if (template) {
+                templateNameInput.value = template.name;
+                templateContentInput.value = template.content;
+                editingTemplateId = template.id;
+                saveTemplateBtn.innerHTML = `<span data-lucide="save" class="w-5 h-5 mr-2"></span> Update Template`;
+                createIcons();
+                templateNameInput.focus();
+                // Scroll to top of the modal to see the form
+                promptTemplatesModal.querySelector('div:first-child').scrollTop = 0; 
+            }
+        }
+
+        function deleteTemplate(templateId) {
+            const template = promptTemplates.find(t => t.id === templateId);
+            if (!template) return;
+
+            if (confirm(`Are you sure you want to delete the template "${template.name}"?`)) {
+                promptTemplates = promptTemplates.filter(t => t.id !== templateId);
+                savePromptTemplates();
+                renderPromptTemplates();
+                showCopyMessage('Template deleted successfully!', `var(--accent-error)`);
+
+                // If the deleted template was the active custom prompt, clear it
+                if (isCustomPromptActive && customPromptText === template.content) {
+                    clearCustomPromptBtn.click(); // Clears custom prompt and updates button state
+                    showCopyMessage('Active custom prompt cleared as its template was deleted.', `var(--accent-error)`);
+                }
+                
+                // If currently editing the deleted template, clear the form
+                if (editingTemplateId === templateId) {
+                    clearTemplateForm();
+                }
+            }
+        }
+
+        // --- Event Listeners for Prompt Templates Modal ---
+
+        manageTemplatesBtn.addEventListener('click', () => {
+            promptTemplatesModal.classList.remove('hidden');
+            renderPromptTemplates(); // Ensure the list is fresh when opening
+            clearTemplateForm(); // Clear form when opening for a new entry
+        });
+
+        cancelTemplateModalBtn.addEventListener('click', () => {
+            promptTemplatesModal.classList.add('hidden');
+            clearTemplateForm();
+        });
+
+        clearTemplateFormBtn.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent form submission if button is type="submit"
+            clearTemplateForm();
+            showCopyMessage('Template form cleared.', 'var(--text-secondary)');
+        });
+
+        saveTemplateBtn.addEventListener('click', addOrUpdateTemplate);
+
+        savedTemplatesList.addEventListener('click', (event) => {
+            const target = event.target;
+            const listItem = target.closest('.template-item');
+            if (!listItem) return;
+
+            const templateId = listItem.dataset.templateId;
+
+            if (target.closest('.use-btn')) {
+                useTemplate(templateId);
+            } else if (target.closest('.edit-btn')) {
+                editTemplate(templateId);
+            } else if (target.closest('.delete-btn')) {
+                deleteTemplate(templateId);
+            }
+        });
+
+
         // --- Initial Load ---
         window.addEventListener('load', () => {
             createIcons();
@@ -3593,6 +3911,11 @@
             customPromptText = localStorage.getItem(CUSTOM_PROMPT_TEXT_KEY) || '';
             isCustomPromptActive = (localStorage.getItem(CUSTOM_PROMPT_ACTIVE_KEY) === 'true');
             updateCustomPromptButtonState(); // This will also call togglePersonalitySelector()
+
+            // NEW: Initialize prompt templates
+            loadPromptTemplates();
+            renderPromptTemplates(); // Render initial list of templates
+
 
             // NEW: Initialize conversation mode dropdowns
             updateVoiceDropdown();
