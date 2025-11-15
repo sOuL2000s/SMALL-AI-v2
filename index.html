@@ -2531,6 +2531,17 @@
             <span data-lucide="layout-template" class="w-5 h-5 mr-2"></span> Manage Templates
         </button>
 
+        <!-- NEW: Data Management Buttons -->
+        <div class="mt-4 pt-4 border-t border-[var(--sidebar-border)]">
+            <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Data Management</h3>
+            <button id="delete-all-chats-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-2" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                <span data-lucide="folder-x" class="w-5 h-5 mr-2"></span> Delete All Chats
+            </button>
+            <button id="clear-local-storage-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4" style="background-color: var(--accent-error); color: white;">
+                <span data-lucide="database" class="w-5 h-5 mr-2"></span> Clear All Local Data
+            </button>
+        </div>
+
         <!-- Previous Chats Section -->
         <div class="flex-1 overflow-y-auto mb-4">
             <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Previous Chats</h3>
@@ -2814,6 +2825,10 @@
         const clearTemplateFormBtn = document.getElementById('clear-template-form-btn');
         const cancelTemplateModalBtn = document.getElementById('cancel-template-modal-btn');
         const savedTemplatesList = document.getElementById('saved-templates-list');
+
+        // NEW: Data Management Buttons
+        const deleteAllChatsBtn = document.getElementById('delete-all-chats-btn');
+        const clearLocalStorageBtn = document.getElementById('clear-local-storage-btn');
 
 
         const errorContainer = document.createElement('div');
@@ -4495,6 +4510,51 @@
                 editTemplate(templateId);
             } else if (target.closest('.delete-btn')) {
                 deleteTemplate(templateId);
+            }
+        });
+
+
+        // --- NEW: Data Management Button Event Listeners ---
+        deleteAllChatsBtn.addEventListener('click', () => {
+            if (confirm('Are you absolutely sure you want to delete ALL previous chat sessions? This action cannot be undone.')) {
+                allChatSessions = {}; // Clear the in-memory object
+                localStorage.removeItem(CHAT_SESSIONS_KEY); // Remove from local storage
+                localStorage.removeItem(CURRENT_SESSION_ID_KEY); // Clear current session ID
+
+                // If there's any ongoing speech/recognition, stop it
+                if (isSpeaking) {
+                    window.speechSynthesis.cancel();
+                    isSpeaking = false;
+                    currentUtterance = null;
+                }
+                if (isVoiceInputActive && recognition) {
+                    recognition.stop();
+                }
+                if (isConversationModeActive) {
+                    stopConversationMode();
+                }
+                
+                // Create a brand new session to start fresh
+                createNewChatSession('New Chat'); 
+                showCopyMessage('All chat sessions deleted!', 'var(--accent-error)');
+            }
+        });
+
+        clearLocalStorageBtn.addEventListener('click', () => {
+            if (confirm('WARNING: Are you absolutely sure you want to clear ALL application data from your browser (including themes, custom prompts, templates, and ALL chats)? This will reset the application to its default state, and this action cannot be undone.')) {
+                // Optionally, stop any ongoing speech/recognition before reloading
+                if (isSpeaking) {
+                    window.speechSynthesis.cancel();
+                }
+                if (isVoiceInputActive && recognition) {
+                    recognition.stop();
+                }
+                if (isConversationModeActive) {
+                    stopConversationMode();
+                }
+                
+                localStorage.clear(); // Clears everything from local storage
+                location.reload(); // Reload the page to reflect the fresh state
             }
         });
 
