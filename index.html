@@ -1614,6 +1614,233 @@
             background-color: var(--bg-primary); /* Ensures solid background */
         }
 
+        /* --- NEW THEMES START HERE --- */
+
+        /* Cosmic Nexus Theme: Dark Mode (Inspired by Cosmic Neon) */
+        body[data-theme="cosmic-nexus-dark"] {
+            --bg-primary: #05050A; /* Almost black */
+            --bg-secondary: #101018; /* Slightly lighter for secondary elements */
+            --text-primary: #E6E6E6; /* Soft white text */
+            --text-secondary: #94A3B8; /* Muted grey text */
+            --border-color: #2A2A3A; /* Dark blue-grey border */
+            --card-bg: #101018;
+            --card-border: #2A2A3A;
+            --header-bg: #0A0A10; /* Very dark grey for header */
+            --accent-primary: #00F5FF; /* Electric Cyan */
+            --accent-primary-hover: #00CED1;
+            --accent-secondary: #D400FF; /* Purple Glow */
+            --accent-error: #FF4500; /* Orange Red for error */
+            --accent-success: #0AFF9D; /* Mint for success */
+            --user-bubble-bg: #003344; /* Dark blue-cyan */
+            --user-bubble-text: #E0FFFF; /* Light Cyan */
+            --ai-bubble-bg: #18052A; /* Dark purple */
+            --ai-bubble-text: #E6E6E6;
+            --sidebar-bg: #101018;
+            --sidebar-border: #2A2A3A;
+            --sidebar-item-hover: #1A1A22;
+            --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(16, 16, 24, 0.9); /* Transparent */
+            --conversation-bg: rgba(5, 5, 10, 0.95);
+            --conversation-text: #E6E6E6;
+            --conversation-indicator: #00F5FF;
+            --code-block-bg: #18052A;
+            --code-block-header-bg: #0A0A10;
+            --code-block-border: #2A2A3A;
+
+            background-color: var(--bg-primary);
+            background-image: radial-gradient(circle at 15% 15%, rgba(0,245,255,0.08) 0%, transparent 25%),
+                              radial-gradient(circle at 85% 85%, rgba(212,0,255,0.08) 0%, transparent 25%),
+                              url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="smallGrid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M 16 0 L 0 0 L 0 16" fill="none" stroke="rgba(0,245,255,0.05)" stroke-width="0.5"/></pattern><pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse"><rect width="80" height="80" fill="url(%23smallGrid)"/><path d="M 80 0 L 0 0 L 0 80" fill="none" stroke="rgba(0,245,255,0.08)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+            background-size: cover, cover, auto; /* Ensure radial gradients cover, grid is auto */
+            background-blend-mode: overlay, overlay, multiply; /* Blend modes for multiple backgrounds */
+        }
+
+        /* Cosmic Nexus Theme: Light Mode (Derived) */
+        body[data-theme="cosmic-nexus-light"] {
+            --bg-primary: #F0F8FF; /* AliceBlue */
+            --bg-secondary: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #4B5563;
+            --border-color: #E5E7EB;
+            --card-bg: #FFFFFF;
+            --card-border: #E5E7EB;
+            --header-bg: #EAF0F8;
+            --accent-primary: #00CED1; /* Dark Cyan */
+            --accent-primary-hover: #00BFFF;
+            --accent-secondary: #9370DB; /* MediumPurple */
+            --accent-error: #FF4500;
+            --accent-success: #0AFF9D;
+            --user-bubble-bg: #E0FFFF; /* Light Cyan */
+            --user-bubble-text: #004D40;
+            --ai-bubble-bg: #F3F8FF;
+            --ai-bubble-text: #2F4F4F;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-border: #E5E7EB;
+            --sidebar-item-hover: #EAF0F8;
+            --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.85);
+            --conversation-bg: rgba(255, 255, 255, 0.9);
+            --conversation-text: #1F2937;
+            --conversation-indicator: #00CED1;
+            --code-block-bg: #F3F8FF;
+            --code-block-header-bg: #EAF0F8;
+            --code-block-border: #E5E7EB;
+
+            background-color: var(--bg-primary);
+        }
+
+        /* Starship Minimal Theme: Dark Mode (Inspired by Starship Minimal) */
+        body[data-theme="starship-minimal-dark"] {
+            --bg-primary: #0D1117;
+            --bg-secondary: #161B22;
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --border-color: #30363D;
+            --card-bg: #161B22;
+            --card-border: #30363D;
+            --header-bg: #0D1117;
+            --accent-primary: #2F81F7; /* Calm Blue */
+            --accent-primary-hover: #1C6EDD;
+            --accent-secondary: #58A6FF; /* Lighter Blue */
+            --accent-error: #F87171;
+            --accent-success: #4ADE80;
+            --user-bubble-bg: #1F385B; /* Darker blue */
+            --user-bubble-text: #DBEAFE;
+            --ai-bubble-bg: #21262D; /* Slightly darker than secondary */
+            --ai-bubble-text: #F0F6FC;
+            --sidebar-bg: #161B22;
+            --sidebar-border: #30363D;
+            --sidebar-item-hover: #21262D;
+            --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(13, 17, 23, 0.9);
+            --conversation-bg: rgba(13, 17, 23, 0.95);
+            --conversation-text: #F0F6FC;
+            --conversation-indicator: #2F81F7;
+            --code-block-bg: #21262D;
+            --code-block-header-bg: #161B22;
+            --code-block-border: #30363D;
+
+            background-color: var(--bg-primary);
+            background-image: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 L 0 10" fill="none" stroke="rgba(47,129,247,0.08)" stroke-width="0.5"/></pattern><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><rect width="50" height="50" fill="url(%23smallGrid)"/><path d="M 50 0 L 0 0 L 0 50" fill="none" stroke="rgba(47,129,247,0.12)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+            background-size: cover;
+            background-blend-mode: overlay;
+        }
+
+        /* Starship Minimal Theme: Light Mode (Derived) */
+        body[data-theme="starship-minimal-light"] {
+            --bg-primary: #F0F4F8;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --border-color: #E2E8F0;
+            --card-bg: #FFFFFF;
+            --card-border: #E2E8F0;
+            --header-bg: #EDF2F7;
+            --accent-primary: #1E90FF; /* Dodger Blue */
+            --accent-primary-hover: #107EEB;
+            --accent-secondary: #63B2FF;
+            --accent-error: #EF4444;
+            --accent-success: #22C55E;
+            --user-bubble-bg: #DBEAFE;
+            --user-bubble-text: #1E40AF;
+            --ai-bubble-bg: #F3F8FF;
+            --ai-bubble-text: #2D3748;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-border: #E2E8F0;
+            --sidebar-item-hover: #F0F4F8;
+            --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.85);
+            --conversation-bg: rgba(255, 255, 255, 0.9);
+            --conversation-text: #2D3748;
+            --conversation-indicator: #1E90FF;
+            --code-block-bg: #F3F8FF;
+            --code-block-header-bg: #EDF2F7;
+            --code-block-border: #E2E8F0;
+
+            background-color: var(--bg-primary);
+        }
+
+        /* Offbeat Cosmic Pastels Theme: Dark Mode (Inspired by Offbeat Cosmic Pastels) */
+        body[data-theme="offbeat-cosmic-dark"] {
+            --bg-primary: #0C0F16;
+            --bg-secondary: #1A1E2B;
+            --text-primary: #FDFDFD;
+            --text-secondary: #A0A5B5; /* Light grey-blue */
+            --border-color: #30354F;
+            --card-bg: #1A1E2B;
+            --card-border: #30354F;
+            --header-bg: #0C0F16;
+            --accent-primary: #5CE1E6; /* Aqua Pastel */
+            --accent-primary-hover: #45CCD1;
+            --accent-secondary: #C780FF; /* Lavender */
+            --accent-error: #FF6347; /* Tomato */
+            --accent-success: #7FFF00; /* Chartreuse */
+            --user-bubble-bg: #3A2B5B; /* Darker lavender */
+            --user-bubble-text: #E0E0E0;
+            --ai-bubble-bg: #2B1E40; /* Even darker purple */
+            --ai-bubble-text: #FDFDFD;
+            --sidebar-bg: #1A1E2B;
+            --sidebar-border: #30354F;
+            --sidebar-item-hover: #212535;
+            --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(12, 15, 22, 0.9);
+            --conversation-bg: rgba(12, 15, 22, 0.95);
+            --conversation-text: #FDFDFD;
+            --conversation-indicator: #5CE1E6;
+            --code-block-bg: #2B1E40;
+            --code-block-header-bg: #1A1E2B;
+            --code-block-border: #30354F;
+
+            background-color: var(--bg-primary);
+            background-image: radial-gradient(circle at 20% 80%, rgba(199,128,255,0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 80% 20%, rgba(92,225,230,0.1) 0%, transparent 40%),
+                              linear-gradient(135deg, rgba(255,180,233,0.05) 0%, transparent 50%, rgba(199,128,255,0.05) 100%);
+            background-size: cover;
+            background-blend-mode: soft-light;
+            animation: pastel-nebula-drift 25s infinite alternate ease-in-out;
+        }
+
+        @keyframes pastel-nebula-drift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* Offbeat Cosmic Pastels Theme: Light Mode (Derived) */
+        body[data-theme="offbeat-cosmic-light"] {
+            --bg-primary: #F9FDFD;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --border-color: #E2E8F0;
+            --card-bg: #FFFFFF;
+            --card-border: #E2E8F0;
+            --header-bg: #EEF8F8;
+            --accent-primary: #00BCD4; /* Teal */
+            --accent-primary-hover: #00ACC1;
+            --accent-secondary: #A078E0; /* Light Purple */
+            --accent-error: #EF4444;
+            --accent-success: #22C55E;
+            --user-bubble-bg: #DBFEFF; /* Very Light Aqua */
+            --user-bubble-text: #004D40;
+            --ai-bubble-bg: #E0FFFF; /* Light Cyan */
+            --ai-bubble-text: #2D3748;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-border: #E2E8F0;
+            --sidebar-item-hover: #EEF8F8;
+            --loader-dot-color: var(--accent-primary);
+            --main-chat-window-bg: rgba(255, 255, 255, 0.85);
+            --conversation-bg: rgba(255, 255, 255, 0.9);
+            --conversation-text: #2D3748;
+            --conversation-indicator: #00BCD4;
+            --code-block-bg: #E0FFFF;
+            --code-block-header-bg: #EEF8F8;
+            --code-block-border: #E2E8F0;
+
+            background-color: var(--bg-primary);
+        }
+
+        /* --- NEW THEMES END HERE --- */
+
         /* --- Global Styles & Overrides --- */
 
         /* Apply theme colors */
@@ -2084,7 +2311,7 @@
             /* Add a subtle animated background for depth */
             background-image: radial-gradient(circle at 15% 50%, color-mix(in srgb, var(--accent-primary) 20%, transparent), transparent 70%),
                               radial-gradient(circle at 85% 50%, color-mix(in srgb, var(--accent-secondary) 20%, transparent), transparent 70%),
-                              linear-gradient(135deg, color-mix(in srgb, var(--conversation-bg) 90%, black 10%) 0%, transparent 50%);
+                              linear-gradient(135deg, color-mix(in srgb, var(--conversation-bg) 90%, var(--bg-primary) 10%) 0%, transparent 50%);
             background-size: 200% 200%; /* Larger to allow animation */
             background-position: center center;
             animation: background-drift 30s infinite alternate ease-in-out;
@@ -2578,6 +2805,10 @@
                 <option value="nord">Nord</option>
                 <option value="gruvbox">Gruvbox</option>
                 <option value="catppuccin">Catppuccin</option>
+                <!-- ADDED NEW THEMES HERE -->
+                <option value="cosmic-nexus">Cosmic Nexus</option>
+                <option value="starship-minimal">Starship Minimal</option>
+                <option value="offbeat-cosmic">Offbeat Cosmic Pastels</option>
             </select>
         </div>
 

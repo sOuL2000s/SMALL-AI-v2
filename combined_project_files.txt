@@ -2531,6 +2531,17 @@
             <span data-lucide="layout-template" class="w-5 h-5 mr-2"></span> Manage Templates
         </button>
 
+        <!-- NEW: Data Management Buttons -->
+        <div class="mt-4 pt-4 border-t border-[var(--sidebar-border)]">
+            <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Data Management</h3>
+            <button id="delete-all-chats-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-2" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                <span data-lucide="folder-x" class="w-5 h-5 mr-2"></span> Delete All Chats
+            </button>
+            <button id="clear-local-storage-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4" style="background-color: var(--accent-error); color: white;">
+                <span data-lucide="database" class="w-5 h-5 mr-2"></span> Clear All Local Data
+            </button>
+        </div>
+
         <!-- Previous Chats Section -->
         <div class="flex-1 overflow-y-auto mb-4">
             <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Previous Chats</h3>
@@ -2814,6 +2825,10 @@
         const clearTemplateFormBtn = document.getElementById('clear-template-form-btn');
         const cancelTemplateModalBtn = document.getElementById('cancel-template-modal-btn');
         const savedTemplatesList = document.getElementById('saved-templates-list');
+
+        // NEW: Data Management Buttons
+        const deleteAllChatsBtn = document.getElementById('delete-all-chats-btn');
+        const clearLocalStorageBtn = document.getElementById('clear-local-storage-btn');
 
 
         const errorContainer = document.createElement('div');
@@ -4499,6 +4514,51 @@
         });
 
 
+        // --- NEW: Data Management Button Event Listeners ---
+        deleteAllChatsBtn.addEventListener('click', () => {
+            if (confirm('Are you absolutely sure you want to delete ALL previous chat sessions? This action cannot be undone.')) {
+                allChatSessions = {}; // Clear the in-memory object
+                localStorage.removeItem(CHAT_SESSIONS_KEY); // Remove from local storage
+                localStorage.removeItem(CURRENT_SESSION_ID_KEY); // Clear current session ID
+
+                // If there's any ongoing speech/recognition, stop it
+                if (isSpeaking) {
+                    window.speechSynthesis.cancel();
+                    isSpeaking = false;
+                    currentUtterance = null;
+                }
+                if (isVoiceInputActive && recognition) {
+                    recognition.stop();
+                }
+                if (isConversationModeActive) {
+                    stopConversationMode();
+                }
+                
+                // Create a brand new session to start fresh
+                createNewChatSession('New Chat'); 
+                showCopyMessage('All chat sessions deleted!', 'var(--accent-error)');
+            }
+        });
+
+        clearLocalStorageBtn.addEventListener('click', () => {
+            if (confirm('WARNING: Are you absolutely sure you want to clear ALL application data from your browser (including themes, custom prompts, templates, and ALL chats)? This will reset the application to its default state, and this action cannot be undone.')) {
+                // Optionally, stop any ongoing speech/recognition before reloading
+                if (isSpeaking) {
+                    window.speechSynthesis.cancel();
+                }
+                if (isVoiceInputActive && recognition) {
+                    recognition.stop();
+                }
+                if (isConversationModeActive) {
+                    stopConversationMode();
+                }
+                
+                localStorage.clear(); // Clears everything from local storage
+                location.reload(); // Reload the page to reflect the fresh state
+            }
+        });
+
+
         // --- Initial Load ---
         window.addEventListener('load', () => {
             createIcons();
@@ -4563,7 +4623,223 @@
 </body>
 </html>
 
-----------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 
-1. add two buttons, one for deleting all the previous chats and the other for deleting all the data from browser local storage.
-2. after making the above changes send me the full updated copy paste ready code.
+Here are **high-impact UI inspirations + design directions** that match your goals: **modern, futuristic, minimal, sleek, dashing, powerful, dependable, offbeat, cosmic.**
+I’ll give you **page layout ideas, color palettes, components, animations, backgrounds, fonts, and sample design themes.**
+
+---
+
+# 🎨 **1. COLOR PALETTE IDEAS**
+
+Choose one “world” and build everything around it.
+
+### **A. Cosmic Neon (Futuristic)**
+
+* Background: #05050A (almost black)
+* Primary neon: #00F5FF (electric cyan)
+* Secondary neon: #D400FF (purple glow)
+* Accents: #0AFF9D (mint)
+* Text: #E6E6E6
+
+**Feels:** sci-fi terminal meets cyberpunk.
+
+---
+
+### **B. Starship Minimal (Sleek, dependable)**
+
+* Background: #0D1117
+* Panels: #161B22
+* Primary: #2F81F7 (calm blue)
+* Accent: #58A6FF
+* Text: #F0F6FC (soft white)
+
+**Feels:** GitHub dark UI + NASA mission control.
+
+---
+
+### **C. Offbeat Cosmic Pastels (Unique & modern)**
+
+* Background: #0C0F16
+* Primary: #5CE1E6 (aqua pastel)
+* Secondary: #C780FF (lavender)
+* Details: #FFB4E9 (pink)
+* Text: #FDFDFD
+
+**Feels:** modern indie + cosmic aesthetic.
+
+---
+
+# 🪐 **2. LAYOUT CONCEPT IDEAS**
+
+### **A. “Floating Panels in Space” Layout**
+
+* A glassy floating chat box in center
+* Soft neon glows around elements
+* Thin glowing dividers
+* Planets/stars in background with subtle parallax
+
+---
+
+### **B. “Holographic Terminal” Layout**
+
+* Branded AI character or logo appears as a hologram
+* Chat bubbles styled like holographic plates
+* Grid-lines background (faint)
+* Animations appear like **data beams**
+
+---
+
+### **C. “Orbital Sidebar + Command Canvas”**
+
+* Left sidebar = planetary icons → menu items
+* Main area = wide chat window
+* Topbar = AI “energy indicator” (cool detail)
+
+---
+
+### **D. “Minimal Blank Space Universe”**
+
+* Clean white or midnight black background
+* One big rounded container for chat
+* Subtle star pattern or gradient mist
+* Floating subtle orbit rings around UI elements
+
+---
+
+# ✨ **3. COMPONENT DESIGN INSPIRATION**
+
+### **Chat Bubbles**
+
+* Glassmorphism (blur + transparency)
+* Neon outlines with subtle inner glow
+* Smooth 24–32px border radius
+* Dynamic message loading shimmer
+
+---
+
+### **Input Box**
+
+* Sleek, long, pill-shaped
+* Glowing thin border on focus
+* Mic + attachment icons floating, not boxed
+
+---
+
+### **Buttons**
+
+* Futuristic:
+
+  * Border-only with neon glow on hover
+  * Floating shadows
+  * Micro-animations
+
+---
+
+### **AI Avatar**
+
+You can style the AI as:
+
+* A glowing orb
+* A hologram face
+* A geometric shape that pulses
+* A minimalist planet
+* A shifting gradient nebula
+
+---
+
+# 🌌 **4. BACKGROUND IDEAS (COSMIC THEMES)**
+
+### **Ultra-minimal Galaxy**
+
+* Black gradient with ultra-faint star particles
+* Occasional “shooting star” animation (very slow)
+
+### **Abstract Neural Space**
+
+* Soft vaporwave gradient swirls
+* Slow-moving gradient noise
+* Inspired by Midjourney UI
+
+### **Wireframe Planet**
+
+* A large wireframe sphere on right side
+* Moves slightly when scrolling
+* Gives a high-tech cosmic vibe
+
+---
+
+# ⚡ **5. MICRO-ANIMATIONS THAT MAKE IT FEEL PREMIUM**
+
+* Chat messages fade in + slide up 4–6px
+* Input box border glows on focus
+* AI avatar pulses gently when thinking
+* Page load animation:
+
+  * Stars fade in
+  * Panels slide in gracefully
+* Hover:
+
+  * Slight tilt (3D parallax)
+  * Neon border flicker effect
+
+---
+
+# ✍️ **6. TYPOGRAPHY IDEAS**
+
+### **Modern futuristic fonts:**
+
+* **Inter** (clean + minimal)
+* **Satoshi** (sleek + powerful)
+* **Space Grotesk** (cosmic!)
+* **Montserrat** (tech but friendly)
+* **Chakra Petch** (tech aesthetic)
+* **Oxanium** (sci-fi themed)
+
+### Heading combos:
+
+* **Space Grotesk** (H1) + Inter (body)
+* **Chakra Petch** (H1) + Satoshi (body)
+
+---
+
+# 🚀 **7. READY-MADE DESIGN THEMES (FULL BUNDLES)**
+
+### 🔮 **Theme 1: “Cosmic Nexus”**
+
+* Neon cyan & purple
+* Glass chat bubbles
+* Holographic avatar
+* Star-field background
+* Glowing UI borders
+* Rounded panels
+* Minimal but sci-fi
+
+---
+
+### 🌑 **Theme 2: “Dark Matter Core”**
+
+* Matte deep black
+* Electric blue accents
+* Bold typography
+* Subtle planet wireframes
+* No glow — everything is sharp and powerful
+* Gives NASA + SpaceX vibes
+
+---
+
+### 🪄 **Theme 3: “Pastel Nebula”**
+
+* Soft cosmic gradients
+* Round, pill-shaped elements
+* Unique offbeat color accents
+* Dreamy, modern look
+
+-------------------------------------------------------------------------------
+
+1. i have shared with the commplete code of my website and a reference to take inspiration from.
+2. now what i want you to do is take inspiration from that reference and decide what aproach you want to take in case of designing the front end ui of the website.
+3. the two options from which you have to choose are:
+    a. add the three themes that i have mentioned above as simply themes with all their specific characteristics.
+    b. redesign the whole website so that all of it is changed to look based on the reference.(for this, do not remove any currently available themes instead make them adapt with the newly designed website which will be the definition of the brand)
+4. after you're done making changes send me the full copy paste ready updated code.
