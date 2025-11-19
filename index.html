@@ -2777,53 +2777,65 @@
             </ul>
         </div>
 
-        <!-- Theme Selector (Dropdown for different themes) -->
-        <div class="mt-auto pt-4 border-t border-[var(--sidebar-border)]">
-            <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Themes</h3>
-            <select id="app-theme-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select App Theme">
-                <option value="default">Small AI v2 (Default)</option>
-                <option value="celestial-horizon">Celestial Horizon</option>
-                <option value="verdant-calm">Verdant Calm</option>
-                <option value="cybernetic-pulse">Cybernetic Pulse</option>
-                <option value="urban-pulse">Urban Pulse</option>
-                <option value="rustic-ember">Rustic Ember</option>
-                <option value="neon-mirage">Neon Mirage</option>
-                <option value="ivory-bloom">Ivory Bloom</option>
-                <option value="obsidian-night">Obsidian Night</option>
-                <option value="solar-dawn">Solar Dawn</option>
-                <option value="aurora-drift">Aurora Drift</option>
-                <option value="timeless-echo">Timeless Echo</option>
-                <option value="mystic-void">Mystic Void</option>
-                <option value="darkest-bw">The Darkest Night</option>
-                <!-- NEW THEMES BELOW -->
-                <option value="coder">Coder's Theme</option>
-                <option value="cyberpunk">Cyberpunk Neon</option>
-                <option value="matrix">Matrix Code</option>
-                <option value="solarized">Solarized</option>
-                <option value="dracula">Dracula</option>
-                <option value="monokai">Monokai Pro</option>
-                <option value="nord">Nord</option>
-                <option value="gruvbox">Gruvbox</option>
-                <option value="catppuccin">Catppuccin</option>
-                <!-- ADDED NEW THEMES HERE -->
-                <option value="cosmic-nexus">Cosmic Nexus</option>
-                <option value="starship-minimal">Starship Minimal</option>
-                <option value="offbeat-cosmic">Offbeat Cosmic Pastels</option>
-            </select>
-        </div>
+        <!-- Grouped Settings Section (Model, Theme, Version) - Optimized for space -->
+        <div class="mt-auto pt-4 border-t border-[var(--sidebar-border)] space-y-3">
+            
+            <!-- Model Selector -->
+            <div>
+                <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">AI Model</h3>
+                <select id="model-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select AI Model">
+                    <!-- Options populated by JS -->
+                </select>
+            </div>
 
-        <!-- Version Selector -->
-        <div class="mt-4 pt-4 border-t border-[var(--sidebar-border)]">
-            <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Version</h3>
-            <select id="version-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select Chatbot Version">
-                <option value="https://mystic-vision-ai-standalone-chatbot.netlify.app/">Main Version</option>
-                <option value="https://mystic-vision-ai-lite.netlify.app/">Lite Version</option>
-                <option value="https://mystic-vision-ai-basic.netlify.app/">Basic Version</option>
-                <option value="https://mystic-vision-ai-mini.netlify.app/">Mini Version</option>
-                <option value="https://cosmic-chat-ai-simple-ai-chatbot.netlify.app/">Cosmic Chat AI</option>
-                <option value="https://small-ai-big-vision.netlify.app/">Small AI (Legacy)</option>
-                <option value="https://small-ai-big-vision-v2.netlify.app/" selected>Small AI v2 (Current)</option>
-            </select>
+            <!-- Theme Selector (Dropdown for different themes) -->
+            <div>
+                <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Themes</h3>
+                <select id="app-theme-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select App Theme">
+                    <option value="default">Small AI v2 (Default)</option>
+                    <option value="celestial-horizon">Celestial Horizon</option>
+                    <option value="verdant-calm">Verdant Calm</option>
+                    <option value="cybernetic-pulse">Cybernetic Pulse</option>
+                    <option value="urban-pulse">Urban Pulse</option>
+                    <option value="rustic-ember">Rustic Ember</option>
+                    <option value="neon-mirage">Neon Mirage</option>
+                    <option value="ivory-bloom">Ivory Bloom</option>
+                    <option value="obsidian-night">Obsidian Night</option>
+                    <option value="solar-dawn">Solar Dawn</option>
+                    <option value="aurora-drift">Aurora Drift</option>
+                    <option value="timeless-echo">Timeless Echo</option>
+                    <option value="mystic-void">Mystic Void</option>
+                    <option value="darkest-bw">The Darkest Night</option>
+                    <!-- NEW THEMES BELOW -->
+                    <option value="coder">Coder's Theme</option>
+                    <option value="cyberpunk">Cyberpunk Neon</option>
+                    <option value="matrix">Matrix Code</option>
+                    <option value="solarized">Solarized</option>
+                    <option value="dracula">Dracula</option>
+                    <option value="monokai">Monokai Pro</option>
+                    <option value="nord">Nord</option>
+                    <option value="gruvbox">Gruvbox</option>
+                    <option value="catppuccin">Catppuccin</option>
+                    <!-- ADDED NEW THEMES HERE -->
+                    <option value="cosmic-nexus">Cosmic Nexus</option>
+                    <option value="starship-minimal">Starship Minimal</option>
+                    <option value="offbeat-cosmic">Offbeat Cosmic Pastels</option>
+                </select>
+            </div>
+
+            <!-- Version Selector -->
+            <div>
+                <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Version</h3>
+                <select id="version-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select Chatbot Version">
+                    <option value="https://mystic-vision-ai-standalone-chatbot.netlify.app/">Main Version</option>
+                    <option value="https://mystic-vision-ai-lite.netlify.app/">Lite Version</option>
+                    <option value="https://mystic-vision-ai-basic.netlify.app/">Basic Version</option>
+                    <option value="https://mystic-vision-ai-mini.netlify.app/">Mini Version</option>
+                    <option value="https://cosmic-chat-ai-simple-ai-chatbot.netlify.app/">Cosmic Chat AI</option>
+                    <option value="https://small-ai-big-vision.netlify.app/">Small AI (Legacy)</option>
+                    <option value="https://small-ai-big-vision-v2.netlify.app/" selected>Small AI v2 (Current)</option>
+                </select>
+            </div>
         </div>
     </aside>
 
@@ -3027,6 +3039,9 @@
         const sidebarChatList = document.getElementById('sidebar-chat-list');
         const chatInputAreaContainer = document.getElementById('chat-input-area-container'); // Parent for drag/drop
 
+        // NEW: Model Selector DOM elements
+        const modelSelectSidebar = document.getElementById('model-select-sidebar'); 
+
         // NEW: Conversation Mode DOM elements
         const conversationModeOverlay = document.getElementById('conversation-mode-overlay');
         const conversationModeToggleBtn = document.getElementById('conversation-mode-toggle-btn');
@@ -3076,6 +3091,8 @@
         const CURRENT_SESSION_ID_KEY = 'smallAI_current_session_id';
         const THEME_STORAGE_KEY = 'smallAI_selected_theme'; // Stores theme name (e.g., 'celestial-horizon')
         const MODE_STORAGE_KEY = 'smallAI_theme_mode'; // Stores 'dark' or 'light'
+        const MODEL_STORAGE_KEY = 'smallAI_selected_model'; // NEW
+
         const DEFAULT_THEME_NAME = 'default';
         const DEFAULT_MODE = 'dark';
         const CONVERSATION_VOICE_KEY = 'smallAI_conversation_voice'; // NEW
@@ -3083,6 +3100,21 @@
         const CUSTOM_PROMPT_TEXT_KEY = 'smallAI_custom_prompt_text';
         const CUSTOM_PROMPT_ACTIVE_KEY = 'smallAI_custom_prompt_active';
         const PROMPT_TEMPLATES_KEY = 'smallAI_prompt_templates'; // NEW
+
+        // NEW: Model Definitions
+        const availableModels = [
+            "gemini-3-pro-preview",
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-preview-09-2025",
+            "gemini-2.5-flash-lite",
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-001",
+            "gemini-2.0-flash-lite",
+            "gemini-2.0-flash-lite-001"
+        ];
+        const DEFAULT_MODEL = "gemini-2.5-flash-preview-09-2025";
+        let selectedModel = DEFAULT_MODEL;
 
         let allChatSessions = {}; // Maps session ID to {id, title, history, timestamp}
         let currentSessionId = null;
@@ -3335,6 +3367,42 @@
                 applyTheme(newThemeName, currentMode); // Apply with current dark/light mode
             });
         }
+        
+        // --- NEW: Model Management ---
+        function updateModelDropdown() {
+            modelSelectSidebar.innerHTML = '';
+            
+            const storedModel = localStorage.getItem(MODEL_STORAGE_KEY) || DEFAULT_MODEL;
+            selectedModel = storedModel; // Update global state
+            
+            availableModels.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                // Add tag for default or current setting
+                let displayName = model;
+                if (model === DEFAULT_MODEL) {
+                    displayName += ' (Default)';
+                } else if (model === selectedModel) {
+                    displayName += ' (Current)';
+                }
+                option.textContent = displayName;
+                
+                if (model === selectedModel) {
+                    option.selected = true;
+                }
+                modelSelectSidebar.appendChild(option);
+            });
+        }
+
+        if (modelSelectSidebar) {
+            modelSelectSidebar.addEventListener('change', (event) => {
+                selectedModel = event.target.value;
+                localStorage.setItem(MODEL_STORAGE_KEY, selectedModel);
+                updateModelDropdown(); // Re-render to update the current tag
+                showCopyMessage(`AI Model changed to ${selectedModel}`, 'var(--accent-primary)');
+            });
+        }
+        // --- END Model Management ---
 
 
         // Version Selector Listener
@@ -3574,7 +3642,7 @@
 
                 return `
                     <div class="code-block-container" style="background-color: var(--bg-secondary); border-color: var(--border-color);">
-                        <div class="code-block-header" style="background-color: var(--header-bg); color: var(--text-secondary); border-bottom-color: var(--border-color);">
+                        <div class="code-block-header" style="background-color: var(--code-block-header-bg); color: var(--text-secondary); border-bottom-color: var(--code-block-border);">
                             ${languageDisplay}
                             <button class="code-block-copy-button" data-copy-target="${uniqueId}" style="color: var(--text-secondary);">
                                 <span data-lucide="clipboard" class="w-4 h-4"></span>
@@ -4128,7 +4196,8 @@
                 throw new Error("API Key is not set or is the default placeholder. Please replace 'YOUR_GEMINI_API_KEY' in the script with your actual Gemini API key.");
             }
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            // MODIFIED: Use the globally selectedModel variable
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
             // Create a mutable copy of the payload contents to safely prepend
             const contentsToSend = JSON.parse(JSON.stringify(payload.contents));
@@ -4793,6 +4862,10 @@
         // --- Initial Load ---
         window.addEventListener('load', () => {
             createIcons();
+            
+            // NEW: Initialize model selector early
+            updateModelDropdown();
+
             loadAllChatSessions();
 
             let storedSessionId = localStorage.getItem(CURRENT_SESSION_ID_KEY);
