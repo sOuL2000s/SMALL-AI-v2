@@ -4185,22 +4185,35 @@
         // Generic API call function with exponential backoff
         async function callGeminiAPI(payload, personalityName = "Standard") {
             // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-            // SECURITY CHANGE: We are no longer using the API key directly here.
-            // We now call a secure Netlify Function proxy.
+            // IMPORTANT: Replace "YOUR_GEMINI_API_KEY" with your actual Google Gemini API Key.
+            // Get your API key from Google AI Studio: https://makersuite.google.com/
+            // Do NOT expose your API key directly in production applications.
+            // For production, consider using a backend proxy to secure your API key.
             // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            
-            // The Netlify Function endpoint
-            const proxyUrl = `/.netlify/functions/gemini-proxy`;
+            const apiKey = "AIzaSyBN6jO9g2OJ11yxFHzhlMX9552TdBVtSH0"; 
+
+            if (apiKey === "YOUR_GEMINI_API_KEY" || !apiKey || apiKey === "") { 
+                throw new Error("API Key is not set or is the default placeholder. Please replace 'YOUR_GEMINI_API_KEY' in the script with your actual Gemini API key.");
+            }
+
+            // MODIFIED: Use the globally selectedModel variable
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
             // Create a mutable copy of the payload contents to safely prepend
             const contentsToSend = JSON.parse(JSON.stringify(payload.contents));
             
-            // Build the prompt prefix (This logic stays on the client side, which is fine)
+            // Build the prompt prefix
             let promptPrefix = '';
 
             // NEW LOGIC: Prioritize custom prompt if active
             if (isCustomPromptActive && customPromptText.trim() !== '') {
                 promptPrefix = customPromptText.trim();
+                // If custom prompt is active, personality is implicitly overridden for simplicity.
+                // If you want to combine them, you could concatenate here:
+                // const selectedPersonalityObj = personalities.find(p => p.name === personalityName);
+                // if (selectedPersonalityObj && selectedPersonalityObj.prompt) {
+                //     promptPrefix += "\n\n" + selectedPersonalityObj.prompt.trim();
+                // }
             } else {
                 // If custom prompt is not active, apply selected personality
                 const selectedPersonalityObj = personalities.find(p => p.name === personalityName);
@@ -4210,20 +4223,23 @@
             }
 
             if (promptPrefix) {
-                // Prepend the prompt to the first message in the contents array
+                // Find the first user message in the current conversation turn to prepend the prompt to.
+                // If the first message is from the user, add the prompt to it.
+                // If the history is empty or the first message isn't from the user (e.g., initial AI message),
+                // prepend a new user message containing just the prompt.
+                // This implicitly sets the AI's "persona" from the start.
                 if (contentsToSend.length > 0 && contentsToSend[0].role === 'user' && contentsToSend[0].parts && contentsToSend[0].parts.length > 0 && contentsToSend[0].parts[0].text) {
                     contentsToSend[0].parts[0].text = promptPrefix + "\n\n" + contentsToSend[0].parts[0].text;
                 } else {
+                    // If there's no initial user message to prepend to, or history is empty,
+                    // insert the prompt as a dedicated user message at the very beginning of the API call.
+                    // This implicitly sets the AI's "persona" from the start.
                     contentsToSend.unshift({ role: "user", parts: [{ text: promptPrefix }] });
                 }
             }
             
-            // The final payload sent to the secure Netlify function
-            const finalPayload = { 
-                contents: contentsToSend,
-                selectedModel: selectedModel, // Pass the dynamically selected model
-                personalityName: personalityName // Optional, useful for logging/debugging proxy
-            };
+            // Update payload with modified contents
+            const finalPayload = { ...payload, contents: contentsToSend };
 
             let response;
             let result;
@@ -4234,25 +4250,24 @@
 
             while (retryCount < maxRetries && !success) {
                 try {
-                    // Call the secure proxy endpoint
-                    response = await fetch(proxyUrl, {
+                    response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(finalPayload)
+                        body: JSON.stringify(finalPayload) // Use finalPayload here!
                     });
 
                     if (response.status === 429) {
                         if (retryCount < maxRetries - 1) {
-                            console.warn(`Proxy rate limit exceeded. Retrying in ${delay / 1000}s...`);
+                            console.warn(`API rate limit exceeded. Retrying in ${delay / 1000}s...`);
                             await new Promise(res => setTimeout(res, delay));
                             delay *= 2;
                             retryCount++;
                         } else {
-                            throw new Error('Server limit exceeded. Please try again later.');
+                            throw new Error('API rate limit exceeded. Please try again later.');
                         }
                     } else if (!response.ok) {
-                        result = await response.json();
-                        throw new Error(`Proxy error: ${response.status} ${response.statusText} - ${result.error || 'Unknown error'}`);
+                        const errorData = await response.json();
+                        throw new Error(`API error: ${response.status} ${response.statusText} - ${errorData.error?.message || 'Unknown error'}`);
                     } else {
                         result = await response.json();
                         success = true;
@@ -4269,11 +4284,12 @@
                 }
             }
             
-            // Extract the responseText which is now wrapped by the proxy function
-            if (result && result.responseText) {
-                return result.responseText;
+            if (result && result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                return result.candidates[0].content.parts[0].text;
             } else {
-                throw new Error('Failed to get a valid response from the AI proxy.');
+                throw new Error('Failed to get a valid response from the AI. No candidates found or content is empty.');
             }
         }
 
