@@ -1,64 +1,106 @@
-// This function runs on the server (Netlify's AWS Lambda)
+// netlify/functions/generateContent.js
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const { GoogleGenAI } = require("@google/genai");
 
-exports.handler = async (event, context) => {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+// Retrieve API key securely from environment variables
+const apiKey = process.env.GEMINI_API_KEY; 
+
+// Initialize the GoogleGenAI client
+// Note: This library handles the HTTP requests and model integration
+if (!apiKey) {
+    console.error("GEMINI_API_KEY is not set in Netlify environment variables.");
+}
+const ai = new GoogleGenAI(apiKey);
+
+// Helper function for delayed retry
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+exports.handler = async (event) => {
+    // 1. Basic Security Check (optional but recommended)
+    if (event.httpMethod !== "POST") {
+        return { statusCode: 405, body: JSON.stringify({ message: "Method Not Allowed" }) };
     }
 
+    if (!apiKey) {
+        return { statusCode: 500, body: JSON.stringify({ message: "Server configuration error: API Key missing." }) };
+    }
+
+    let payload;
     try {
-        const { contents, selectedModel, personalityName } = JSON.parse(event.body);
+        payload = JSON.parse(event.body);
+    } catch (e) {
+        return { statusCode: 400, body: JSON.stringify({ message: "Invalid JSON format in request body." }) };
+    }
 
-        if (!GEMINI_API_KEY) {
-            return { statusCode: 500, body: JSON.stringify({ error: 'API Key is missing on the server.' }) };
+    const { contents, model } = payload;
+
+    if (!contents || !model) {
+        return { statusCode: 400, body: JSON.stringify({ message: "Missing 'contents' or 'model' in payload." }) };
+    }
+
+    let responseText = null;
+    let retryCount = 0;
+    const maxRetries = 3;
+    let delay = 1000; // Start delay at 1 second
+
+    // 2. Robust Retry Loop with Exponential Backoff (for mitigation)
+    while (retryCount < maxRetries) {
+        try {
+            console.log(`Attempt ${retryCount + 1}: Calling Gemini API with model ${model}`);
+            
+            const response = await ai.models.generateContent({
+                model: model,
+                contents: contents
+            });
+
+            // 3. Success check and response extraction
+            if (response.candidates && response.candidates.length > 0 &&
+                response.candidates[0].content && response.candidates[0].content.parts &&
+                response.candidates[0].content.parts.length > 0) {
+                
+                responseText = response.candidates[0].content.parts[0].text;
+                break; // Success, exit the loop
+            } else {
+                // Handle cases where the API returns an empty response (safety check)
+                throw new Error("API returned empty content or no candidates.");
+            }
+
+        } catch (error) {
+            retryCount++;
+            
+            // Log the error details
+            console.error(`Gemini API Error on attempt ${retryCount}:`, error.message);
+            
+            // Check for specific retry-worthy errors (Rate Limit/Server Errors)
+            const isRetryable = error.message.includes('429') || 
+                                 error.message.includes('500') ||
+                                 error.message.includes('503');
+
+            if (isRetryable && retryCount < maxRetries) {
+                console.warn(`Retryable error detected. Waiting ${delay / 1000}s...`);
+                await sleep(delay);
+                delay *= 2; // Exponential backoff
+            } else {
+                // Non-retryable error (like a 400 Bad Request, or max retries reached)
+                const errorMessage = `Failed to get a response after ${retryCount} attempts. Error: ${error.message}`;
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({ message: errorMessage }),
+                };
+            }
         }
-        
-        // Construct the full URL using the model passed from the client
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${GEMINI_API_KEY}`;
+    }
 
-        // The client-side logic already handles prepending the personality/custom prompt
-        // so we just pass the contents array directly.
-        const payload = {
-            contents: contents
+    if (responseText) {
+        return {
+            statusCode: 200,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: responseText }),
         };
-
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-             console.error('Gemini API Error:', result);
-             return {
-                statusCode: response.status,
-                body: JSON.stringify({ error: result.error?.message || 'Gemini API call failed' })
-            };
-        }
-        
-        // Safely extract and return the generated text
-        const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (responseText) {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ responseText })
-            };
-        } else {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ error: 'Failed to extract response text from Gemini.' })
-            };
-        }
-
-    } catch (error) {
-        console.error('Serverless Function Error:', error);
+    } else {
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Internal Server Error during processing: ' + error.message })
+            body: JSON.stringify({ message: "AI response processing failed after all retries." }),
         };
     }
 };

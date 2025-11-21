@@ -1,0 +1,15 @@
+{
+  "name": "small-ai-v2",
+  "version": "1.0.0",
+  "description": "Website Link : https://small-ai-big-vision-v2.netlify.app/",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^1.30.0"
+  }
+}
