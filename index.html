@@ -2821,7 +2821,13 @@
 
                 <!-- Theme Selector (Dropdown for different themes) -->
                 <div>
-                    <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Themes</h3>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Themes</h3>
+                        <!-- NEW: Theme Randomizer Button -->
+                        <button id="random-theme-btn" title="Random Theme" class="p-2 rounded-full transition-colors" style="background-color: var(--accent-primary); color: black;">
+                            <span data-lucide="shuffle" class="w-4 h-4"></span>
+                        </button>
+                    </div>
                     <select id="app-theme-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select App Theme">
                         <option value="default">Small AI v2 (Default)</option>
                         <option value="celestial-horizon">Celestial Horizon</option>
@@ -3135,6 +3141,8 @@
         const toggleSettingsBtn = document.getElementById('toggle-settings-btn');
         const settingsContent = document.getElementById('settings-content');
         const settingsChevron = document.getElementById('settings-chevron');
+        // NEW: Theme Randomizer Button
+        const randomThemeBtn = document.getElementById('random-theme-btn');
 
 
         // NEW: Conversation Mode DOM elements
@@ -5307,6 +5315,48 @@
             } else {
                 settingsChevron.style.transform = 'rotate(180deg)';
             }
+        }
+
+        // Function to select a random theme and mode
+        function getRandomTheme() {
+            // Get all theme options from the selector
+            const options = Array.from(appThemeSelect.options);
+            const themeNames = options.map(opt => opt.value).filter(name => name); // Filter out empty values
+            
+            if (themeNames.length === 0) return null;
+
+            const randomIndex = Math.floor(Math.random() * themeNames.length);
+            const randomThemeName = themeNames[randomIndex];
+            
+            // Randomly choose dark or light mode
+            const randomMode = Math.random() < 0.5 ? 'dark' : 'light';
+            
+            return { name: randomThemeName, mode: randomMode };
+        }
+
+        // Event listener for the Random Theme button
+        if (randomThemeBtn) {
+            randomThemeBtn.addEventListener('click', () => {
+                const randomTheme = getRandomTheme();
+                if (randomTheme) {
+                    // Apply the new random theme and mode
+                    applyTheme(randomTheme.name, randomTheme.mode);
+                    
+                    // Update the UI elements to reflect the change
+                    darkModeToggle.checked = (randomTheme.mode === 'dark'); 
+                    appThemeSelect.value = randomTheme.name;
+                    
+                    // Save settings to Firebase if logged in
+                    if (currentUser) {
+                        saveUserSetting('themeName', randomTheme.name);
+                        saveUserSetting('themeMode', randomTheme.mode);
+                    }
+                    
+                    showCopyMessage(`Applied random theme: ${randomTheme.name} (${randomTheme.mode})`, 'var(--accent-primary)');
+                } else {
+                    showError("Could not find any available themes to randomize.");
+                }
+            });
         }
 
         // --- Final Initializations & Event Hooks ---
