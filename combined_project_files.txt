@@ -1,3 +1,6 @@
+
+--- START FILE: index.html ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2821,7 +2824,13 @@
 
                 <!-- Theme Selector (Dropdown for different themes) -->
                 <div>
-                    <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Themes</h3>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Themes</h3>
+                        <!-- NEW: Theme Randomizer Button -->
+                        <button id="random-theme-btn" title="Random Theme" class="p-2 rounded-full transition-colors" style="background-color: var(--accent-primary); color: black;">
+                            <span data-lucide="shuffle" class="w-4 h-4"></span>
+                        </button>
+                    </div>
                     <select id="app-theme-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select App Theme">
                         <option value="default">Small AI v2 (Default)</option>
                         <option value="celestial-horizon">Celestial Horizon</option>
@@ -3135,6 +3144,8 @@
         const toggleSettingsBtn = document.getElementById('toggle-settings-btn');
         const settingsContent = document.getElementById('settings-content');
         const settingsChevron = document.getElementById('settings-chevron');
+        // NEW: Theme Randomizer Button
+        const randomThemeBtn = document.getElementById('random-theme-btn');
 
 
         // NEW: Conversation Mode DOM elements
@@ -5309,6 +5320,48 @@
             }
         }
 
+        // Function to select a random theme and mode
+        function getRandomTheme() {
+            // Get all theme options from the selector
+            const options = Array.from(appThemeSelect.options);
+            const themeNames = options.map(opt => opt.value).filter(name => name); // Filter out empty values
+            
+            if (themeNames.length === 0) return null;
+
+            const randomIndex = Math.floor(Math.random() * themeNames.length);
+            const randomThemeName = themeNames[randomIndex];
+            
+            // Randomly choose dark or light mode
+            const randomMode = Math.random() < 0.5 ? 'dark' : 'light';
+            
+            return { name: randomThemeName, mode: randomMode };
+        }
+
+        // Event listener for the Random Theme button
+        if (randomThemeBtn) {
+            randomThemeBtn.addEventListener('click', () => {
+                const randomTheme = getRandomTheme();
+                if (randomTheme) {
+                    // Apply the new random theme and mode
+                    applyTheme(randomTheme.name, randomTheme.mode);
+                    
+                    // Update the UI elements to reflect the change
+                    darkModeToggle.checked = (randomTheme.mode === 'dark'); 
+                    appThemeSelect.value = randomTheme.name;
+                    
+                    // Save settings to Firebase if logged in
+                    if (currentUser) {
+                        saveUserSetting('themeName', randomTheme.name);
+                        saveUserSetting('themeMode', randomTheme.mode);
+                    }
+                    
+                    showCopyMessage(`Applied random theme: ${randomTheme.name} (${randomTheme.mode})`, 'var(--accent-primary)');
+                } else {
+                    showError("Could not find any available themes to randomize.");
+                }
+            });
+        }
+
         // --- Final Initializations & Event Hooks ---
 
         // AUTH Event Listeners
@@ -5361,6 +5414,176 @@
 </body>
 </html>
 
--------------------
+--- END FILE: index.html ---
 
-how to add a theme randomizer button right beside theme section in sidebar?
+--- START FILE: manifest.json ---
+
+{
+    "name": "Small AI v2",
+    "short_name": "Small AI v2",
+    "description": "An AI Chatbot with powerful features and customizable themes.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#110B1D",
+    "theme_color": "#9400D3",
+    "icons": [
+        {
+            "src": "logo.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "logo.png",
+            "sizes": "180x180",
+            "type": "image/png",
+            "purpose": "apple touch icon"
+        },
+        {
+            "src": "logo.png",
+            "sizes": "150x150",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "orientation": "portrait"
+}
+
+--- END FILE: manifest.json ---
+
+--- START FILE: README.md ---
+
+﻿# SMALL-AI-v2
+
+Website Link : https://small-ai-big-vision-v2.netlify.app/
+
+
+--- END FILE: README.md ---
+
+--- START FILE: sw.js ---
+
+const CACHE_NAME = 'small-ai-v2-cache-v2.8'; // Increment this version number when you make significant changes to cached assets!
+const urlsToCache = [
+    '/', // The root HTML page
+    'index.html', // The specific HTML file
+    'manifest.json',
+    'logo.png', // The application icon
+
+    // External CDN resources - crucial for offline functionality
+    'https://cdn.tailwindcss.com',
+    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
+    'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
+    'https://cdn.jsdelivr.net/npm/lucide-dynamic@latest/dist/lucide.min.js',
+    'https://unpkg.com/lucide@latest'
+];
+
+// Install event: caches all defined static assets
+self.addEventListener('install', (event) => {
+    console.log('Service Worker: Installing and caching static assets...');
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then((cache) => {
+                return cache.addAll(urlsToCache);
+            })
+            .catch((error) => {
+                console.error('Service Worker: Cache.addAll failed', error);
+            })
+    );
+});
+
+// Activate event: cleans up old caches, ensuring only the current version is active
+self.addEventListener('activate', (event) => {
+    console.log('Service Worker: Activating and cleaning old caches...');
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('Service Worker: Deleting old cache:', cacheName);
+                        return caches.delete(cacheName);
+                    }
+                    return null;
+                })
+            );
+        }).then(() => {
+            // Ensure the service worker takes control of clients immediately
+            return self.clients.claim();
+        })
+    );
+});
+
+// Fetch event: intercepts network requests
+self.addEventListener('fetch', (event) => {
+    // We only want to handle GET requests for static assets that we can cache.
+    // Dynamic API requests (like Gemini's generateContent) should always go to the network
+    // and are typically POST requests, so they won't be affected by this caching strategy.
+    
+    // Convert the request URL to a URL object for easier comparison
+    const requestUrl = new URL(event.request.url);
+
+    // Check if the request is for a file we intend to cache
+    // This includes both local files and CDN resources
+    const isCacheableAsset = urlsToCache.some(url => {
+        // For root path and index.html, compare href directly
+        if (url === '/' || url === 'index.html') {
+            return requestUrl.pathname === '/' || requestUrl.pathname === '/index.html';
+        }
+        // For other local assets (like manifest.json, logo.png), compare paths
+        if (!url.startsWith('http')) {
+            return requestUrl.pathname === `/${url}`;
+        }
+        // For CDN assets, check if the request URL starts with the cached URL
+        return requestUrl.href.startsWith(url);
+    });
+
+    if (event.request.method === 'GET' && isCacheableAsset) {
+        event.respondWith(
+            caches.match(event.request)
+                .then((response) => {
+                    // Cache hit - return cached response
+                    if (response) {
+                        console.log('Service Worker: Serving from cache:', event.request.url);
+                        return response;
+                    }
+                    // No cache hit - fetch from network
+                    console.log('Service Worker: Fetching from network:', event.request.url);
+                    return fetch(event.request)
+                        .then((networkResponse) => {
+                            // If we get a valid response, clone it and put it in cache
+                            if (networkResponse && networkResponse.ok) {
+                                const responseToCache = networkResponse.clone();
+                                caches.open(CACHE_NAME).then((cache) => {
+                                    cache.put(event.request, responseToCache);
+                                });
+                            }
+                            return networkResponse;
+                        })
+                        .catch((error) => {
+                            // If network fails and no cached response, log error
+                            console.error('Service Worker: Fetch failed for:', event.request.url, error);
+                            // Optionally, serve an offline fallback page here for critical assets
+                            // For a chat app, if the main HTML can't load, a basic offline message is useful.
+                            // If you have a specific offline.html, you can return caches.match('/offline.html');
+                            // For simplicity, we'll just return a basic "You're offline" response.
+                            return new Response('<h1>You are offline!</h1><p>It looks like you\'re not connected to the internet.</p>', {
+                                headers: { 'Content-Type': 'text/html' }
+                            });
+                        });
+                })
+        );
+    } else {
+        // For all other requests (e.g., POST requests, API calls, unlisted assets), go straight to the network
+        event.respondWith(fetch(event.request));
+    }
+});
+
+--- END FILE: sw.js ---
+
+---------------------------------------------------------------------
+
+add a feature to export the chat in markdown and preview in a small popup markdown editor.
+send me the neccessary lines to change.
