@@ -1,6 +1,3 @@
-
---- START FILE: index.html ---
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,22 +24,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
-    <!-- Prism.js for syntax highlighting -->
-    <!-- FIX: Load Prism CORE first -->
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script> -->
-    <!-- Dynamically load dark or light Prism theme based on app theme -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css" rel="stylesheet" id="prism-dark-theme" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" id="prism-light-theme" disabled />
-    <!-- Include common languages (adjust as needed) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-html.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
     <style>
         /*
         * --- Custom Styles for AI Chat Assistant (Enhanced) ---
@@ -2715,7 +2696,7 @@
 <body class="antialiased" data-theme="default-dark">
 
     <!-- Conversation Mode Overlay (NEW SECTION) -->
-    <div id="conversation-mode-overlay" class="hidden">
+    <div id="conversation-mode-overlay" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
         <button id="conversation-mode-close-btn" aria-label="Close Conversation Mode" title="Close Conversation Mode">
             <span data-lucide="x" class="w-8 h-8"></span>
         </button>
@@ -2914,6 +2895,10 @@
             </div>
             <!-- Right side of header -->
             <div class="flex items-center gap-4">
+                <!-- Export to Markdown Button (NEW) -->
+                <button id="export-markdown-btn" aria-label="Export Chat to Markdown" title="Export Chat to Markdown" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                    <span data-lucide="download" class="w-5 h-5"></span>
+                </button>
                 <!-- Conversation Mode Toggle Button (NEW) -->
                 <button id="conversation-mode-toggle-btn" aria-label="Conversation Mode" title="Start Voice Conversation" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="messages-square" class="w-5 h-5"></span>
@@ -3060,6 +3045,47 @@
         </div>
     </div>
     <!-- End Authentication Modal/Overlay -->
+
+    <!-- NEW: Markdown Export Modal/Overlay -->
+    <div id="markdown-export-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
+        <div class="p-6 rounded-xl shadow-2xl w-full max-w-4xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
+                <span data-lucide="file-text" class="w-6 h-6" style="color: var(--accent-primary);"></span> Export Chat to Markdown
+            </h3>
+            
+            <!-- Tab Navigation -->
+            <div class="flex mb-4 border-b" style="border-color: var(--border-color);">
+                <button id="markdown-tab-edit" class="px-4 py-2 font-semibold transition-colors border-b-2" data-tab="edit" style="border-color: var(--accent-primary); color: var(--accent-primary); background-color: transparent;">Markdown Source</button>
+                <button id="markdown-tab-preview" class="px-4 py-2 font-semibold transition-colors border-b-2" data-tab="preview" style="border-color: transparent; color: var(--text-secondary); background-color: transparent;">Preview</button>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="flex-1 overflow-hidden relative">
+                
+                <!-- Editor Tab -->
+                <textarea id="markdown-export-input" class="w-full h-full p-4 rounded-lg border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm resize-none" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); font-family: 'Fira Code', monospace; font-size: 0.9em;"></textarea>
+                
+                <!-- Preview Tab -->
+                <div id="markdown-export-preview" class="w-full h-full p-4 rounded-lg border overflow-y-auto hidden markdown-content" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                    <!-- Rendered Markdown content goes here -->
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="flex justify-end gap-3 mt-4">
+                <button id="copy-markdown-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <span data-lucide="clipboard-copy" class="w-5 h-5 mr-2"></span> Copy Markdown
+                </button>
+                <button id="close-markdown-modal-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <span data-lucide="x" class="w-5 h-5 mr-2"></span> Close
+                </button>
+                <button id="download-markdown-btn" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center" style="background-color: var(--accent-primary); color: black;">
+                    <span data-lucide="download" class="w-5 h-5 mr-2"></span> Download .md
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END Markdown Export Modal/Overlay -->
     
     <script type="text/javascript">
         // Register Service Worker for PWA capabilities
@@ -3198,6 +3224,18 @@
         const geminiApiKeyInput = document.getElementById('gemini-api-key-input');
         const saveApiKeyBtn = document.getElementById('save-api-key-btn');
         const apiKeyStatus = document.getElementById('api-key-status');
+
+        // NEW: Markdown Export DOM elements
+        const exportMarkdownBtn = document.getElementById('export-markdown-btn');
+        const markdownExportModal = document.getElementById('markdown-export-modal');
+        const markdownExportInput = document.getElementById('markdown-export-input');
+        const markdownExportPreview = document.getElementById('markdown-export-preview');
+        const downloadMarkdownBtn = document.getElementById('download-markdown-btn');
+        const closeMarkdownModalBtn = document.getElementById('close-markdown-modal-btn');
+        const markdownTabEdit = document.getElementById('markdown-tab-edit');
+        const markdownTabPreview = document.getElementById('markdown-tab-preview');
+        const copyMarkdownBtn = document.getElementById('copy-markdown-btn'); // <<< NEW LINE
+
 
         let isSigningUp = false;
 
@@ -3735,17 +3773,6 @@
             if (appThemeSelect && appThemeSelect.value !== themeName) {
                 appThemeSelect.value = themeName; 
             }
-
-            const prismDarkThemeLink = document.getElementById('prism-dark-theme');
-            const prismLightThemeLink = document.getElementById('prism-light-theme');
-
-            if (currentMode === 'dark') {
-                if (prismDarkThemeLink) prismDarkThemeLink.disabled = false;
-                if (prismLightThemeLink) prismLightThemeLink.disabled = true;
-            } else { 
-                if (prismDarkThemeLink) prismDarkThemeLink.disabled = true;
-                if (prismLightThemeLink) prismLightThemeLink.disabled = false;
-            }
         }
 
         applyTheme(currentThemeName, currentMode);
@@ -4129,12 +4156,6 @@
             
             setTimeout(() => {
                 messageDiv.style.transform = 'scale(1)';
-                // NEW: Highlight code blocks with Prism.js after they are appended and visible
-                messageDiv.querySelectorAll('pre code').forEach((block) => {
-                    if (typeof Prism !== 'undefined') {
-                       Prism.highlightElement(block);
-                    }
-                });
             }, 10);
             
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
@@ -4188,7 +4209,7 @@
 
                     let previewContent = '';
                     if (attachment.mimeType.startsWith('image/')) {
-                        previewContent = `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name}" class="w-8 h-8 object-cover rounded-md">`;
+                        previewContent = `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name || 'User attachment'}" class="w-8 h-8 object-cover rounded-md">`;
                     } else {
                         previewContent = `<span data-lucide="${getFileIcon(attachment.mimeType)}" class="w-5 h-5 flex-shrink-0"></span>`;
                     }
@@ -5264,6 +5285,7 @@
             toggleCustomPromptBtn.disabled = !enabled;
             manageTemplatesBtn.disabled = !enabled;
             conversationModeToggleBtn.disabled = !enabled;
+            exportMarkdownBtn.disabled = !enabled; // Disable export if not logged in
             
             if (!enabled) {
                  updateButtonIcon(voiceInputBtn, 'mic-off', 'w-5 h-5');
@@ -5361,6 +5383,125 @@
                 }
             });
         }
+        
+        // --- NEW: Markdown Export Feature Functions ---
+
+        function chatToMarkdown(session) {
+            if (!session || !session.history) return '';
+
+            let markdown = `# Chat Session: ${session.title}\n\n`;
+            markdown += `*Generated on ${new Date().toLocaleString()}*\n\n---\n\n`;
+
+            const currentSessionHistory = allChatSessions[session.id].history;
+            
+            // Note: This relies on the raw parts data saved in the session history,
+            // which contains the full Gemini response, often already in Markdown format.
+            currentSessionHistory.forEach(msg => {
+                let text = '';
+                let attachments = [];
+
+                msg.parts.forEach(part => {
+                    if (part.text) {
+                        text += part.text + '\n';
+                    } else if (part.inlineData) {
+                        attachments.push(`[Attachment: ${part.inlineData.mimeType.split('/').pop()}]`);
+                    }
+                });
+
+                text = text.trim();
+
+                if (msg.role === 'user') {
+                    markdown += `## 👤 User\n\n`;
+                    markdown += text;
+                    if (attachments.length > 0) {
+                        markdown += `\n*Attachments: ${attachments.join(', ')}*`;
+                    }
+                    markdown += `\n\n---\n\n`;
+                } else if (msg.role === 'model') {
+                    markdown += `## ✨ AI Assistant\n\n`;
+                    // For AI responses, the text part should already be clean Markdown.
+                    markdown += text;
+                    markdown += `\n\n---\n\n`;
+                }
+            });
+
+            return markdown;
+        }
+
+        function switchMarkdownTab(tabName) {
+            // Reset button styles
+            markdownTabEdit.style.borderColor = 'transparent';
+            markdownTabEdit.style.color = 'var(--text-secondary)';
+            markdownTabPreview.style.borderColor = 'transparent';
+            markdownTabPreview.style.color = 'var(--text-secondary)';
+
+            markdownExportInput.classList.add('hidden');
+            markdownExportPreview.classList.add('hidden');
+
+            if (tabName === 'edit') {
+                markdownExportInput.classList.remove('hidden');
+                markdownTabEdit.style.borderColor = 'var(--accent-primary)';
+                markdownTabEdit.style.color = 'var(--accent-primary)';
+            } else if (tabName === 'preview') {
+                const markdownText = markdownExportInput.value;
+                
+                // Clear and render the markdown content
+                markdownExportPreview.innerHTML = `<div class="markdown-content">${marked.parse(markdownText)}</div>`;            
+
+                markdownExportPreview.classList.remove('hidden');
+                markdownTabPreview.style.borderColor = 'var(--accent-primary)';
+                markdownTabPreview.style.color = 'var(--accent-primary)';
+            }
+            createIcons();
+        }
+
+        function openMarkdownExportModal() {
+            if (!currentUser || !currentSessionId || !allChatSessions[currentSessionId]) {
+                showError("No active chat session found to export. Start a chat first.");
+                return;
+            }
+
+            const currentSession = allChatSessions[currentSessionId];
+            
+            if (currentSession.history.length <= 1) {
+                showError("Chat history is empty or only contains the initial greeting. Send a message first.");
+                return;
+            }
+
+            const markdownContent = chatToMarkdown(currentSession);
+
+            markdownExportInput.value = markdownContent;
+            markdownExportModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+            
+            // Default to edit tab
+            switchMarkdownTab('edit');
+        }
+
+        function closeMarkdownExportModal() {
+            markdownExportModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function downloadMarkdownFile() {
+            const content = markdownExportInput.value;
+            const currentSession = allChatSessions[currentSessionId];
+            const filename = `${currentSession.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.md`;
+
+            const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showCopyMessage('Markdown file downloaded!', 'var(--accent-success)');
+            closeMarkdownExportModal();
+        }
 
         // --- Final Initializations & Event Hooks ---
 
@@ -5381,6 +5522,18 @@
             }
         });
         
+        // NEW: Markdown Export Event Listeners
+        if (exportMarkdownBtn) exportMarkdownBtn.addEventListener('click', openMarkdownExportModal);
+        if (closeMarkdownModalBtn) closeMarkdownModalBtn.addEventListener('click', closeMarkdownExportModal);
+        if (downloadMarkdownBtn) downloadMarkdownBtn.addEventListener('click', downloadMarkdownFile);
+        if (markdownTabEdit) markdownTabEdit.addEventListener('click', () => switchMarkdownTab('edit'));
+        if (markdownTabPreview) markdownTabPreview.addEventListener('click', () => switchMarkdownTab('preview'));
+        if (copyMarkdownBtn) copyMarkdownBtn.addEventListener('click', () => {
+            copyToClipboard(markdownExportInput.value);
+            closeMarkdownExportModal();
+            showCopyMessage('Full chat Markdown copied to clipboard!', 'var(--accent-primary)');
+        }); // <<< NEW LINE
+
         // Listen for enter press on auth form
         authPassword.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -5414,176 +5567,10 @@
 </body>
 </html>
 
---- END FILE: index.html ---
+---------------------------------------------------------------------------------
 
---- START FILE: manifest.json ---
-
-{
-    "name": "Small AI v2",
-    "short_name": "Small AI v2",
-    "description": "An AI Chatbot with powerful features and customizable themes.",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#110B1D",
-    "theme_color": "#9400D3",
-    "icons": [
-        {
-            "src": "logo.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "logo.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        },
-        {
-            "src": "logo.png",
-            "sizes": "180x180",
-            "type": "image/png",
-            "purpose": "apple touch icon"
-        },
-        {
-            "src": "logo.png",
-            "sizes": "150x150",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
-    ],
-    "orientation": "portrait"
-}
-
---- END FILE: manifest.json ---
-
---- START FILE: README.md ---
-
-﻿# SMALL-AI-v2
-
-Website Link : https://small-ai-big-vision-v2.netlify.app/
-
-
---- END FILE: README.md ---
-
---- START FILE: sw.js ---
-
-const CACHE_NAME = 'small-ai-v2-cache-v2.8'; // Increment this version number when you make significant changes to cached assets!
-const urlsToCache = [
-    '/', // The root HTML page
-    'index.html', // The specific HTML file
-    'manifest.json',
-    'logo.png', // The application icon
-
-    // External CDN resources - crucial for offline functionality
-    'https://cdn.tailwindcss.com',
-    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
-    'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
-    'https://cdn.jsdelivr.net/npm/lucide-dynamic@latest/dist/lucide.min.js',
-    'https://unpkg.com/lucide@latest'
-];
-
-// Install event: caches all defined static assets
-self.addEventListener('install', (event) => {
-    console.log('Service Worker: Installing and caching static assets...');
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                return cache.addAll(urlsToCache);
-            })
-            .catch((error) => {
-                console.error('Service Worker: Cache.addAll failed', error);
-            })
-    );
-});
-
-// Activate event: cleans up old caches, ensuring only the current version is active
-self.addEventListener('activate', (event) => {
-    console.log('Service Worker: Activating and cleaning old caches...');
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        console.log('Service Worker: Deleting old cache:', cacheName);
-                        return caches.delete(cacheName);
-                    }
-                    return null;
-                })
-            );
-        }).then(() => {
-            // Ensure the service worker takes control of clients immediately
-            return self.clients.claim();
-        })
-    );
-});
-
-// Fetch event: intercepts network requests
-self.addEventListener('fetch', (event) => {
-    // We only want to handle GET requests for static assets that we can cache.
-    // Dynamic API requests (like Gemini's generateContent) should always go to the network
-    // and are typically POST requests, so they won't be affected by this caching strategy.
-    
-    // Convert the request URL to a URL object for easier comparison
-    const requestUrl = new URL(event.request.url);
-
-    // Check if the request is for a file we intend to cache
-    // This includes both local files and CDN resources
-    const isCacheableAsset = urlsToCache.some(url => {
-        // For root path and index.html, compare href directly
-        if (url === '/' || url === 'index.html') {
-            return requestUrl.pathname === '/' || requestUrl.pathname === '/index.html';
-        }
-        // For other local assets (like manifest.json, logo.png), compare paths
-        if (!url.startsWith('http')) {
-            return requestUrl.pathname === `/${url}`;
-        }
-        // For CDN assets, check if the request URL starts with the cached URL
-        return requestUrl.href.startsWith(url);
-    });
-
-    if (event.request.method === 'GET' && isCacheableAsset) {
-        event.respondWith(
-            caches.match(event.request)
-                .then((response) => {
-                    // Cache hit - return cached response
-                    if (response) {
-                        console.log('Service Worker: Serving from cache:', event.request.url);
-                        return response;
-                    }
-                    // No cache hit - fetch from network
-                    console.log('Service Worker: Fetching from network:', event.request.url);
-                    return fetch(event.request)
-                        .then((networkResponse) => {
-                            // If we get a valid response, clone it and put it in cache
-                            if (networkResponse && networkResponse.ok) {
-                                const responseToCache = networkResponse.clone();
-                                caches.open(CACHE_NAME).then((cache) => {
-                                    cache.put(event.request, responseToCache);
-                                });
-                            }
-                            return networkResponse;
-                        })
-                        .catch((error) => {
-                            // If network fails and no cached response, log error
-                            console.error('Service Worker: Fetch failed for:', event.request.url, error);
-                            // Optionally, serve an offline fallback page here for critical assets
-                            // For a chat app, if the main HTML can't load, a basic offline message is useful.
-                            // If you have a specific offline.html, you can return caches.match('/offline.html');
-                            // For simplicity, we'll just return a basic "You're offline" response.
-                            return new Response('<h1>You are offline!</h1><p>It looks like you\'re not connected to the internet.</p>', {
-                                headers: { 'Content-Type': 'text/html' }
-                            });
-                        });
-                })
-        );
-    } else {
-        // For all other requests (e.g., POST requests, API calls, unlisted assets), go straight to the network
-        event.respondWith(fetch(event.request));
-    }
-});
-
---- END FILE: sw.js ---
-
----------------------------------------------------------------------
-
-add a feature to export the chat in markdown and preview in a small popup markdown editor.
-send me the neccessary lines to change.
+Can you add a jump to top and jump to bottom button both?
+Add a find button beside the export chat button so that the user can find anything inside the chat by writing that into the find feature it'll look like a magnifying glass and when clicked on that magnifying glass it will open a search bar on an empty field where if something is written it will be searched and found just like how the control F button within the browser works.
+Also add a search button for searching within the previous chats.
+Look into one more thing whenever I open the website on any browser or whenever I log in can I see a blank chat which is supposedly a continuation of a previous chat but I want there to be a new chat be open whenever the website is opened weather locked in or signed in it should automatically open a new chat not the previous chat.
+after doing everything send me the lines of code that need to be changed specifically tell me which which lines to replace and which lines to add by replacing them guide me fully thank you and please I repeat do not provide me the full code
