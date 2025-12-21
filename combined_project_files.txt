@@ -2691,6 +2691,61 @@
             transition: max-height 0.3s ease-in;
         }
         
+        /* --- Jump Buttons Styling --- */
+        .scroll-buttons-container {
+            position: fixed;
+            bottom: 6.5rem; /* Above the input area */
+            right: 1.5rem;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .scroll-button {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+        .scroll-button:hover {
+            background-color: var(--accent-primary);
+            color: black;
+            transform: scale(1.05);
+        }
+
+        /* --- Chat Search Feature Styling --- */
+        #chat-search-input-container {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        #chat-search-input {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        .highlight-match {
+            background-color: var(--accent-secondary); /* Highlight color */
+            color: black !important; 
+            padding: 1px 3px;
+            border-radius: 3px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .highlight-current-match {
+            background-color: var(--accent-primary) !important; /* Current highlight color */
+            color: black !important; 
+            border: 2px solid white;
+        }
+
     </style>
 </head>
 <body class="antialiased" data-theme="default-dark">
@@ -2754,6 +2809,10 @@
         <!-- Previous Chats Section (Made flexible to take height) -->
         <div class="flex-1 overflow-y-auto mb-4" id="previous-chats-section">
             <h3 class="text-sm font-semibold uppercase sticky top-0 py-2 z-10" style="background-color: var(--sidebar-bg); color: var(--text-secondary);">Previous Chats</h3>
+            
+            <!-- ADDED: Sidebar Chat Search Input -->
+            <input type="text" id="sidebar-chat-search" class="w-full p-2 rounded-md border text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] mb-3" placeholder="Search chats..." style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);">
+
             <ul id="sidebar-chat-list" class="space-y-1">
                 <!-- Chat items are loaded by JS based on auth state -->
             </ul>
@@ -2895,6 +2954,10 @@
             </div>
             <!-- Right side of header -->
             <div class="flex items-center gap-4">
+                <!-- NEW: Find in Chat Button -->
+                <button id="find-chat-btn" aria-label="Find in Chat" title="Find in Chat" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                    <span data-lucide="search" class="w-5 h-5"></span>
+                </button>
                 <!-- Export to Markdown Button (NEW) -->
                 <button id="export-markdown-btn" aria-label="Export Chat to Markdown" title="Export Chat to Markdown" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="download" class="w-5 h-5"></span>
@@ -2914,6 +2977,23 @@
             </div>
         </div>
         
+        <!-- Chat Search Input Container -->
+        <div id="chat-search-input-container" class="hidden">
+            <div class="flex items-center gap-2">
+                <input type="text" id="chat-search-input" class="flex-1 p-2 rounded-md border text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" placeholder="Find in chat (Ctrl/Cmd+F)" />
+                <button id="chat-search-prev-btn" title="Previous Match" class="p-2 rounded-md transition-colors" style="color: var(--text-primary);">
+                    <span data-lucide="chevron-up" class="w-5 h-5"></span>
+                </button>
+                <button id="chat-search-next-btn" title="Next Match" class="p-2 rounded-md transition-colors" style="color: var(--text-primary);">
+                    <span data-lucide="chevron-down" class="w-5 h-5"></span>
+                </button>
+                <span id="chat-search-count" class="text-sm w-16 text-right" style="color: var(--text-secondary);">0/0</span>
+                <button id="chat-search-close-btn" title="Close Search" class="p-2 rounded-md transition-colors" style="color: var(--text-secondary);">
+                    <span data-lucide="x" class="w-5 h-5"></span>
+                </button>
+            </div>
+        </div>
+
         <!-- Chat history div with a minimum height and scroll -->
         <div id="chat-history" class="p-4 overflow-y-auto flex-1 flex flex-col">
             <!-- Initial AI message will be appended here by JS -->
@@ -3087,6 +3167,18 @@
     </div>
     <!-- END Markdown Export Modal/Overlay -->
     
+    <!-- ADD THIS SECTION -->
+    <!-- Scroll to Top/Bottom Buttons -->
+    <div class="scroll-buttons-container">
+        <button id="jump-to-top-btn" class="scroll-button" aria-label="Jump to Top" title="Jump to Top">
+            <span data-lucide="chevrons-up" class="w-5 h-5"></span>
+        </button>
+        <button id="jump-to-bottom-btn" class="scroll-button" aria-label="Jump to Bottom" title="Jump to Bottom">
+            <span data-lucide="chevrons-down" class="w-5 h-5"></span>
+        </button>
+    </div>
+    <!-- END Jump Buttons -->
+
     <script type="text/javascript">
         // Register Service Worker for PWA capabilities
         if ('serviceWorker' in navigator) {
@@ -3234,7 +3326,23 @@
         const closeMarkdownModalBtn = document.getElementById('close-markdown-modal-btn');
         const markdownTabEdit = document.getElementById('markdown-tab-edit');
         const markdownTabPreview = document.getElementById('markdown-tab-preview');
-        const copyMarkdownBtn = document.getElementById('copy-markdown-btn'); // <<< NEW LINE
+        const copyMarkdownBtn = document.getElementById('copy-markdown-btn'); 
+
+        // ADDED: Scroll & Search Elements
+        const jumpToTopBtn = document.getElementById('jump-to-top-btn');
+        const jumpToBottomBtn = document.getElementById('jump-to-bottom-btn');
+        
+        // ADDED: Chat Search UI
+        const findChatBtn = document.getElementById('find-chat-btn');
+        const chatSearchInputContainer = document.getElementById('chat-search-input-container');
+        const chatSearchInput = document.getElementById('chat-search-input');
+        const chatSearchPrevBtn = document.getElementById('chat-search-prev-btn');
+        const chatSearchNextBtn = document.getElementById('chat-search-next-btn');
+        const chatSearchCloseBtn = document.getElementById('chat-search-close-btn');
+        const chatSearchCount = document.getElementById('chat-search-count');
+        
+        // ADDED: Sidebar Search
+        const sidebarChatSearch = document.getElementById('sidebar-chat-search');
 
 
         let isSigningUp = false;
@@ -3304,6 +3412,11 @@
 
         let customPromptText = '';
         let isCustomPromptActive = false;
+
+        // NEW: Chat Search State
+        let searchMatches = []; 
+        let currentMatchIndex = -1;
+        let originalChatContent = new Map(); // Store original content before highlighting
 
         let promptTemplates = []; 
         let editingTemplateId = null; 
@@ -3416,15 +3529,7 @@
                 });
                 
                 renderSidebarChats();
-                
-                const chatIds = Object.keys(allChatSessions);
-                if (chatIds.length > 0) {
-                    const sortedSessions = Object.values(allChatSessions).sort((a,b) => b.timestamp - a.timestamp);
-                    currentSessionId = sortedSessions[0].id;
-                    loadChatSession(currentSessionId);
-                } else {
-                    createNewChatSession();
-                }
+                // NOTE: We no longer automatically load the last chat here. The caller (initializeAuthenticatedApp) will handle creating a NEW chat.
 
             } catch (error) {
                 console.error("Error loading chats from DB:", error);
@@ -3844,20 +3949,25 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
         }
 
-        function renderSidebarChats() {
+        function renderSidebarChats(query = '') {
             sidebarChatList.innerHTML = '';
             const sortedSessions = Object.values(allChatSessions).sort((a, b) => b.timestamp - a.timestamp);
+            
+            const filterQuery = query.toLowerCase().trim();
+            const filteredSessions = sortedSessions.filter(session => 
+                filterQuery === '' || session.title.toLowerCase().includes(filterQuery)
+            );
 
-            if (sortedSessions.length === 0) {
+            if (filteredSessions.length === 0) {
                 const emptyMsg = document.createElement('li');
                 emptyMsg.classList.add('text-center', 'text-sm', 'p-4');
                 emptyMsg.style.color = 'var(--text-secondary)';
-                emptyMsg.textContent = 'No chats found.';
+                emptyMsg.textContent = filterQuery ? 'No matching chats found.' : 'No chats found.';
                 sidebarChatList.appendChild(emptyMsg);
                 return;
             }
 
-            sortedSessions.forEach(session => {
+            filteredSessions.forEach(session => {
                 const li = document.createElement('li');
                 li.classList.add('sidebar-chat-item');
                 if (session.id === currentSessionId) {
@@ -3871,6 +3981,10 @@
                         <span class="sidebar-chat-item-title" title="${session.title}">${session.title}</span>
                     </div>
                     <div class="sidebar-chat-item-actions">
+                        <!-- ADDED: Rename Button -->
+                        <button class="rename-chat-btn" title="Rename chat">
+                            <span data-lucide="pencil"></span>
+                        </button>
                         <button class="delete-chat-btn" title="Delete chat">
                             <span data-lucide="trash-2"></span>
                         </button>
@@ -4010,6 +4124,37 @@
                     renderSidebarChats(); 
                 }
                 showCopyMessage('Chat deleted successfully!', `var(--accent-error)`); 
+            }
+        }
+
+        // ADDED: Function to rename a chat session
+        async function renameChatSession(sessionId) {
+            if (!currentUser) return;
+
+            const session = allChatSessions[sessionId];
+            if (!session) {
+                showError('Session not found for renaming.');
+                return;
+            }
+
+            const newTitle = prompt(`Rename chat: "${session.title}"`, session.title);
+
+            if (newTitle && newTitle.trim() !== '' && newTitle.trim() !== session.title) {
+                const trimmedTitle = newTitle.trim().substring(0, 100);
+                
+                // Update local state
+                session.title = trimmedTitle;
+                allChatSessions[sessionId] = session;
+
+                // Update database
+                await saveChatToDB(session); 
+                
+                // Refresh UI
+                renderSidebarChats();
+                showCopyMessage(`Chat renamed to "${trimmedTitle}"`, `var(--accent-primary)`);
+            } else if (newTitle !== null) {
+                // If the user didn't hit cancel but entered nothing or the same name
+                showError('Chat title was not changed.');
             }
         }
 
@@ -4510,10 +4655,15 @@
             if (chatItem) {
                 const sessionId = chatItem.dataset.sessionId;
                 const deleteBtn = event.target.closest('.delete-chat-btn');
+                // ADDED: Rename Button check
+                const renameBtn = event.target.closest('.rename-chat-btn'); 
 
                 if (deleteBtn) {
                     event.stopPropagation(); 
                     deleteChatSession(sessionId);
+                } else if (renameBtn) { // Handle Rename click
+                    event.stopPropagation();
+                    renameChatSession(sessionId);
                 } else {
                     loadChatSession(sessionId);
                 }
@@ -4536,6 +4686,135 @@
             sidebarOverlay.classList.remove('active');
         });
 
+        // ADD THIS SECTION
+
+        // --- Chat History Search Functions ---
+
+        function clearChatSearch() {
+            // 1. Restore original content from cache
+            document.querySelectorAll('.chat-message').forEach(msgDiv => {
+                const messageId = msgDiv.dataset.messageId;
+                
+                if (originalChatContent.has(messageId)) {
+                    // Restore the entire innerHTML of the message div
+                    msgDiv.innerHTML = originalChatContent.get(messageId);
+                }
+            });
+
+            // 2. Clear state
+            searchMatches = [];
+            currentMatchIndex = -1;
+            chatSearchCount.textContent = '0/0';
+            originalChatContent.clear(); // Clear the cache after restoring
+            
+            // 3. Re-render icons for restored content (crucial for Lucide icons and code highlighting)
+            createIcons();
+        }
+
+        function highlightChatMatches(query) {
+            clearChatSearch();
+            if (!query) return 0;
+
+            searchMatches = [];
+            let matchCount = 0;
+            const regex = new RegExp(query, 'gi');
+
+            // Select all chat messages
+            document.querySelectorAll('.chat-message').forEach(msgDiv => {
+                const messageId = msgDiv.dataset.messageId;
+                
+                // 1. Save the initial innerHTML of the message for restoration
+                if (!originalChatContent.has(messageId)) {
+                    // Save the entire innerHTML of the chat message, including actions and text
+                    originalChatContent.set(messageId, msgDiv.innerHTML);
+                }
+
+                // --- DOM Traversal and Replacement Logic ---
+
+                // We will traverse the entire message div to find all text nodes.
+                function walkAndHighlight(node) {
+                    // 3: Text Node
+                    if (node.nodeType === 3) { 
+                        const text = node.nodeValue;
+                        const matches = [...text.matchAll(regex)];
+                        
+                        if (matches.length > 0) {
+                            const fragment = document.createDocumentFragment();
+                            let lastIndex = 0;
+                            
+                            matches.forEach(match => {
+                                // Append text before the match
+                                fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
+                                
+                                // Create and append the highlight span
+                                const span = document.createElement('span');
+                                span.className = 'highlight-match';
+                                span.textContent = match[0];
+                                fragment.appendChild(span);
+                                
+                                // Note: We cannot push the span to searchMatches here, as the node will be replaced.
+                                // We will query them all at the end.
+                                matchCount++;
+                                lastIndex = match.index + match[0].length;
+                            });
+                            
+                            // Append remaining text
+                            fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+                            node.parentNode.replaceChild(fragment, node);
+                        }
+                    } 
+                    // 1: Element Node
+                    else if (node.nodeType === 1) {
+                        // Avoid searching inside <script> or <style> tags if they existed, but allow common elements
+                        if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE') return;
+
+                        // Important: Do NOT walk inside the "Copy code" buttons themselves, or they break. 
+                        // We should only walk the text nodes within them. (Usually handled by nodeType 3 check above).
+                        
+                        // Recursively walk through child nodes
+                        Array.from(node.childNodes).forEach(walkAndHighlight);
+                    }
+                }
+                
+                walkAndHighlight(msgDiv);
+            });
+
+            // 2. Re-query all newly created highlight spans globally to populate searchMatches
+            searchMatches = Array.from(document.querySelectorAll('.highlight-match'));
+
+            chatSearchCount.textContent = `0/${searchMatches.length}`;
+            currentMatchIndex = -1;
+            createIcons();
+            return searchMatches.length;
+        }
+
+
+        function navigateChatMatch(direction) {
+            if (searchMatches.length === 0) return;
+
+            // Remove highlight from current match
+            if (currentMatchIndex >= 0) {
+                searchMatches[currentMatchIndex].classList.remove('highlight-current-match');
+            }
+
+            let nextIndex;
+            if (direction === 'next') {
+                nextIndex = (currentMatchIndex + 1) % searchMatches.length;
+            } else { // 'prev'
+                nextIndex = (currentMatchIndex - 1 + searchMatches.length) % searchMatches.length;
+            }
+
+            currentMatchIndex = nextIndex;
+
+            // Highlight new current match
+            const currentMatch = searchMatches[currentMatchIndex];
+            currentMatch.classList.add('highlight-current-match');
+            
+            // Scroll to the new match
+            currentMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            chatSearchCount.textContent = `${currentMatchIndex + 1}/${searchMatches.length}`;
+        }
 
         // Helper function to copy text to clipboard
         function copyToClipboard(text) { 
@@ -5305,18 +5584,16 @@
             // 1. Load user settings (themes, model, custom prompt, API key)
             await loadUserSettings();
 
-            // 2. Load chat sessions
+            // 2. Load chat sessions (Does not automatically switch sessions now)
             await loadAllChatsFromDB();
             
-            // 3. Ensure voice list is updated (it relies on settings being loaded)
-            updateVoiceDropdown();
-            updatePersonalityDropdown(); // Ensure personalities are loaded
-
-            // 4. Fallback to new chat if needed (already handled in loadAllChatsFromDB but double-check)
-            if (Object.keys(allChatSessions).length === 0) {
-                createNewChatSession('Welcome Chat');
-            }
+            // 3. Force creation of a brand new session every time the app initializes/user logs in
+            await createNewChatSession('Welcome Chat'); // THIS FORCES A NEW CHAT
             
+            // 4. Ensure voice list and personality dropdowns are updated
+            updateVoiceDropdown();
+            updatePersonalityDropdown(); 
+
             chatInput.focus();
             
             showCopyMessage(`Welcome, ${currentUser.email || 'user'}! Data loaded from cloud.`, 'var(--accent-primary)');
@@ -5534,6 +5811,88 @@
             showCopyMessage('Full chat Markdown copied to clipboard!', 'var(--accent-primary)');
         }); // <<< NEW LINE
 
+        // --- Jump Button Logic ---
+        if (jumpToTopBtn && jumpToBottomBtn) {
+            jumpToTopBtn.addEventListener('click', () => {
+                chatHistoryDiv.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            jumpToBottomBtn.addEventListener('click', () => {
+                chatHistoryDiv.scrollTo({ top: chatHistoryDiv.scrollHeight, behavior: 'smooth' });
+            });
+        }
+
+        // --- Chat Search Event Listeners ---
+        findChatBtn.addEventListener('click', () => {
+            const isHidden = chatSearchInputContainer.classList.toggle('hidden');
+            if (!isHidden) {
+                chatSearchInput.focus();
+            } else {
+                clearChatSearch();
+            }
+        });
+
+        chatSearchCloseBtn.addEventListener('click', () => {
+            chatSearchInputContainer.classList.add('hidden');
+            chatSearchInput.value = '';
+            clearChatSearch();
+        });
+
+        chatSearchInput.addEventListener('input', () => {
+            const query = chatSearchInput.value.trim();
+            if (query.length > 2) {
+                const count = highlightChatMatches(query);
+                if (count > 0) {
+                    navigateChatMatch('next');
+                }
+            } else {
+                clearChatSearch();
+            }
+        });
+
+        chatSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (searchMatches.length > 0) {
+                    navigateChatMatch(e.shiftKey ? 'prev' : 'next');
+                } else if (chatSearchInput.value.trim().length > 2) {
+                    // Attempt to re-run the search if Enter is pressed but no matches exist (e.g. from keydown)
+                    const count = highlightChatMatches(chatSearchInput.value.trim());
+                    if (count > 0) {
+                        navigateChatMatch('next');
+                    }
+                }
+            }
+        });
+
+        chatSearchNextBtn.addEventListener('click', () => navigateChatMatch('next'));
+        chatSearchPrevBtn.addEventListener('click', () => navigateChatMatch('prev'));
+
+        // Global shortcut support (Ctrl+F or Cmd+F)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f' && !markdownExportModal.classList.contains('active')) {
+                e.preventDefault();
+                chatSearchInputContainer.classList.remove('hidden');
+                chatSearchInput.focus();
+                if (chatSearchInput.value.trim() !== '') {
+                    navigateChatMatch('next');
+                }
+            }
+        });
+
+
+        // --- Sidebar Chat Search Event Listener ---
+        if (sidebarChatSearch) {
+            sidebarChatSearch.addEventListener('input', (e) => {
+                // Clear main chat search when sidebar search is active
+                chatSearchInputContainer.classList.add('hidden');
+                chatSearchInput.value = '';
+                clearChatSearch();
+                
+                renderSidebarChats(e.target.value);
+            });
+        }
+
         // Listen for enter press on auth form
         authPassword.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -5569,8 +5928,5 @@
 
 ---------------------------------------------------------------------------------
 
-Can you add a jump to top and jump to bottom button both?
-Add a find button beside the export chat button so that the user can find anything inside the chat by writing that into the find feature it'll look like a magnifying glass and when clicked on that magnifying glass it will open a search bar on an empty field where if something is written it will be searched and found just like how the control F button within the browser works.
-Also add a search button for searching within the previous chats.
-Look into one more thing whenever I open the website on any browser or whenever I log in can I see a blank chat which is supposedly a continuation of a previous chat but I want there to be a new chat be open whenever the website is opened weather locked in or signed in it should automatically open a new chat not the previous chat.
+this website is not looking good all screen sizes, please fix that. i've shared a screenshot with you to see.
 after doing everything send me the lines of code that need to be changed specifically tell me which which lines to replace and which lines to add by replacing them guide me fully thank you and please I repeat do not provide me the full code

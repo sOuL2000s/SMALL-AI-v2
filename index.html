@@ -34,7 +34,8 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; 
+            overflow-y: hidden; /* Control vertical scroll via chat-history */
+            overflow-x: hidden; /* Prevent body horizontal scroll */
         }
         
         body {
@@ -2943,7 +2944,7 @@
     <div id="main-chat-window" class="min-w-0">
         <!-- Header for the chat -->
         <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]" style="background-color: var(--header-bg);">
-            <div class="flex items-center">
+            <div class="flex items-center max-w-[50%] sm:max-w-none">
                 <!-- Hamburger menu button for mobile -->
                 <button id="hamburger-menu-button" aria-label="Open Sidebar Menu" title="Open Menu" style="background-color: var(--header-bg); border-color: var(--border-color); color: var(--text-primary);">
                     <span data-lucide="menu" class="w-6 h-6"></span>
@@ -2968,7 +2969,7 @@
                 </button>
                 <!-- Dark Mode Toggle -->
                 <div class="flex items-center gap-2">
-                    <span class="text-sm" style="color: var(--text-secondary);">Dark Mode</span>
+                    <span class="text-sm hidden sm:inline" style="color: var(--text-secondary);">Dark Mode</span>
                     <label class="switch relative inline-block w-14 h-8">
                         <input type="checkbox" id="dark-mode-toggle" class="opacity-0 w-0 h-0">
                         <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full before:absolute before:content-[''] before:h-6 before:w-6 before:left-1 before:bottom-1 before:rounded-full"></span>
