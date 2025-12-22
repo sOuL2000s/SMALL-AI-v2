@@ -2904,6 +2904,20 @@
                     </select>
                 </div>
 
+                <!-- NEW: Auto Theme Switch Controls -->
+                <div id="auto-theme-controls" class="pt-3 border-t border-[var(--sidebar-border)]">
+                    <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Auto-Switch Theme</h3>
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <label for="auto-theme-delay" class="text-sm" style="color: var(--text-secondary);">Switch every:</label>
+                        <input type="number" id="auto-theme-delay" value="10" min="5" max="3600" class="w-20 p-2 rounded-md border text-sm text-center" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);">
+                        <span class="text-sm" style="color: var(--text-secondary);">seconds</span>
+                    </div>
+                    <button id="toggle-auto-theme-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold transition-colors glow-button" style="background-color: var(--accent-primary); color: black;">
+                        <span data-lucide="zap" class="w-5 h-5 mr-2"></span> Start Auto-Switch
+                    </button>
+                </div>
+
+
                 <!-- Version Selector -->
                 <div>
                     <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Version</h3>
@@ -3266,6 +3280,10 @@
         // NEW: Theme Randomizer Button
         const randomThemeBtn = document.getElementById('random-theme-btn');
 
+        // NEW: Auto Theme Switch DOM elements
+        const autoThemeDelayInput = document.getElementById('auto-theme-delay');
+        const toggleAutoThemeBtn = document.getElementById('toggle-auto-theme-btn');
+        let autoThemeInterval = null;         
 
         // NEW: Conversation Mode DOM elements
         const conversationModeOverlay = document.getElementById('conversation-mode-overlay');
@@ -5638,30 +5656,72 @@
         }
 
         // Event listener for the Random Theme button
-        if (randomThemeBtn) {
-            randomThemeBtn.addEventListener('click', () => {
-                const randomTheme = getRandomTheme();
-                if (randomTheme) {
-                    // Apply the new random theme and mode
-                    applyTheme(randomTheme.name, randomTheme.mode);
-                    
-                    // Update the UI elements to reflect the change
-                    darkModeToggle.checked = (randomTheme.mode === 'dark'); 
-                    appThemeSelect.value = randomTheme.name;
-                    
-                    // Save settings to Firebase if logged in
-                    if (currentUser) {
-                        saveUserSetting('themeName', randomTheme.name);
-                        saveUserSetting('themeMode', randomTheme.mode);
-                    }
-                    
-                    showCopyMessage(`Applied random theme: ${randomTheme.name} (${randomTheme.mode})`, 'var(--accent-primary)');
-                } else {
-                    showError("Could not find any available themes to randomize.");
+        // NEW: Helper function that uses the existing getRandomTheme logic
+        function handleRandomThemeSwitch() {
+            const randomTheme = getRandomTheme();
+            if (randomTheme) {
+                applyTheme(randomTheme.name, randomTheme.mode);
+                darkModeToggle.checked = (randomTheme.mode === 'dark'); 
+                appThemeSelect.value = randomTheme.name;
+                
+                // Save settings to Firebase if logged in (optional, but good practice)
+                if (currentUser) {
+                    saveUserSetting('themeName', randomTheme.name);
+                    saveUserSetting('themeMode', randomTheme.mode);
                 }
-            });
+            }
+        }
+        // Ensure the existing randomThemeBtn uses this helper
+        if (randomThemeBtn) {
+            randomThemeBtn.addEventListener('click', handleRandomThemeSwitch);
         }
         
+        // --- Auto Theme Switching Functions ---
+
+        function startAutoThemeSwitch(delaySeconds) {
+            // 1. Stop any existing interval
+            if (autoThemeInterval !== null) {
+                stopAutoThemeSwitch();
+            }
+
+            // 2. Immediately switch the first theme
+            handleRandomThemeSwitch(); 
+
+            // 3. Set the interval (delaySeconds * 1000 milliseconds)
+            autoThemeInterval = setInterval(handleRandomThemeSwitch, delaySeconds * 1000);
+
+            // 4. Update UI to reflect active state
+            toggleAutoThemeBtn.innerHTML = `<span data-lucide="power-off" class="w-5 h-5 mr-2"></span> Stop Auto-Switch`;
+            
+            // Style update: switch to error color to indicate active, running process
+            toggleAutoThemeBtn.classList.remove('glow-button');
+            toggleAutoThemeBtn.classList.add('glow-error-button');
+            toggleAutoThemeBtn.style.backgroundColor = 'var(--accent-error)';
+            toggleAutoThemeBtn.style.boxShadow = '0 0 10px var(--accent-error)';
+            
+            showCopyMessage(`Auto theme switching started (every ${delaySeconds}s)`, 'var(--accent-primary)');
+            createIcons();
+        }
+
+        function stopAutoThemeSwitch() {
+            if (autoThemeInterval !== null) {
+                clearInterval(autoThemeInterval);
+                autoThemeInterval = null;
+
+                // Update UI to reflect idle state
+                toggleAutoThemeBtn.innerHTML = `<span data-lucide="zap" class="w-5 h-5 mr-2"></span> Start Auto-Switch`;
+                
+                // Style update: revert to primary accent color
+                toggleAutoThemeBtn.classList.remove('glow-error-button');
+                toggleAutoThemeBtn.classList.add('glow-button');
+                toggleAutoThemeBtn.style.backgroundColor = 'var(--accent-primary)';
+                toggleAutoThemeBtn.style.boxShadow = '0 0 10px var(--accent-primary)';
+
+                showCopyMessage('Auto theme switching stopped.', 'var(--accent-error)');
+                createIcons();
+            }
+        }
+
         // --- NEW: Markdown Export Feature Functions ---
 
         function chatToMarkdown(session) {
@@ -5881,6 +5941,23 @@
             }
         });
 
+        // NEW: Auto Theme Toggle Event Listener
+        if (toggleAutoThemeBtn) {
+            toggleAutoThemeBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    showError("Please sign in to save your theme settings across sessions.");
+                }
+                
+                if (autoThemeInterval !== null) {
+                    stopAutoThemeSwitch();
+                } else {
+                    let delay = parseInt(autoThemeDelayInput.value) || 10;
+                    delay = Math.max(5, delay); // Enforce a minimum delay of 5 seconds
+                    autoThemeDelayInput.value = delay;
+                    startAutoThemeSwitch(delay);
+                }
+            });
+        }
 
         // --- Sidebar Chat Search Event Listener ---
         if (sidebarChatSearch) {
