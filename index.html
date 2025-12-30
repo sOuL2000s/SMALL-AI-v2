@@ -3386,6 +3386,9 @@
         const PROMPT_TEMPLATES_KEY = 'templates'; 
         const API_KEY_KEY = 'apiKey';
         const MODEL_KEY = 'model';
+        
+        // NEW CONSTANT: Threshold for bulk text conversion (e.g., 500 characters)
+        const BULK_TEXT_THRESHOLD = 500; 
 
 
         // NEW: Model Definitions
@@ -4185,12 +4188,43 @@
                 const reader = new FileReader();
                 reader.onload = () => resolve({
                     mimeType: file.type || 'application/octet-stream', 
-                    data: reader.result.split(',')[1]
+                    data: reader.result.split(',')[1],
+                    name: file.name
                 });
                 reader.onerror = error => reject(error);
                 reader.readAsDataURL(file);
             });
         };
+        
+        // NEW: Function to convert a string of text into a virtual file attachment
+        async function convertTextToAttachment(text, filename) {
+            if (!currentUser) return;
+
+            // Create a virtual File object from the text string
+            const textBlob = new Blob([text], { type: 'text/plain' });
+            const virtualFile = new File([textBlob], filename, { type: 'text/plain' });
+            
+            try {
+                // Use the existing fileToBase64 function to get the base64 data
+                const { mimeType, data } = await fileToBase64(virtualFile);
+                
+                // Add to global attachments list
+                chatAttachments.push({ 
+                    file: virtualFile, 
+                    mimeType, 
+                    data, 
+                    name: filename 
+                });
+                
+                // Update UI
+                displayChatAttachments();
+                
+            } catch (error) {
+                showError(`Failed to convert bulk text to file: ${filename}.`);
+                console.error('Text conversion error:', error);
+            }
+        }
+
 
         // Function to get Lucide icon name based on MIME type
         function getFileIcon(mimeType) {
@@ -4347,8 +4381,8 @@
 
                 if (isAllowed) {
                     try {
-                        const { mimeType, data } = await fileToBase64(file);
-                        chatAttachments.push({ file, mimeType, data, name: file.name });
+                        const { mimeType, data, name } = await fileToBase64(file);
+                        chatAttachments.push({ file, mimeType, data, name: name || file.name });
                     } catch (error) {
                         showError(`Failed to read chat file ${file.name}.`);
                         console.error('Chat file read error:', error);
@@ -4505,7 +4539,7 @@
         
         // Add event listener for the 'Enter' key on the chat input
         chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key ==='Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendChatBtn.click();
             }
@@ -4559,7 +4593,7 @@
             }
         });
 
-        // Paste files onto the text input box
+        // MODIFIED: Paste files/text onto the text input box logic
         chatInput.addEventListener('paste', async (event) => {
             if (!currentUser) {
                 showError("Please sign in to attach files.");
@@ -4569,6 +4603,7 @@
             const items = (event.clipboardData || event.originalEvent.clipboardData).items;
             let filesToProcess = [];
             let textToPaste = '';
+            let isBulkText = false;
 
             for (const item of items) {
                 if (item.kind === 'file' && item.type.startsWith('image/')) {
@@ -4577,18 +4612,47 @@
                         filesToProcess.push(file);
                     }
                 } else if (item.kind === 'string' && item.type === 'text/plain') {
-                    item.getAsString(s => textToPaste = s);
+                    item.getAsString(s => {
+                        textToPaste = s;
+                        if (s.length > BULK_TEXT_THRESHOLD) {
+                            isBulkText = true;
+                        }
+                    });
                 }
             }
 
-            if (filesToProcess.length > 0) {
-                event.preventDefault(); 
+            // A short delay is needed for async processing of textToPaste
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            // Case 1: Pasting bulk text without a file
+            if (isBulkText && filesToProcess.length === 0) {
+                event.preventDefault(); // Stop the huge text dump into the input field
+                
+                // Get the current text in the input field BEFORE the paste (this is the intended prompt)
+                const existingPrompt = chatInput.value.trim(); 
+
+                // Convert the pasted bulk text into a virtual attachment
+                await convertTextToAttachment(textToPaste, 'bulk_text_dump.txt');
+
+                // If the user had a prompt written, keep it. Otherwise, set a default.
+                chatInput.value = existingPrompt || 'Analyze the attached document/code/data.';
+                adjustChatInputHeight();
+                showCopyMessage('Large text detected and attached as a file!', 'var(--accent-primary)');
+
+            } 
+            // Case 2: Pasting files (images) OR small text
+            else if (filesToProcess.length > 0) {
+                event.preventDefault(); // Prevent default text paste if files are present (we handle text manually)
                 await processFiles(filesToProcess);
-                if (textToPaste) {
+                if (textToPaste && !isBulkText) {
+                    // Append small text dump to the chat input (handled by browser default if we don't prevent, but safer this way)
                     chatInput.value += textToPaste;
                 }
                 adjustChatInputHeight();
             }
+            // If it's just small text, let the browser handle the paste (no change needed in default behavior)
+
+            chatInput.focus();
         });
 
 
@@ -5224,15 +5288,6 @@
             };
 
             window.speechSynthesis.speak(utterance);
-        }
-
-        function handleAiSpeechEnd() {
-            if (!isConversationModeActive) return;
-
-            isAiSpeakingInConversation = false;
-            updateConversationStatus('Listening...', 'listening');
-            setSoundBlobState('listening');
-            startConversationListening(); 
         }
 
         function updateConversationDisplay(text) {
