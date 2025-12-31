@@ -93,7 +93,7 @@
             --header-bg: #1f2937;
             --accent-primary: #818cf8;
             --accent-primary-hover: #6366f1;
-            --accent-secondary: #67e8f9;
+            --accent-secondary: #22d3ee;
             --accent-error: #f87171;
             --accent-success: #4ade80;
             --user-bubble-bg: #1a237e;
@@ -2084,6 +2084,7 @@
             border-radius: 0.75rem; margin-top: 1rem; margin-bottom: 1rem;
             overflow: hidden; border: 1px solid var(--code-block-border);
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: border 0.2s ease, box-shadow 0.2s ease; /* Added transition */
         }
         .code-block-container pre {
             margin: 0; padding: 1rem; overflow-x: auto;
@@ -3185,11 +3186,20 @@
     <!-- ADD THIS SECTION -->
     <!-- Scroll to Top/Bottom Buttons -->
     <div class="scroll-buttons-container">
-        <button id="jump-to-top-btn" class="scroll-button" aria-label="Jump to Top" title="Jump to Top">
+        <!-- New Location for Code Block Jump Buttons -->
+        <button id="jump-code-prev-btn" class="scroll-button hidden" aria-label="Previous Code Block" title="Previous Code Block">
             <span data-lucide="chevrons-up" class="w-5 h-5"></span>
         </button>
-        <button id="jump-to-bottom-btn" class="scroll-button" aria-label="Jump to Bottom" title="Jump to Bottom">
+        <button id="jump-code-next-btn" class="scroll-button hidden" aria-label="Next Code Block" title="Next Code Block">
             <span data-lucide="chevrons-down" class="w-5 h-5"></span>
+        </button>
+        
+        <!-- Existing Scroll To Top/Bottom Buttons -->
+        <button id="jump-to-top-btn" class="scroll-button" aria-label="Jump to Top" title="Jump to Top">
+            <span data-lucide="arrow-up-circle" class="w-5 h-5"></span>
+        </button>
+        <button id="jump-to-bottom-btn" class="scroll-button" aria-label="Jump to Bottom" title="Jump to Bottom">
+            <span data-lucide="arrow-down-circle" class="w-5 h-5"></span>
         </button>
     </div>
     <!-- END Jump Buttons -->
@@ -3362,6 +3372,10 @@
         
         // ADDED: Sidebar Search
         const sidebarChatSearch = document.getElementById('sidebar-chat-search');
+        
+        // ADDED: Code Jump Buttons (Declared here for JS access)
+        const jumpCodePrevBtn = document.getElementById('jump-code-prev-btn');
+        const jumpCodeNextBtn = document.getElementById('jump-code-next-btn');
 
 
         let isSigningUp = false;
@@ -3439,6 +3453,10 @@
         let searchMatches = []; 
         let currentMatchIndex = -1;
         let originalChatContent = new Map(); // Store original content before highlighting
+
+        // ADDED: Code Jump State
+        let codeBlocks = [];
+        let currentCodeBlockIndex = -1;
 
         let promptTemplates = []; 
         let editingTemplateId = null; 
@@ -4053,6 +4071,9 @@
             renderSidebarChats();
             sidebar.classList.add('hidden-mobile'); 
             sidebarOverlay.classList.remove('active');
+
+            // ADDED: Collect code blocks after creating a new chat
+            collectCodeBlocks();
         }
 
         function loadChatSession(sessionId) {
@@ -4103,6 +4124,10 @@
             sidebar.classList.add('hidden-mobile'); 
             sidebarOverlay.classList.remove('active');
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+            
+            // ADDED: Collect code blocks and clear search after loading a chat
+            collectCodeBlocks();
+            clearChatSearch();
         }
 
         async function updateCurrentSessionHistory(newTitle = null) {
@@ -4299,6 +4324,33 @@
            
             createIcons();
         }
+        
+        // ADDED: Real-time search refresh function
+        function refreshActiveChatSearch() {
+            const query = chatSearchInput.value.trim();
+            const isSearchVisible = !chatSearchInputContainer.classList.contains('hidden');
+            
+            // Only refresh if search is visible and has a query
+            if (isSearchVisible && query.length > 2) {
+                // Remember current index before clearing/re-highlighting
+                const previousMatchIndex = currentMatchIndex; 
+                
+                // 1. Clear state and re-run highlight on the entire chat
+                highlightChatMatches(query); 
+                
+                // 2. Attempt to restore focus to the closest previous match, or just the first new one
+                if (searchMatches.length > 0) {
+                    // Restore index, bounded by the new array size
+                    currentMatchIndex = Math.min(previousMatchIndex, searchMatches.length - 1);
+                    if (currentMatchIndex < 0) { currentMatchIndex = 0; }
+                    
+                    // Highlight and scroll to the restored index
+                    searchMatches[currentMatchIndex].classList.add('highlight-current-match');
+                    searchMatches[currentMatchIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    chatSearchCount.textContent = `${currentMatchIndex + 1}/${searchMatches.length}`;
+                }
+            }
+        }
 
         // Function to append a message to the chat history
         function appendChatMessage(role, text, attachments = []) {
@@ -4359,6 +4411,10 @@
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
             
             createIcons();
+            
+            // ADDED: Refresh search and code blocks when a new message is appended
+            refreshActiveChatSearch();
+            collectCodeBlocks();
         }
         
         // Event listener for chat file upload
@@ -4414,7 +4470,7 @@
 
                     attachmentDiv.innerHTML = `
                         ${previewContent}
-                        <span class="truncate max-w-[100px]">${attachment.name}</span>
+                        <span class="truncate max-w-[100px]">${                        attachment.name}</span>
                         <button class="remove-attachment-btn">
                             <span data-lucide="x" class="w-4 h-4"></span>
                         </button>
@@ -4771,16 +4827,18 @@
 
         // ADD THIS SECTION
 
-        // --- Chat History Search Functions ---
+        // --- Chat History Search Functions (Fix for Real-time Update) ---
 
         function clearChatSearch() {
             // 1. Restore original content from cache
             document.querySelectorAll('.chat-message').forEach(msgDiv => {
                 const messageId = msgDiv.dataset.messageId;
                 
+                // Only restore if we have saved content for it, to prevent overwriting new messages immediately after an API call
                 if (originalChatContent.has(messageId)) {
-                    // Restore the entire innerHTML of the message div
                     msgDiv.innerHTML = originalChatContent.get(messageId);
+                    // Remove the entry once restored, so next time it gets saved fresh
+                    originalChatContent.delete(messageId); 
                 }
             });
 
@@ -4788,7 +4846,6 @@
             searchMatches = [];
             currentMatchIndex = -1;
             chatSearchCount.textContent = '0/0';
-            originalChatContent.clear(); // Clear the cache after restoring
             
             // 3. Re-render icons for restored content (crucial for Lucide icons and code highlighting)
             createIcons();
@@ -4796,7 +4853,7 @@
 
         function highlightChatMatches(query) {
             clearChatSearch();
-            if (!query) return 0;
+            if (!query || query.length < 3) return 0; // Require minimum 3 characters for performance
 
             searchMatches = [];
             let matchCount = 0;
@@ -4806,15 +4863,19 @@
             document.querySelectorAll('.chat-message').forEach(msgDiv => {
                 const messageId = msgDiv.dataset.messageId;
                 
-                // 1. Save the initial innerHTML of the message for restoration
+                // 1. Save the initial innerHTML of the message for restoration (only if not already saved)
                 if (!originalChatContent.has(messageId)) {
-                    // Save the entire innerHTML of the chat message, including actions and text
                     originalChatContent.set(messageId, msgDiv.innerHTML);
                 }
 
                 // --- DOM Traversal and Replacement Logic ---
+                // We use the temporary raw text cache for search matching, but apply changes to the DOM.
+                
+                // Clear any existing highlight spans before re-highlighting (handled by clearChatSearch, which restores innerHTML)
+                
+                // The AI response uses innerHTML generated by marked.parse, while User uses simple text + attachments.
+                const contentToSearch = msgDiv.querySelector('.message-content') || msgDiv;
 
-                // We will traverse the entire message div to find all text nodes.
                 function walkAndHighlight(node) {
                     // 3: Text Node
                     if (node.nodeType === 3) { 
@@ -4835,8 +4896,6 @@
                                 span.textContent = match[0];
                                 fragment.appendChild(span);
                                 
-                                // Note: We cannot push the span to searchMatches here, as the node will be replaced.
-                                // We will query them all at the end.
                                 matchCount++;
                                 lastIndex = match.index + match[0].length;
                             });
@@ -4848,18 +4907,14 @@
                     } 
                     // 1: Element Node
                     else if (node.nodeType === 1) {
-                        // Avoid searching inside <script> or <style> tags if they existed, but allow common elements
-                        if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE') return;
+                        if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE' || node.classList.contains('message-actions')) return;
 
-                        // Important: Do NOT walk inside the "Copy code" buttons themselves, or they break. 
-                        // We should only walk the text nodes within them. (Usually handled by nodeType 3 check above).
-                        
                         // Recursively walk through child nodes
                         Array.from(node.childNodes).forEach(walkAndHighlight);
                     }
                 }
                 
-                walkAndHighlight(msgDiv);
+                walkAndHighlight(contentToSearch);
             });
 
             // 2. Re-query all newly created highlight spans globally to populate searchMatches
@@ -4897,6 +4952,66 @@
             currentMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
             chatSearchCount.textContent = `${currentMatchIndex + 1}/${searchMatches.length}`;
+        }
+        
+        // --- Code Block Jump Functions ---
+        
+        function collectCodeBlocks() {
+            codeBlocks = Array.from(chatHistoryDiv.querySelectorAll('.code-block-container'));
+            
+            // Show/hide jump buttons based on availability
+            if (codeBlocks.length > 0) {
+                jumpCodePrevBtn.classList.remove('hidden');
+                jumpCodeNextBtn.classList.remove('hidden');
+            } else {
+                jumpCodePrevBtn.classList.add('hidden');
+                jumpCodeNextBtn.classList.add('hidden');
+            }
+            
+            currentCodeBlockIndex = -1; // Reset index
+            
+            // Remove previous temporary highlights
+            codeBlocks.forEach(block => block.style.border = `1px solid var(--code-block-border)`);
+        }
+        
+        function jumpToCodeBlock(direction) {
+            if (codeBlocks.length === 0) {
+                collectCodeBlocks(); // Try one more time in case of timing issue
+                if (codeBlocks.length === 0) {
+                     showError("No code blocks found in the chat.");
+                     return;
+                }
+            }
+            
+            // Reset border on the current block
+            if (currentCodeBlockIndex >= 0) {
+                const prevBlock = codeBlocks[currentCodeBlockIndex];
+                prevBlock.style.border = `1px solid var(--code-block-border)`;
+                prevBlock.style.boxShadow = `0 4px 8px rgba(0,0,0,0.3)`;
+            }
+
+            let nextIndex;
+            if (direction === 'next') {
+                nextIndex = (currentCodeBlockIndex + 1) % codeBlocks.length;
+            } else { // 'prev'
+                nextIndex = (currentCodeBlockIndex - 1 + codeBlocks.length) % codeBlocks.length;
+            }
+            
+            currentCodeBlockIndex = nextIndex;
+            const targetBlock = codeBlocks[currentCodeBlockIndex];
+            
+            // Highlight and scroll
+            targetBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Temporary visual highlight
+            targetBlock.style.border = `3px solid var(--accent-primary)`;
+            targetBlock.style.boxShadow = `0 0 20px var(--accent-primary)`;
+            
+            // Remove highlight after a short delay
+            setTimeout(() => {
+                targetBlock.style.border = `1px solid var(--code-block-border)`;
+                targetBlock.style.boxShadow = `0 4px 8px rgba(0,0,0,0.3)`;
+            }, 1000);
         }
 
         // Helper function to copy text to clipboard
@@ -5249,45 +5364,6 @@
                 setSoundBlobState('idle');
                 setTimeout(startConversationListening, 2000);
             }
-        }
-
-        function startConversationSpeaking(text) {
-            if (!isConversationModeActive) return;
-
-            if (isUserListeningInConversation && conversationSpeechRecognition) {
-                conversationSpeechRecognition.stop(); 
-            }
-            
-            clearConversationDisplay(); 
-
-            updateConversationStatus('AI Speaking...', 'speaking');
-            setSoundBlobState('speaking');
-            updateConversationDisplay(`<span class="ai-utterance">AI: ${text}</span>`); 
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            if (selectedVoice) {
-                utterance.voice = availableVoices.find(v => v.name === selectedVoice) || null;
-            }
-            utterance.lang = 'en-US'; 
-
-            utterance.onstart = () => {
-                isAiSpeakingInConversation = true;
-            };
-
-            utterance.onend = () => {
-                isAiSpeakingInConversation = false;
-                handleAiSpeechEnd();
-            };
-
-            utterance.onerror = (event) => {
-                console.error('Conversation mode Speech synthesis error:', event.error);
-                showError('AI could not speak this message.');
-                updateConversationStatus('AI speech error.', 'error');
-                isAiSpeakingInConversation = false;
-                handleAiSpeechEnd(); 
-            };
-
-            window.speechSynthesis.speak(utterance);
         }
 
         function updateConversationDisplay(text) {
@@ -5927,7 +6003,7 @@
             showCopyMessage('Full chat Markdown copied to clipboard!', 'var(--accent-primary)');
         }); // <<< NEW LINE
 
-        // --- Jump Button Logic ---
+        // --- Scroll Jump Button Logic ---
         if (jumpToTopBtn && jumpToBottomBtn) {
             jumpToTopBtn.addEventListener('click', () => {
                 chatHistoryDiv.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5937,12 +6013,23 @@
                 chatHistoryDiv.scrollTo({ top: chatHistoryDiv.scrollHeight, behavior: 'smooth' });
             });
         }
+        
+        // --- Code Block Jump Button Logic ---
+        if (jumpCodePrevBtn && jumpCodeNextBtn) {
+            jumpCodePrevBtn.addEventListener('click', () => jumpToCodeBlock('prev'));
+            jumpCodeNextBtn.addEventListener('click', () => jumpToCodeBlock('next'));
+        }
 
         // --- Chat Search Event Listeners ---
         findChatBtn.addEventListener('click', () => {
             const isHidden = chatSearchInputContainer.classList.toggle('hidden');
             if (!isHidden) {
                 chatSearchInput.focus();
+                // Ensure search is run immediately if there is content
+                if (chatSearchInput.value.trim().length > 2) {
+                     highlightChatMatches(chatSearchInput.value.trim());
+                     navigateChatMatch('next');
+                }
             } else {
                 clearChatSearch();
             }
@@ -5990,7 +6077,9 @@
                 e.preventDefault();
                 chatSearchInputContainer.classList.remove('hidden');
                 chatSearchInput.focus();
+                // Re-run search if the box was already open but the text was cleared
                 if (chatSearchInput.value.trim() !== '') {
+                    highlightChatMatches(chatSearchInput.value.trim());
                     navigateChatMatch('next');
                 }
             }
@@ -6054,6 +6143,9 @@
             }
             
             adjustChatInputHeight(); 
+            
+            // Initial call to ensure code block visibility is correct (likely hidden if chat is empty)
+            collectCodeBlocks(); 
         });
     </script>
 </body>
