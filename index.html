@@ -4734,10 +4734,10 @@
                 await convertTextToAttachment(textToPaste, filename);
 
                 // Set the input field to the user's intended prompt, clearing the bulk text
-                //chatInput.value = existingPrompt || `Analyze the attached data (${filename}).`;
+                chatInput.value = existingPrompt || '';
                 
                 adjustChatInputHeight();
-                showCopyMessage('Large text detected and attached as a file!', 'var(--accent-primary)');
+                //showCopyMessage('Large text detected and attached as a file!', 'var(--accent-primary)');
 
             } else if (filesToProcess.length > 0) {
                 // Case B: Files (images) are being processed.
@@ -5731,15 +5731,55 @@
             }
         });
 
-        clearLocalStorageBtn.addEventListener('click', () => {
-            if (confirm('WARNING: Are you absolutely sure you want to clear ALL browser local cache (themes, local state, settings)? Your chat history (saved in the cloud) will NOT be affected, but you may need to re-login and re-select your preferred theme.')) {
+        clearLocalStorageBtn.addEventListener('click', async () => {
+            if (confirm('WARNING: Are you absolutely sure you want to clear ALL browser site data (Local Storage, IndexedDB, Caches, Session Storage, and Service Workers)? Your chat history (saved in the cloud) will NOT be affected, but you will need to re-login and re-select your preferred theme.')) {
                 
                 if (isSpeaking) { window.speechSynthesis.cancel(); }
                 if (isVoiceInputActive && recognition) { recognition.stop(); }
                 if (isConversationModeActive) { stopConversationMode(); }
                 
+                // 1. Clear Local and Session Storage
                 localStorage.clear(); 
-                location.reload(); 
+                sessionStorage.clear(); // Clear session storage as well
+
+                try {
+                    // 2. Clear IndexedDB (requires listing and deleting databases)
+                    if (window.indexedDB) {
+                        const dbs = await window.indexedDB.databases();
+                        dbs.forEach(dbItem => {
+                            window.indexedDB.deleteDatabase(dbItem.name);
+                            console.log(`IndexedDB database deleted: ${dbItem.name}`);
+                        });
+                    }
+
+                    // 3. Clear Cache Storage (e.g., from PWA service worker)
+                    if (window.caches) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map(key => caches.delete(key)));
+                        console.log('All caches cleared.');
+                    }
+                    
+                    // 4. Unregister Service Workers
+                    if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        registrations.forEach(registration => {
+                            registration.unregister();
+                            console.log('Service Worker unregistered:', registration.scope);
+                        });
+                    }
+
+                    showCopyMessage('Site data cleared successfully! Reloading...', 'var(--accent-error)');
+                    
+                    // Delay slightly to ensure asynchronous deletions start before reloading
+                    setTimeout(() => {
+                        location.reload(true); // true forces a reload from server, mimicking a hard clear
+                    }, 100); 
+
+                } catch (e) {
+                    showError("Error clearing some site data. Reloading now.");
+                    console.error("Full site data clear error:", e);
+                    location.reload(true); 
+                }
             }
         });
         
