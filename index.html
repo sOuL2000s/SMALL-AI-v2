@@ -3436,15 +3436,38 @@
 
         // NEW: Model Definitions
         const availableModels = [
+            // --- Latest Aliases (Recommended for stability) ---
+            "gemini-2.5-flash-latest",
+            "gemini-2.5-pro-latest",
+            "gemini-pro-latest",
+            "gemini-flash-latest",
+
+            // --- Gemini 3 (Previews) ---
             "gemini-3-pro-preview",
-            "gemini-2.5-pro",
+            "gemini-3-pro-image-preview",
+            "gemini-3-flash-preview",
+
+            // --- Gemini 2.5 (All versions/flavors) ---
             "gemini-2.5-flash",
             "gemini-2.5-flash-preview-09-2025",
+            "gemini-2.5-flash-image",
+            "gemini-2.5-flash-image-preview",
+            "gemini-2.5-flash-native-audio-preview-12-2025",
+            "gemini-2.5-flash-native-audio-preview-09-2025",
+            "gemini-2.5-flash-preview-tts",
             "gemini-2.5-flash-lite",
+            "gemini-2.5-flash-lite-preview-09-2025",
+            "gemini-2.5-pro",
+            "gemini-2.5-pro-preview-tts",
+
+            // --- Gemini 2.0 (All versions/flavors) ---
             "gemini-2.0-flash",
             "gemini-2.0-flash-001",
+            "gemini-2.0-flash-exp",
+            "gemini-2.0-flash-preview-image-generation",
             "gemini-2.0-flash-lite",
-            "gemini-2.0-flash-lite-001"
+            "gemini-2.0-flash-lite-001",
+            "gemini-2.0-pro"
         ];
         const DEFAULT_MODEL = "gemini-2.5-flash-preview-09-2025";
         let selectedModel = DEFAULT_MODEL;
