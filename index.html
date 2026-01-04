@@ -15,6 +15,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
     <!-- Marked.js CDN for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for Code Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <!-- Lucide Icons for a modern, futuristic feel -->
     <script src="https://cdn.jsdelivr.net/npm/lucide-dynamic@latest/dist/lucide.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -1876,16 +1882,126 @@
             transform: translateY(-1px) scale(1.01);
         }
         
-        /* Markdown content styling for better readability */
-        .markdown-content h1, .markdown-content h2, .markdown-content h3 { font-weight: 800; margin-bottom: 0.75em; margin-top: 1.5em; line-height: 1.2; color: var(--accent-primary); }
-        .markdown-content h1 { font-size: 2.25rem; }
-        .markdown-content h2 { font-size: 1.875rem; }
-        .markdown-content h3 { font-size: 1.5rem; }
-        .markdown-content ul, .markdown-content ol { list-style-position: inside; margin-left: 1.5em; margin-bottom: 1em; }
-        .markdown-content li { margin-bottom: 0.5em; }
-        .markdown-content strong { color: var(--accent-secondary); font-weight: 700; }
+        /* Markdown content styling for better readability (ENHANCED & RESPONSIVE) */
+        .markdown-content {
+            line-height: 1.65;
+            word-break: break-word; /* Ensure long words break on mobile */
+            overflow-wrap: break-word; /* Ensure long words break on mobile */
+        }
+        
+        .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 { 
+            font-family: 'Inter', sans-serif;
+            font-weight: 800; 
+            margin-top: 2em; 
+            margin-bottom: 0.8em; 
+            line-height: 1.2; 
+            color: var(--accent-primary); 
+            padding-bottom: 0.3em;
+        }
+        .markdown-content h1 { 
+            font-size: 2.2rem; 
+            border-bottom: 3px solid var(--accent-primary); 
+        }
+        .markdown-content h2 { 
+            font-size: 1.8rem; 
+            border-bottom: 2px solid var(--border-color); 
+        }
+        .markdown-content h3 { 
+            font-size: 1.5rem; 
+            border-bottom: 1px solid var(--border-color);
+        }
+        .markdown-content h4 { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            border-bottom: none; 
+            margin-top: 1.5em;
+        }
+        
         .markdown-content p { margin-bottom: 1em; }
         .markdown-content p:last-child { margin-bottom: 0; }
+        
+        .markdown-content strong { color: var(--accent-secondary); font-weight: 700; }
+        
+        /* Lists */
+        .markdown-content ul, .markdown-content ol { 
+            list-style-position: outside; 
+            margin-left: 1.5em; /* Reduced margin */
+            margin-bottom: 1em; 
+            padding-left: 0.5em; 
+        }
+        .markdown-content ul { list-style-type: disc; }
+        .markdown-content ol { list-style-type: decimal; }
+        .markdown-content li { margin-bottom: 0.4em; }
+        
+        /* Blockquote */
+        .markdown-content blockquote { 
+            border-left: 4px solid var(--accent-secondary); 
+            padding: 10px 15px; 
+            margin: 15px 0; 
+            opacity: 0.95; 
+            font-style: italic; 
+            background-color: color-mix(in srgb, var(--accent-secondary) 8%, transparent); 
+            color: var(--text-primary);
+            border-radius: 0.5rem;
+            line-height: 1.4;
+        }
+        
+        /* Tables (Responsive Container) */
+        .markdown-content table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 1.5em 0;
+            overflow-x: auto; 
+            display: block; 
+        }
+        .markdown-content table th, .markdown-content table td { 
+            border: 1px solid var(--border-color); 
+            padding: 10px 12px; 
+            text-align: left;
+            word-break: normal; 
+            
+            /* FIX 1: Allow content to wrap normally within cells */
+            white-space: normal; 
+        }
+        
+        /* FIX 2: Specific styling for links inside table cells to allow break on the slash/hyphen */
+        .markdown-content table td a,
+        .markdown-content table td code {
+            word-break: break-all;
+            hyphens: auto;
+            /* Reset white-space for links/code inside a cell, forcing long strings to break */
+            white-space: pre-wrap;
+        }
+
+        .markdown-content table th { 
+            background-color: var(--code-block-header-bg); 
+            font-weight: bold; 
+            color: var(--text-primary); 
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        /* KaTeX specific styling */
+        .markdown-content .katex { 
+            font-size: 1.1em; 
+            color: var(--text-primary); 
+        }
+        .markdown-content .katex-display { 
+            margin: 1em 0; 
+            padding: 1em; 
+            overflow-x: auto; 
+            border-left: 4px solid var(--accent-primary);
+            background-color: var(--code-block-bg);
+            border-radius: 0.5rem;
+        }
+        
+        /* Ensure images are responsive */
+        .markdown-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 0.5em 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
 
         /* Custom styles for dark mode toggle switch */
         .switch { margin-left: 0.5rem; }
@@ -4324,24 +4440,42 @@
             }, 5000); 
         }
         
-        // --- Marked.js Custom Renderer for Code Blocks ---
+        // --- Marked.js Setup for Advanced Rendering (Code Blocks, Highlighting, & Math) ---
+        
+        // Configure marked options (simplified for custom renderer compatibility)
+        marked.setOptions({
+            gfm: true,
+            breaks: true,
+            // IMPORTANT: Do NOT set 'highlight' here. We handle highlighting manually below.
+        });
+
+        // --- Custom Renderer for Code Blocks (FINAL, ROBUST FIX for [object Object]) ---
         const renderer = {
             code(code, lang) {
-                let actualCodeContent;
+                // RIGOROUS FIX: Check if 'code' is the raw token object instead of the string content.
+                let rawCodeContent;
                 if (typeof code === 'object' && code !== null && typeof code.text === 'string') {
-                    actualCodeContent = code.text;
-                } else if (typeof code !== 'string') {
-                    actualCodeContent = String(code);
+                    // This handles the scenario where marked passes the token object { text: '...' }
+                    rawCodeContent = code.text;
                 } else {
-                    actualCodeContent = code;
+                    // This handles the scenario where marked passes the expected string
+                    rawCodeContent = String(code);
                 }
+                
+                let highlightedCode = rawCodeContent;
 
+                // Apply highlight.js directly inside the renderer
+                if (lang && hljs.getLanguage(lang)) {
+                    highlightedCode = hljs.highlight(rawCodeContent, { language: lang }).value;
+                } else if (rawCodeContent.trim().length > 0) {
+                    // If no known language, attempt auto-highlighting for best effect
+                    highlightedCode = hljs.highlightAuto(rawCodeContent).value;
+                }
+                
                 const languageDisplay = lang ? `<span class="text-xs font-semibold uppercase" style="color: var(--text-secondary);">` + lang + `</span>` : '';
                 const uniqueId = `code-block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 
-                const escapedCode = actualCodeContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
-                // NEW: Add Prism.js classes for highlighting
+                // We use hljs class for consistent styling.
                 const langClass = lang ? `language-${lang}` : '';
 
                 return `
@@ -4353,9 +4487,14 @@
                                 Copy code
                             </button>
                         </div>
-                        <pre class="${langClass}" style="color: var(--text-primary);"><code id="${uniqueId}" class="${langClass}">${escapedCode}</code></pre>
+                        <pre class="${langClass} hljs" style="color: var(--text-primary);"><code id="${uniqueId}" class="${langClass} hljs">${highlightedCode}</code></pre>
                     </div>
                 `;
+            },
+            
+            // Re-adding blockquote definition for consistent styling using CSS variables
+            blockquote(quote) {
+                 return `<blockquote style="border-left: 5px solid var(--accent-secondary); padding: 10px 15px; margin: 15px 0; opacity: 0.9; font-style: italic; background-color: color-mix(in srgb, var(--accent-secondary) 10%, transparent); color: var(--text-primary); border-radius: 0.5rem;">${quote}</blockquote>`;
             }
         };
 
@@ -4439,7 +4578,34 @@
                 }
             } else { // AI message
                 rawMessageContentForCache = `AI: ${text}`;
-                contentHTML = `<div class="message-content">${marked.parse(text)}</div>`;
+                
+                // Ensure text is a string before parsing
+                const markdownText = String(text); 
+                
+                // ADDED markdown-content class here
+                contentHTML = `<div class="message-content markdown-content">${marked.parse(markdownText)}</div>`;
+                
+                // IMPORTANT: Add KaTeX rendering for math equations
+                // Use setTimeout to ensure the element is fully appended before trying to render math
+                if (window.renderMathInElement) {
+                    setTimeout(() => {
+                        const contentElement = messageDiv.querySelector('.message-content');
+                        if (contentElement) {
+                            renderMathInElement(contentElement, {
+                                delimiters: [
+                                    { left: '$$', right: '$$', display: true },
+                                    { left: '$', right: '$', display: false },
+                                    { left: '\\(', right: '\\)', display: false }, 
+                                    { left: '\\[', right: '\\]', display: true }  
+                                ],
+                                throwOnError: false
+                            });
+                            // Re-run icon creation after KaTeX renders its output HTML
+                            createIcons();
+                            refreshActiveChatSearch(); // Re-run search after KaTeX renders its output HTML
+                        }
+                    }, 50);
+                }
             }
             
             messageTextCache.set(messageId, rawMessageContentForCache); 
