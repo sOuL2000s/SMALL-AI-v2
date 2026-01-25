@@ -1855,6 +1855,31 @@
         #error-message { background-color: var(--accent-error); color: white; }
         body[data-theme$="-dark"] #error-message { background-color: var(--accent-error); color: white; }
 
+        /* Custom Styles for Developer Console */
+        #developer-console-content {
+            background-color: #000000;
+            color: #00FF00;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            height: 100%;
+            overflow-y: auto;
+            border: 1px solid var(--accent-primary);
+            padding: 1rem;
+            white-space: pre-wrap;
+        }
+        .log-item {
+            border-bottom: 1px dashed #333;
+            padding: 0.3rem 0;
+        }
+        .log-item:last-child {
+            border-bottom: none;
+        }
+        .log-level-error { color: var(--accent-error); font-weight: bold; }
+        .log-level-warn { color: #FFA500; }
+        .log-level-info { color: #FFFFFF; }
+        .log-level-debug { color: #888888; }
+        .log-timestamp { color: #008000; margin-right: 10px; }
+
         /* Custom styles for glowing effects on buttons */
         .glow-button {
             position: relative;
@@ -3073,32 +3098,66 @@
 
     <!-- Main Chat Container -->
     <div id="main-chat-window" class="min-w-0">
-        <!-- Header for the chat -->
+        <!-- Header for the chat (Revised for Mobile Dropdown) -->
         <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]" style="background-color: var(--header-bg);">
-            <div class="flex items-center max-w-[50%] sm:max-w-none">
-                <!-- Hamburger menu button for mobile -->
+            <!-- Left side (Hamburger + Title) -->
+            <div class="flex items-center min-w-0 max-w-[50%] sm:max-w-none">
                 <button id="hamburger-menu-button" aria-label="Open Sidebar Menu" title="Open Menu" style="background-color: var(--header-bg); border-color: var(--border-color); color: var(--text-primary);">
                     <span data-lucide="menu" class="w-6 h-6"></span>
                 </button>
-                <h1 class="text-xl font-bold flex items-center gap-2" style="color: var(--text-primary);">
+                <h1 class="text-xl font-bold flex items-center gap-2 truncate" style="color: var(--text-primary);">
                     <span data-lucide="sparkles" class="w-6 h-6" style="color: var(--accent-primary);"></span> Current Chat
                 </h1>
             </div>
-            <!-- Right side of header -->
-            <div class="flex items-center gap-4">
-                <!-- NEW: Find in Chat Button -->
+            
+            <!-- Right side of header - Essential/Dropdown/Toggle -->
+            <div class="flex items-center gap-2 md:gap-4 relative"> 
+                
+                <!-- 1. VISIBLE on ALL SCREENS: Find in Chat Button -->
                 <button id="find-chat-btn" aria-label="Find in Chat" title="Find in Chat" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="search" class="w-5 h-5"></span>
                 </button>
-                <!-- Export to Markdown Button (NEW) -->
-                <button id="export-markdown-btn" aria-label="Export Chat to Markdown" title="Export Chat to Markdown" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
-                    <span data-lucide="download" class="w-5 h-5"></span>
-                </button>
-                <!-- Conversation Mode Toggle Button (NEW) -->
+                
+                <!-- 2. VISIBLE on ALL SCREENS: Conversation Mode Toggle Button -->
                 <button id="conversation-mode-toggle-btn" aria-label="Conversation Mode" title="Start Voice Conversation" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="messages-square" class="w-5 h-5"></span>
                 </button>
-                <!-- Dark Mode Toggle -->
+
+                <!-- 3. MORE ACTIONS DROPDOWN (Mobile Only) -->
+                <div id="header-mobile-dropdown-container" class="sm:hidden">
+                    <button id="mobile-more-actions-btn" aria-label="More Actions" title="More Actions" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                        <span data-lucide="more-vertical" class="w-5 h-5"></span>
+                    </button>
+
+                    <!-- Dropdown Menu Content -->
+                    <div id="mobile-action-dropdown-menu" class="absolute right-0 top-12 hidden w-48 rounded-lg shadow-xl py-1 z-50" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+                        
+                        <!-- These buttons are now only in the dropdown on mobile -->
+                        <button id="developer-console-btn-mobile" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[var(--sidebar-item-hover)]" title="Developer Console (View Logs)">
+                            <span data-lucide="terminal" class="w-4 h-4" style="color: var(--text-secondary);"></span> Developer Console
+                        </button>
+                        <button id="summarize-context-btn-mobile" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[var(--sidebar-item-hover)]" title="Summarize Chat Context for Prompt">
+                            <span data-lucide="file-text" class="w-4 h-4" style="color: var(--text-secondary);"></span> Summarize Context
+                        </button>
+                        <button id="export-markdown-btn-mobile" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[var(--sidebar-item-hover)]" title="Export Chat to Markdown">
+                            <span data-lucide="download" class="w-4 h-4" style="color: var(--text-secondary);"></span> Export Chat (.md)
+                        </button>
+                    </div>
+                </div>
+                <!-- End More Actions Dropdown -->
+
+                <!-- 4. WIDER SCREEN UTILITY BUTTONS (Visible only on desktop/tablet) -->
+                <button id="developer-console-btn" aria-label="Developer Console" title="Developer Console (View Logs)" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                    <span data-lucide="terminal" class="w-5 h-5"></span>
+                </button>
+                <button id="summarize-context-btn" aria-label="Summarize Chat Context" title="Summarize Chat Context for Prompt" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                    <span data-lucide="file-text" class="w-5 h-5"></span>
+                </button>
+                <button id="export-markdown-btn" aria-label="Export Chat to Markdown" title="Export Chat to Markdown" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                    <span data-lucide="download" class="w-5 h-5"></span>
+                </button>
+                
+                <!-- 5. Dark Mode Toggle (Toggle label hidden on mobile, switch always visible) -->
                 <div class="flex items-center gap-2">
                     <span class="text-sm hidden sm:inline" style="color: var(--text-secondary);">Dark Mode</span>
                     <label class="switch relative inline-block w-14 h-8">
@@ -3322,6 +3381,32 @@
     </div>
     <!-- END Attachment Editor Modal/Overlay -->
 
+    <!-- NEW: Rename Chat Modal/Overlay -->
+    <div id="rename-chat-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
+        <div class="p-6 rounded-xl shadow-2xl w-full max-w-md transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
+                <span data-lucide="pencil" class="w-6 h-6" style="color: var(--accent-primary);"></span> Rename Chat
+            </h3>
+            
+            <input type="text" id="rename-chat-input" class="w-full p-3 rounded-md border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm mb-4" placeholder="Enter new chat title" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+            
+            <p id="rename-chat-id-placeholder" class="text-sm text-center mb-4" style="color: var(--text-secondary);">Chat ID: [Loading...]</p>
+
+            <div class="flex flex-wrap justify-end gap-2 mt-4">
+                <button id="auto-rename-chat-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center transition-colors" style="background-color: var(--accent-secondary); color: black;">
+                    <span data-lucide="cpu" class="w-5 h-5 mr-2"></span> Auto Rename (AI)
+                </button>
+                <button id="save-rename-chat-btn" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center" style="background-color: var(--accent-primary); color: black;">
+                    <span data-lucide="save" class="w-5 h-5 mr-2"></span> Save
+                </button>
+                <button id="cancel-rename-chat-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <span data-lucide="x" class="w-5 h-5 mr-2"></span> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END Rename Chat Modal/Overlay -->
+
     <!-- ADD THIS SECTION -->
     <!-- Scroll to Top/Bottom Buttons -->
     <div class="scroll-buttons-container">
@@ -3343,6 +3428,35 @@
     </div>
     <!-- END Jump Buttons -->
 
+    <!-- NEW: Developer Console Modal (Request 3) -->
+    <div id="developer-console-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
+        <div class="p-6 rounded-xl shadow-2xl w-full max-w-4xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+            <h3 class="text-xl font-bold mb-4 flex items-center justify-between border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
+                <span class="flex items-center gap-2">
+                    <span data-lucide="bug" class="w-6 h-6" style="color: var(--accent-primary);"></span> Developer Console
+                </span>
+                <div class="flex gap-2">
+                    <button id="clear-console-btn" class="p-2 rounded-full text-sm" title="Clear Console" style="background-color: var(--bg-primary); color: var(--accent-error);">
+                        <span data-lucide="eraser" class="w-4 h-4"></span>
+                    </button>
+                    <button id="close-console-modal-btn" class="p-2 rounded-full text-sm" title="Close Console" style="background-color: var(--bg-primary); color: var(--text-secondary);">
+                        <span data-lucide="x" class="w-4 h-4"></span>
+                    </button>
+                </div>
+            </h3>
+            
+            <div id="developer-console-content" class="flex-1 rounded-lg">
+                <!-- Logs will be appended here -->
+                <p>--- Console Log Started ---</p>
+            </div>
+            
+            <div class="mt-4 text-xs text-center" style="color: var(--text-secondary);">
+                This console captures and displays application logs (info, warnings, and errors).
+            </div>
+        </div>
+    </div>
+    <!-- END Developer Console Modal -->
+
     <script type="text/javascript">
         // Register Service Worker for PWA capabilities
         if ('serviceWorker' in navigator) {
@@ -3363,6 +3477,69 @@
             }
         };
 
+        // --- Developer Console Interception (Request 3) ---
+        const originalConsole = {
+            log: console.log,
+            warn: console.warn,
+            error: console.error
+        };
+        const logHistory = [];
+        const MAX_LOGS = 500;
+
+        function formatLogMessage(level, args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => {
+                if (typeof arg === 'object' && arg !== null) {
+                    try {
+                        return JSON.stringify(arg, null, 2);
+                    } catch {
+                        return arg.toString();
+                    }
+                }
+                return String(arg);
+            }).join(' ');
+
+            return { timestamp, level, message };
+        }
+
+        function renderConsoleLog(log) {
+            const consoleContent = document.getElementById('developer-console-content');
+            if (!consoleContent) return;
+
+            const logDiv = document.createElement('div');
+            logDiv.classList.add('log-item');
+            logDiv.innerHTML = `
+                <span class="log-timestamp">${log.timestamp}</span>
+                <span class="log-level-${log.level.toLowerCase()}">${log.level.toUpperCase()}</span>
+                <span style="color: white; margin-left: 10px;">${log.message}</span>
+            `;
+            consoleContent.appendChild(logDiv);
+            
+            // Limit log history size
+            if (consoleContent.children.length > MAX_LOGS) {
+                consoleContent.removeChild(consoleContent.children[0]);
+            }
+            consoleContent.scrollTop = consoleContent.scrollHeight;
+        }
+
+        function hijackConsole() {
+            ['log', 'warn', 'error'].forEach(level => {
+                console[level] = function(...args) {
+                    // Call the original console method
+                    originalConsole[level].apply(console, args);
+                    
+                    // Store and render the log
+                    const log = formatLogMessage(level, args);
+                    logHistory.push(log);
+                    renderConsoleLog(log);
+                };
+            });
+            console.log("Console Hijacking Active.");
+        }
+        
+        // Hijack console immediately upon script execution
+        hijackConsole();
+
         // --- Firebase Configuration and Initialization ---
         const firebaseConfig = {
             apiKey: "AIzaSyAnKYJ91xb318h2YjBNcB-ygnrQgu4WdM8",
@@ -3381,6 +3558,7 @@
             auth = firebase.auth();
             db = firebase.firestore();
             db.settings({ timestampsInSnapshots: true });
+            console.log("Firebase initialized successfully.");            
         } catch (e) {
             console.error("Firebase Initialization Error:", e);
             showError("Firebase failed to initialize. Check console for details.");
@@ -3523,6 +3701,14 @@
         const saveEditorBtn = document.getElementById('save-editor-btn');
         const cancelEditorBtn = document.getElementById('cancel-editor-btn');
 
+        // NEW: Developer Console DOM elements (Request 3)
+        const developerConsoleBtn = document.getElementById('developer-console-btn');
+        const developerConsoleModal = document.getElementById('developer-console-modal');
+        const developerConsoleContent = document.getElementById('developer-console-content');
+        const clearConsoleBtn = document.getElementById('clear-console-btn');
+        const closeConsoleModalBtn = document.getElementById('close-console-modal-btn');
+        const summarizeContextBtn = document.getElementById('summarize-context-btn');
+
         let isSigningUp = false;
 
         const errorContainer = document.createElement('div');
@@ -3533,6 +3719,16 @@
         errorText.classList.add('block', 'sm:inline');
         errorContainer.appendChild(errorText);
         document.body.appendChild(errorContainer);
+
+        // NEW: Rename Chat Modal DOM elements
+        const renameChatModal = document.getElementById('rename-chat-modal');
+        const renameChatInput = document.getElementById('rename-chat-input');
+        const autoRenameChatBtn = document.getElementById('auto-rename-chat-btn');
+        const saveRenameChatBtn = document.getElementById('save-rename-chat-btn');
+        const cancelRenameChatBtn = document.getElementById('cancel-rename-chat-btn');
+        const renameChatIdPlaceholder = document.getElementById('rename-chat-id-placeholder');
+
+        let renamingSessionId = null; // New state variable to hold the ID of the chat being renamed
 
         // --- Global State and Constants ---
         
@@ -4211,13 +4407,17 @@
                 return;
             }
 
+            // Set the base title to ensure consistency for the auto-title check later.
+            const titleForNewSession = (initialTitle === 'Welcome Chat' || initialTitle === 'New Chat') 
+                                    ? initialTitle : 'New Chat'; 
+
             const initialMessage = 'Welcome to Small AI v2, your powerful multimodal AI assistant powered by Gemini. I specialize in detailed data analysis, coding, creative tasks, and project planning. I can analyze images, PDFs, code, and documents uploaded via the paperclip icon. Whether you need strategic analysis for specific domains or technical assistance, I\'m ready. How can I help you tackle a complex problem or analyze a file today?';
             
             const newId = generateUniqueId();
 
             const newSession = {
                 id: newId,
-                title: initialTitle,
+                title: titleForNewSession,
                 history: [{ role: 'model', parts: [{ text: initialMessage }] }],
                 timestamp: Date.now()
             };
@@ -4344,8 +4544,8 @@
             }
         }
 
-        // ADDED: Function to rename a chat session
-        async function renameChatSession(sessionId) {
+        // MODIFIED: Function to open the rename chat modal
+        function openRenameChatModal(sessionId) {
             if (!currentUser) return;
 
             const session = allChatSessions[sessionId];
@@ -4354,24 +4554,107 @@
                 return;
             }
 
-            const newTitle = prompt(`Rename chat: "${session.title}"`, session.title);
+            renamingSessionId = sessionId;
+            renameChatInput.value = session.title;
+            renameChatIdPlaceholder.textContent = `Chat ID: ${sessionId.substring(0, 8)}...`;
+            renameChatModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            renameChatInput.focus();
+        }
 
-            if (newTitle && newTitle.trim() !== '' && newTitle.trim() !== session.title) {
-                const trimmedTitle = newTitle.trim().substring(0, 100);
-                
-                // Update local state
-                session.title = trimmedTitle;
-                allChatSessions[sessionId] = session;
+        async function saveChatRename() {
+            if (!renamingSessionId) return;
 
-                // Update database
-                await saveChatToDB(session); 
+            const session = allChatSessions[renamingSessionId];
+            const newTitle = renameChatInput.value.trim();
+
+            if (newTitle.length === 0) {
+                showError('Chat title cannot be empty.');
+                return;
+            }
+            
+            // Only save if the title actually changed
+            if (newTitle === session.title) {
+                renameChatModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                renamingSessionId = null;
+                return;
+            }
+            
+            const trimmedTitle = newTitle.substring(0, 100);
+            
+            // Update local state
+            session.title = trimmedTitle;
+            allChatSessions[renamingSessionId] = session;
+
+            // Update database
+            await saveChatToDB(session); 
+            
+            // Refresh UI
+            renderSidebarChats();
+            showCopyMessage(`Chat renamed to "${trimmedTitle}"`, `var(--accent-primary)`);
+            
+            renameChatModal.classList.add('hidden');
+            document.body.style.overflow = '';
+            renamingSessionId = null;
+        }
+
+        // NEW: Function to implement AI Auto Rename logic (repurposing title generation)
+        async function handleAutoRename() {
+            if (!renamingSessionId) return;
+            
+            const session = allChatSessions[renamingSessionId];
+            if (!session || session.history.length <= 1) {
+                showError("Chat must have history to generate an automatic title.");
+                return;
+            }
+
+            // Temporarily disable buttons and show loading state
+            autoRenameChatBtn.disabled = true;
+            saveRenameChatBtn.disabled = true;
+            const originalContent = autoRenameChatBtn.innerHTML;
+            autoRenameChatBtn.innerHTML = `<span data-lucide="loader-2" class="w-5 h-5 mr-2 animate-spin"></span> Generating...`;
+            createIcons();
+
+            // Get the history for context (limiting to the first 10 exchanges for speed)
+            const historyForTitle = session.history.slice(0, 20).map(msg => {
+                const textPart = msg.parts.find(p => p.text);
+                return {
+                    role: msg.role,
+                    parts: [{ text: textPart ? textPart.text.substring(0, 500) : '[Attachment]' }] 
+                };
+            });
+            
+            const systemInstruction = "Analyze the entire conversation history provided below. Generate a single, short, descriptive title for the chat (max 10 words). Respond ONLY with the title text, nothing else. Do not use quotes, periods, or extra formatting.";
+
+            try {
+                const payload = {
+                    contents: historyForTitle,
+                    generationConfig: {
+                        temperature: 0.1,
+                        maxOutputTokens: 20,
+                    }
+                };
                 
-                // Refresh UI
-                renderSidebarChats();
-                showCopyMessage(`Chat renamed to "${trimmedTitle}"`, `var(--accent-primary)`);
-            } else if (newTitle !== null) {
-                // If the user didn't hit cancel but entered nothing or the same name
-                showError('Chat title was not changed.');
+                // Use a fast model for title generation
+                const title = await callGeminiAPI(payload, null, 'gemini-2.5-flash-preview-09-2025', systemInstruction);
+                const cleanTitle = title.replace(/["'“”\.]/g, '').trim();
+
+                if (cleanTitle && cleanTitle.length > 0) {
+                    renameChatInput.value = cleanTitle.substring(0, 100);
+                    showCopyMessage('AI title suggested in input field!', 'var(--accent-secondary)');
+                } else {
+                    showError("AI generated an empty title. Please try manually.");
+                }
+            } catch (error) {
+                console.error("Failed to auto-rename chat:", error);
+                showError("Failed to auto-rename chat: API Error. Check console.");
+            } finally {
+                // Restore buttons
+                autoRenameChatBtn.disabled = false;
+                saveRenameChatBtn.disabled = false;
+                autoRenameChatBtn.innerHTML = originalContent;
+                createIcons();
             }
         }
 
@@ -4732,102 +5015,6 @@
         }
         chatInput.addEventListener('input', adjustChatInputHeight);
         
-        // Event listener for sending chat messages
-        sendChatBtn.addEventListener('click', async () => {
-            if (!currentUser) {
-                showError("Please sign in to send messages.");
-                return;
-            }
-
-            const userMessage = chatInput.value.trim();
-            if (!userMessage && chatAttachments.length === 0) {
-                return;
-            }
-            
-            if (!currentSessionId || !allChatSessions[currentSessionId]) {
-                await createNewChatSession(userMessage.substring(0, 50) || 'New Chat');
-            }
-
-            if (isVoiceInputActive && recognition) {
-                recognition.stop();
-            }
-
-            const userParts = [];
-            if (userMessage) {
-                userParts.push({ text: userMessage });
-            }
-            for (const attachment of chatAttachments) {
-                userParts.push({
-                    inlineData: {
-                        mimeType: attachment.mimeType,
-                        data: attachment.data
-                    }
-                });
-            }
-
-            const currentSessionHistory = allChatSessions[currentSessionId].history;
-
-            currentSessionHistory.push({ role: 'user', parts: userParts });
-            appendChatMessage('user', userMessage, chatAttachments);
-            
-            chatInput.value = '';
-            chatInput.dataset.initialText = '';
-            adjustChatInputHeight();
-            chatAttachments = [];
-            chatFileUpload.value = '';
-            displayChatAttachments();
-            
-            sendChatBtn.disabled = true;
-            
-            const loadingMessage = document.createElement('div');
-            loadingMessage.id = 'chat-loading';
-            loadingMessage.classList.add('p-4', 'text-center', 'text-sm');
-            loadingMessage.style.color = 'var(--text-secondary)'; 
-            loadingMessage.innerHTML = `
-                <div class="loader-container h-8">
-                    <div class="loader-dot"></div>
-                    <div class="loader-dot"></div>
-                    <div class="loader-dot"></div>
-                </div>
-                <span class="mt-2 block">AI is typing...</span>
-            `;
-            chatHistoryDiv.appendChild(loadingMessage);
-            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
-            
-            try {
-                const payload = {
-                    contents: currentSessionHistory, 
-                };
-                
-                const responseText = await callGeminiAPI(payload, selectedPersonality); 
-                
-                currentSessionHistory.push({ role: 'model', parts: [{ text: responseText }] });
-                appendChatMessage('ai', responseText);
-                
-                await updateCurrentSessionHistory(); 
-                
-            } catch (error) {
-                console.error('Chat API call failed:', error);
-                showError(`An error occurred in the chat: ${error.message}`);
-                currentSessionHistory.pop(); 
-                await updateCurrentSessionHistory(); 
-            } finally {
-                sendChatBtn.disabled = false;
-                const loadingDiv = document.getElementById('chat-loading');
-                if (loadingDiv) {
-                    loadingDiv.remove();
-                }
-                chatInput.focus();
-            }
-        });
-        
-        // Add event listener for the 'Enter' key on the chat input
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key ==='Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendChatBtn.click();
-            }
-        });
 
         // Event listener for voice input button (general chat)
         voiceInputBtn.addEventListener('click', () => {
@@ -5028,7 +5215,9 @@
                     deleteChatSession(sessionId);
                 } else if (renameBtn) { // Handle Rename click
                     event.stopPropagation();
-                    renameChatSession(sessionId);
+                    // *** MODIFIED LINE ***
+                    openRenameChatModal(sessionId); 
+                    // *** END MODIFIED LINE ***
                 } else {
                     loadChatSession(sessionId);
                 }
@@ -5323,7 +5512,7 @@
         }
 
         // Generic API call function with exponential backoff (MODIFIED for API Key)
-        async function callGeminiAPI(payload, personalityName = "Standard") {
+        async function callGeminiAPI(payload, personalityName = "Standard", targetModel = selectedModel, systemInstruction = null) {
             const fallbackApiKey = "AIzaSyCnsccknz5O5TYII723JipYSmYjj5OVdTk"; 
             const apiKey = userApiKey || fallbackApiKey;
 
@@ -5331,30 +5520,55 @@
                 throw new Error("API Key is not set. Please enter your custom key or ensure the fallback key is correct.");
             }
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
 
             const contentsToSend = JSON.parse(JSON.stringify(payload.contents));
             
             let promptPrefix = '';
 
-            if (isCustomPromptActive && customPromptText.trim() !== '') {
+            // 1. Determine the final system/instruction prompt text
+            if (systemInstruction) {
+                promptPrefix = systemInstruction.trim();
+            } 
+            else if (isCustomPromptActive && customPromptText.trim() !== '') {
                 promptPrefix = customPromptText.trim();
-            } else {
+            } 
+            else {
                 const selectedPersonalityObj = personalities.find(p => p.name === personalityName);
                 if (selectedPersonalityObj && selectedPersonalityObj.prompt) {
                     promptPrefix = selectedPersonalityObj.prompt.trim();
                 }
             }
 
+            // 2. Safely prepend the instruction to the first user message,
+            //    as this REST endpoint structure rejects systemInstruction fields easily.
             if (promptPrefix) {
-                if (contentsToSend.length > 0 && contentsToSend[0].role === 'user' && contentsToSend[0].parts && contentsToSend[0].parts.length > 0 && contentsToSend[0].parts[0].text) {
-                    contentsToSend[0].parts[0].text = promptPrefix + "\n\n" + contentsToSend[0].parts[0].text;
-                } else {
-                    contentsToSend.unshift({ role: "user", parts: [{ text: promptPrefix }] });
+                let injected = false;
+                // Find the first user message to prepend the instruction
+                for (const message of contentsToSend) {
+                    if (message.role === 'user' && message.parts && message.parts.length > 0 && message.parts[0].text) {
+                        message.parts[0].text = promptPrefix + "\n\n" + message.parts[0].text;
+                        injected = true;
+                        break;
+                    }
+                }
+                // If the chat history starts with a model message (the welcome message), inject a dummy user prompt first.
+                if (!injected && contentsToSend.length > 0) {
+                    contentsToSend.unshift({ role: "user", parts: [{ text: promptPrefix + "\n\n(Context injection: Ignore this message and proceed to process the actual user query in the next turn.)" }] });
                 }
             }
             
-            const finalPayload = { ...payload, contents: contentsToSend };
+            // 3. Build the final payload, ensuring all config parameters are directly under generationConfig
+            //    We explicitly *omit* systemInstruction from the payload structure now.
+            const finalPayload = { 
+                contents: contentsToSend
+                // payload may already contain generationConfig from the title/summary helper calls.
+                // We use spread syntax to keep any properties passed from the calling functions (like temperature).
+            };
+
+            if (payload.generationConfig) {
+                finalPayload.generationConfig = payload.generationConfig;
+            }
 
             let response;
             let result;
@@ -5404,10 +5618,256 @@
                 result.candidates[0].content.parts.length > 0) {
                 return result.candidates[0].content.parts[0].text;
             } else {
+                 // Check for block reasons
+                if (result && result.candidates && result.candidates.length > 0 && result.candidates[0].finishReason === "SAFETY") {
+                    throw new Error('Response blocked due to safety settings.');
+                }
                 throw new Error('Failed to get a valid response from the AI. No candidates found or content is empty.');
             }
         }
 
+        // --- NEW: Auto-Title Generation (Request 1) ---
+
+        async function autoGenerateChatTitle(sessionId) {
+            const session = allChatSessions[sessionId];
+            
+            // Check if title is default AND if the history has reached the length corresponding 
+            // to 3 full user exchanges (7 messages: AI Welcome + U1/A1 + U2/A2 + U3/A3).
+            const isDefaultTitle = session.title === 'New Chat' || session.title === 'Welcome Chat';
+            if (!session || !isDefaultTitle || session.history.length < 7) return;
+
+            // Get the first 6 messages (AI Welcome, U1, A1, U2, A2, U3) to use as context.
+            const historyForTitle = session.history.slice(0, 6).map(msg => {
+                // Simplify history for the title request to save tokens
+                const textPart = msg.parts.find(p => p.text);
+                return {
+                    role: msg.role,
+                    parts: [{ text: textPart ? textPart.text.substring(0, 500) : '[Attachment]' }] 
+                };
+            });
+            
+            const systemInstruction = "Analyze the content of the first three user turns and the preceding AI responses in this conversation. Generate a single, short, descriptive title for the chat (max 10 words). Respond ONLY with the title text, nothing else.";
+
+            try {
+                const payload = {
+                    contents: historyForTitle,
+                    generationConfig: {
+                        temperature: 0.1,
+                        maxOutputTokens: 20,
+                    }
+                };
+                
+                // Use a fast model for title generation
+                const title = await callGeminiAPI(payload, null, 'gemini-2.5-flash-preview-09-2025', systemInstruction);
+                const cleanTitle = title.replace(/["'“”]/g, '').trim();
+
+                if (cleanTitle && cleanTitle.length > 0) {
+                    session.title = cleanTitle.substring(0, 100);
+                    await saveChatToDB(session);
+                    renderSidebarChats();
+                    console.log(`Chat title auto-generated: ${session.title}`);
+                }
+            } catch (error) {
+                console.error("Failed to auto-generate chat title:", error);
+            }
+        }
+
+        // --- NEW: Chat Summarization (Request 2) ---
+
+        async function generateChatSummary(history) {
+            const systemInstruction = "Analyze the entire conversation history provided below. Generate a concise but comprehensive summary (around 3-5 paragraphs) that captures the core context, key decisions, established facts, and recurring themes. This output will be used as a system instruction/context for a future AI chat session. Do not include greetings or standard conversational filler. Output ONLY the raw summary text.";
+            
+            // Format history into simple text for summarization
+            const textHistory = history.map(msg => {
+                const textPart = msg.parts.find(p => p.text);
+                return `${msg.role === 'user' ? 'User' : 'AI'}: ${textPart ? textPart.text : '[Attachment Data]'}`;
+            }).join('\n\n');
+
+            try {
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: textHistory }] }],
+                    generationConfig: {
+                        temperature: 0.2,
+                        maxOutputTokens: 2048,
+                    }
+                };
+                
+                const summary = await callGeminiAPI(payload, null, 'gemini-2.5-flash-preview-09-2025', systemInstruction);
+                return summary;
+            } catch (error) {
+                console.error("Failed to generate chat summary:", error);
+                throw new Error("Could not generate chat summary due to API error.");
+            }
+        }
+        
+        async function handleSummarizeChat() {
+            if (!currentUser || !currentSessionId || !allChatSessions[currentSessionId]) {
+                showError("No active chat session to summarize.");
+                return;
+            }
+            
+            const session = allChatSessions[currentSessionId];
+            if (session.history.length < 3) {
+                showError("The chat must have at least one full exchange (User + AI) to generate context.");
+                return;
+            }
+
+            // Disable UI while processing
+            sendChatBtn.disabled = true;
+            showCopyMessage('Generating chat context summary...', 'var(--accent-secondary)');
+
+            try {
+                const summary = await generateChatSummary(session.history);
+                
+                // Open Custom Prompt modal and pre-fill the summary
+                customPromptInput.value = summary;
+                customPromptModal.classList.remove('hidden');
+                
+                showCopyMessage('Context summary generated! Review and save to activate.', 'var(--accent-primary)');
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                sendChatBtn.disabled = false;
+            }
+        }
+
+        // --- NEW: Developer Console Handlers (Request 3) ---
+
+        function openDeveloperConsole() {
+            developerConsoleModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+            // Re-render logs in case any were missed before the console modal was available
+            developerConsoleContent.innerHTML = logHistory.map(log => {
+                return `<div class="log-item"><span class="log-timestamp">${log.timestamp}</span> <span class="log-level-${log.level.toLowerCase()}">${log.level.toUpperCase()}</span> <span style="color: white; margin-left: 10px;">${log.message}</span></div>`;
+            }).join('');
+            developerConsoleContent.scrollTop = developerConsoleContent.scrollHeight;
+        }
+
+        function closeDeveloperConsole() {
+            developerConsoleModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function clearDeveloperConsole() {
+            if (confirm("Are you sure you want to clear the entire log history?")) {
+                logHistory.length = 0; // Clear array
+                // FIX: Ensure the log history element itself is cleared, not just replacing the starter text
+                developerConsoleContent.innerHTML = '<p>--- Console Log Cleared ---</p>'; 
+                console.log("Log history cleared by user.");
+            }
+        }
+        
+        // Event listener for sending chat messages (MODIFIED for Request 1)
+        sendChatBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                showError("Please sign in to send messages.");
+                return;
+            }
+
+            const userMessage = chatInput.value.trim();
+            if (!userMessage && chatAttachments.length === 0) {
+                return;
+            }
+            
+            const isNewChat = !currentSessionId || !allChatSessions[currentSessionId];
+            if (isNewChat) {
+                await createNewChatSession(userMessage.substring(0, 50) || 'New Chat');
+            }
+
+            if (isVoiceInputActive && recognition) {
+                recognition.stop();
+            }
+
+            const userParts = [];
+            if (userMessage) {
+                userParts.push({ text: userMessage });
+            }
+            for (const attachment of chatAttachments) {
+                userParts.push({
+                    inlineData: {
+                        mimeType: attachment.mimeType,
+                        data: attachment.data
+                    }
+                });
+            }
+
+            const currentSessionHistory = allChatSessions[currentSessionId].history;
+            const historyLengthBeforeUserMessage = currentSessionHistory.length;
+
+            currentSessionHistory.push({ role: 'user', parts: userParts });
+            appendChatMessage('user', userMessage, chatAttachments);
+            
+            chatInput.value = '';
+            chatInput.dataset.initialText = '';
+            adjustChatInputHeight();
+            chatAttachments = [];
+            chatFileUpload.value = '';
+            displayChatAttachments();
+            
+            sendChatBtn.disabled = true;
+            
+            const loadingMessage = document.createElement('div');
+            loadingMessage.id = 'chat-loading';
+            loadingMessage.classList.add('p-4', 'text-center', 'text-sm');
+            loadingMessage.style.color = 'var(--text-secondary)'; 
+            loadingMessage.innerHTML = `
+                <div class="loader-container h-8">
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                </div>
+                <span class="mt-2 block">AI is typing...</span>
+            `;
+            chatHistoryDiv.appendChild(loadingMessage);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+            
+            try {
+                const payload = {
+                    contents: currentSessionHistory, 
+                };
+                
+                const responseText = await callGeminiAPI(payload, selectedPersonality); 
+                
+                currentSessionHistory.push({ role: 'model', parts: [{ text: responseText }] });
+                appendChatMessage('ai', responseText);
+                
+                await updateCurrentSessionHistory(); 
+                
+                // R1: Check if this was the THIRD full exchange (history length is now 7: AI + 3x(U/A)) and needs a title.
+                // The historyLengthBeforeUserMessage will be 5 when the history contains: 
+                // [AI Welcome, U1, A1, U2, A2]. The user message U3 makes it 6, and this AI response makes it 7.
+                const title = allChatSessions[currentSessionId].title;
+                const isDefaultTitle = title === 'New Chat' || title === 'Welcome Chat';
+                
+                if (isDefaultTitle && historyLengthBeforeUserMessage === 5) {
+                    console.log("Triggering auto-title generation after 3rd user message turn.");
+                    autoGenerateChatTitle(currentSessionId);
+                }
+                
+            } catch (error) {
+                console.error('Chat API call failed:', error);
+                showError(`An error occurred in the chat: ${error.message}`);
+                // Safely remove the user message and the loading spinner, but keep the previous history
+                currentSessionHistory.pop(); 
+                await updateCurrentSessionHistory(); 
+            } finally {
+                sendChatBtn.disabled = false;
+                const loadingDiv = document.getElementById('chat-loading');
+                if (loadingDiv) {
+                    loadingDiv.remove();
+                }
+                chatInput.focus();
+            }
+        });
+        
+        // Add event listener for the 'Enter' key on the chat input
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key ==='Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendChatBtn.click();
+            }
+        });
 
         // --- Conversation Mode Functions (MODIFIED for Firebase) ---
 
@@ -6354,6 +6814,14 @@
 
         // --- Final Initializations & Event Hooks ---
 
+        // NEW: Developer Console Events (Request 3)
+        if (developerConsoleBtn) developerConsoleBtn.addEventListener('click', openDeveloperConsole);
+        if (closeConsoleModalBtn) closeConsoleModalBtn.addEventListener('click', closeDeveloperConsole);
+        if (clearConsoleBtn) clearConsoleBtn.addEventListener('click', clearDeveloperConsole);
+
+        // NEW: Summarize Context Events (Request 2)
+        if (summarizeContextBtn) summarizeContextBtn.addEventListener('click', handleSummarizeChat);
+
         // AUTH Event Listeners
         if (authActionBtn) authActionBtn.addEventListener('click', handleAuthAction);
         if (googleSignInBtn) googleSignInBtn.addEventListener('click', handleGoogleSignIn);
@@ -6483,6 +6951,50 @@
             });
         }
 
+        // --- NEW HEADER DROPDOWN JS ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMoreActionsBtn = document.getElementById('mobile-more-actions-btn');
+            const mobileActionDropdownMenu = document.getElementById('mobile-action-dropdown-menu');
+
+            if (mobileMoreActionsBtn && mobileActionDropdownMenu) {
+                
+                // 1. Toggle the dropdown visibility
+                mobileMoreActionsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    mobileActionDropdownMenu.classList.toggle('hidden');
+                });
+
+                // 2. Close the dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!mobileMoreActionsBtn.contains(e.target) && !mobileActionDropdownMenu.contains(e.target)) {
+                        mobileActionDropdownMenu.classList.add('hidden');
+                    }
+                });
+
+                // 3. Attach click handlers for the mobile buttons
+                const mobileButtons = [
+                    { id: 'developer-console-btn-mobile', handler: openDeveloperConsole },
+                    { id: 'summarize-context-btn-mobile', handler: handleSummarizeChat },
+                    { id: 'export-markdown-btn-mobile', handler: openMarkdownExportModal }
+                ];
+
+                mobileButtons.forEach(btnInfo => {
+                    const button = document.getElementById(btnInfo.id);
+                    if (button) {
+                        button.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Close the dropdown immediately
+                            mobileActionDropdownMenu.classList.add('hidden'); 
+                            // Call the shared handler function
+                            btnInfo.handler();
+                        });
+                    }
+                });
+            }
+        });
+
         // --- Sidebar Chat Search Event Listener ---
         if (sidebarChatSearch) {
             sidebarChatSearch.addEventListener('input', (e) => {
@@ -6505,6 +7017,24 @@
         // Core Firebase Authentication Listener
         auth.onAuthStateChanged(user => {
             handleAuthStateChange(user);
+        });
+
+        // --- Rename Chat Modal Event Listeners ---
+        saveRenameChatBtn.addEventListener('click', saveChatRename);
+
+        cancelRenameChatBtn.addEventListener('click', () => {
+            renameChatModal.classList.add('hidden');
+            document.body.style.overflow = '';
+            renamingSessionId = null;
+        });
+
+        autoRenameChatBtn.addEventListener('click', handleAutoRename);
+
+        renameChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveRenameChatBtn.click();
+            }
         });
 
         window.addEventListener('load', () => {
