@@ -3477,11 +3477,13 @@
             }
         };
 
-        // --- Developer Console Interception (Request 3) ---
+        // --- Developer Console Interception (MODIFIED for Request 3) ---
         const originalConsole = {
             log: console.log,
             warn: console.warn,
-            error: console.error
+            error: console.error,
+            info: console.info || console.log,
+            debug: console.debug || console.log
         };
         const logHistory = [];
         const MAX_LOGS = 500;
@@ -3523,10 +3525,14 @@
         }
 
         function hijackConsole() {
-            ['log', 'warn', 'error'].forEach(level => {
+            // Include 'log', 'warn', 'error', 'info', and 'debug' to capture everything
+            ['log', 'warn', 'error', 'info', 'debug'].forEach(level => {
+                // Ensure the original function is called first to preserve console behavior
+                const originalFn = originalConsole[level];
+                
                 console[level] = function(...args) {
-                    // Call the original console method
-                    originalConsole[level].apply(console, args);
+                    // Call the original console method as it is, without modification
+                    originalFn.apply(console, args);
                     
                     // Store and render the log
                     const log = formatLogMessage(level, args);
@@ -4616,28 +4622,30 @@
             autoRenameChatBtn.innerHTML = `<span data-lucide="loader-2" class="w-5 h-5 mr-2 animate-spin"></span> Generating...`;
             createIcons();
 
-            // Get the history for context (limiting to the first 10 exchanges for speed)
-            const historyForTitle = session.history.slice(0, 20).map(msg => {
+            // Get the history for context (limiting to the first 3 exchanges for max speed/efficiency)
+            const historyForTitle = session.history.slice(0, 6).map(msg => {
                 const textPart = msg.parts.find(p => p.text);
                 return {
                     role: msg.role,
-                    parts: [{ text: textPart ? textPart.text.substring(0, 500) : '[Attachment]' }] 
+                    // Truncate text aggressively to save tokens and speed
+                    parts: [{ text: textPart ? textPart.text.substring(0, 250) : '[Attachment]' }] 
                 };
             });
             
-            const systemInstruction = "Analyze the entire conversation history provided below. Generate a single, short, descriptive title for the chat (max 10 words). Respond ONLY with the title text, nothing else. Do not use quotes, periods, or extra formatting.";
+            // Highly optimized prompt for minimal AI capability usage (Request 2)
+            const systemInstruction = "Analyze the first few turns of the conversation history provided below. Generate a single, concise title for the chat (max 8 words). Respond ONLY with the title text, nothing else. Do not use quotes, periods, or extra formatting.";
 
             try {
                 const payload = {
                     contents: historyForTitle,
                     generationConfig: {
-                        temperature: 0.1,
-                        maxOutputTokens: 20,
+                        temperature: 0.1, // Low temperature forces determinism/speed
+                        maxOutputTokens: 20, // Minimal output length
                     }
                 };
                 
-                // Use a fast model for title generation
-                const title = await callGeminiAPI(payload, null, 'gemini-2.5-flash-preview-09-2025', systemInstruction);
+                // Use a fast, low-cost model for title generation
+                const title = await callGeminiAPI(payload, null, 'gemini-2.5-flash-lite-preview-09-2025', systemInstruction);
                 const cleanTitle = title.replace(/["'“”\.]/g, '').trim();
 
                 if (cleanTitle && cleanTitle.length > 0) {
@@ -5642,11 +5650,12 @@
                 const textPart = msg.parts.find(p => p.text);
                 return {
                     role: msg.role,
-                    parts: [{ text: textPart ? textPart.text.substring(0, 500) : '[Attachment]' }] 
+                    parts: [{ text: textPart ? textPart.text.substring(0, 250) : '[Attachment]' }] 
                 };
             });
             
-            const systemInstruction = "Analyze the content of the first three user turns and the preceding AI responses in this conversation. Generate a single, short, descriptive title for the chat (max 10 words). Respond ONLY with the title text, nothing else.";
+            // Highly optimized prompt for auto-title generation (Request 2)
+            const systemInstruction = "Analyze the content of the first three user turns and the preceding AI responses in this conversation. Generate a single, concise title for the chat (max 8 words). Respond ONLY with the title text, nothing else.";
 
             try {
                 const payload = {
@@ -5658,7 +5667,7 @@
                 };
                 
                 // Use a fast model for title generation
-                const title = await callGeminiAPI(payload, null, 'gemini-2.5-flash-preview-09-2025', systemInstruction);
+                const title = await callGeminiAPI(payload, null, 'gemini-2.5-flash-lite-preview-09-2025', systemInstruction);
                 const cleanTitle = title.replace(/["'“”]/g, '').trim();
 
                 if (cleanTitle && cleanTitle.length > 0) {
