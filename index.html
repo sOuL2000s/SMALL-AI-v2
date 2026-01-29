@@ -46,78 +46,92 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.6s ease, color 0.6s ease;
+            transition: var(--transition-slow);
             display: flex; 
             color: var(--text-primary); 
         }
 
         /* --- Theme Definitions --- */
         
-        /* Default Theme: Light Mode */
+        /* Default Theme: Light Mode (PREMIUM) */
         body[data-theme="default-light"] {
-            --bg-primary: #f3f4f6;
-            --bg-secondary: #ffffff;
-            --text-primary: #6366f1; /* Changed to accent */
-            --text-secondary: #4b5563;
-            --border-color: #e5e7eb;
-            --card-bg: #ffffff;
-            --card-border: #e5e7eb;
-            --header-bg: #f9fafb;
-            --accent-primary: #6366f1;
-            --accent-primary-hover: #4f46e5;
-            --accent-secondary: #22d3ee;
-            --accent-error: #ef4444;
-            --accent-success: #22c55e;
-            --user-bubble-bg: #e0f2fe;
-            --user-bubble-text: #6366f1; /* Changed to accent */
-            --ai-bubble-bg: #f3f4f6;
-            --ai-bubble-text: #6366f1; /* Changed to accent */
-            --sidebar-bg: #ffffff;
-            --sidebar-border: #e5e7eb;
-            --sidebar-item-hover: #f3f4f6;
+            --bg-primary: #F7F8FC;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+            --card-bg: #FFFFFF;
+            --card-border: #E5E7EB;
+            --header-bg: #FFFFFF;
+            --accent-primary: #6366F1;
+            --accent-primary-hover: #4F46E5;
+            --accent-secondary: #06B6D4;
+            --accent-error: #EF4444;
+            --accent-success: #10B981;
+            --user-bubble-bg: #EEF2FF;
+            --user-bubble-text: #1F2937; 
+            --ai-bubble-bg: #F9FAFB;
+            --ai-bubble-text: #1F2937; 
+            --sidebar-bg: #FFFFFF;
+            --sidebar-border: #E5E7EB;
+            --sidebar-item-hover: #F3F4F6;
             --loader-dot-color: var(--accent-primary);
-            --main-chat-window-bg: rgba(255, 255, 255, 0.8);
-            --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #6366f1; /* Changed to accent */
-            --conversation-indicator: #6366f1;
-            --code-block-bg: #f5f7fa;
-            --code-block-header-bg: #e8ebf0;
-            --code-block-border: #e2e4e8;
+            --main-chat-window-bg: rgba(255, 255, 255, 0.95);
+            --conversation-bg: rgba(255, 255, 255, 0.98);
+            --conversation-text: var(--text-primary); 
+            --conversation-indicator: var(--accent-primary);
+            --code-block-bg: #F0F4F7;
+            --code-block-header-bg: #EAEFF2;
+            --code-block-border: #DDE1E5;
 
+            /* NEW: Global Shadows & Transitions (Light Mode) */
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            --shadow-medium: 0 4px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15), 0 20px 50px rgba(0, 0, 0, 0.1);
+            --transition-fast: all 0.2s ease-out;
+            --transition-slow: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
             background-color: var(--bg-primary);
         }
 
-        /* Default Theme: Dark Mode */
+        /* Default Theme: Dark Mode (PREMIUM) */
         body[data-theme="default-dark"] {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #13131a;
-            --text-primary: #818cf8; /* Changed to accent */
-            --text-secondary: #a1a1aa;
-            --border-color: #2d3748;
-            --card-bg: #13131a;
-            --card-border: #2d3748;
-            --header-bg: #1f2937;
-            --accent-primary: #818cf8;
-            --accent-primary-hover: #6366f1;
-            --accent-secondary: #22d3ee;
-            --accent-error: #f87171;
-            --accent-success: #4ade80;
-            --user-bubble-bg: #1a237e;
-            --user-bubble-text: #818cf8; /* Changed to accent */
-            --ai-bubble-bg: #2d3748;
-            --ai-bubble-text: #818cf8; /* Changed to accent */
-            --sidebar-bg: #13131a;
-            --sidebar-border: #2d3748;
-            --sidebar-item-hover: #1f2937;
+            --bg-primary: #0C0D17; /* Deep Navy Black */
+            --bg-secondary: #171825; /* Slightly lighter card/sidebar */
+            --text-primary: #CBD5E1; /* Light contrast text */
+            --text-secondary: #94A3B8; /* Muted secondary text */
+            --border-color: #334155; /* Subtle border */
+            --card-bg: #171825;
+            --card-border: #334155;
+            --header-bg: #10111A; /* Header/Input Bar Background */
+            --accent-primary: #8B5CF6; /* Vibrant Purple */
+            --accent-primary-hover: #7C3AED;
+            --accent-secondary: #06B6D4; /* Cyan/Teal for highlights */
+            --accent-error: #F87171;
+            --accent-success: #34D399;
+            --user-bubble-bg: #1F2937; /* Darker User Bubble */
+            --user-bubble-text: #CBD5E1; 
+            --ai-bubble-bg: #10111A; /* AI Bubble is BG Primary */
+            --ai-bubble-text: #CBD5E1; 
+            --sidebar-bg: #10111A;
+            --sidebar-border: #334155;
+            --sidebar-item-hover: #171825;
             --loader-dot-color: var(--accent-primary);
-            --main-chat-window-bg: rgba(19, 19, 26, 0.9);
-            --conversation-bg: rgba(19, 19, 26, 0.95);
-            --conversation-text: #818cf8; /* Changed to accent */
-            --conversation-indicator: #818cf8;
-            --code-block-bg: #1f2937;
-            --code-block-header-bg: #13131a;
-            --code-block-border: #2d3748;
-
+            --main-chat-window-bg: rgba(16, 17, 26, 0.95); /* Nearly opaque */
+            --conversation-bg: rgba(16, 17, 26, 0.98);
+            --conversation-text: var(--text-primary); 
+            --conversation-indicator: var(--accent-primary);
+            --code-block-bg: #171825;
+            --code-block-header-bg: #1F2937;
+            --code-block-border: #334155;
+            
+            /* NEW: Global Shadows & Transitions */
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
+            --shadow-medium: 0 4px 10px rgba(0, 0, 0, 0.6), 0 1px 4px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.8), 0 20px 50px rgba(0, 0, 0, 0.9);
+            --transition-fast: all 0.2s ease-out;
+            --transition-slow: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
             background-color: var(--bg-primary);
         }
 
@@ -1856,8 +1870,12 @@
         .bg-gray-200 { background-color: var(--bg-primary); color: var(--text-primary); }
         .hover\:bg-gray-300:hover { background-color: var(--sidebar-item-hover); }
         .bg-gray-100 { background-color: var(--bg-primary); }
-        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        body[data-theme$="-dark"] .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45); }
+        /* Replace default Tailwind shadows with variable-based premium shadows */
+        .shadow-sm { box-shadow: var(--shadow-subtle); }
+        .shadow-md { box-shadow: var(--shadow-medium); }
+        .shadow-lg { box-shadow: var(--shadow-medium); }
+        .shadow-xl { box-shadow: var(--shadow-lg); }
+        .shadow-2xl { box-shadow: var(--shadow-lg); }
         #error-message { background-color: var(--accent-error); color: white; }
         body[data-theme$="-dark"] #error-message { background-color: var(--accent-error); color: white; }
 
@@ -1886,18 +1904,56 @@
         .log-level-debug { color: #888888; }
         .log-timestamp { color: #008000; margin-right: 10px; }
 
-        /* Custom styles for glowing effects on buttons */
+        /* Custom styles for glowing effects on buttons (Enhanced) */
         .glow-button {
             position: relative;
             z-index: 10;
-            transition: all 0.4s ease;
-            box-shadow: 0 0 10px var(--accent-primary);
+            transition: var(--transition-slow);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.6); /* Use specific color for predictable glow */
             background-color: var(--accent-primary);
+            color: var(--bg-primary); /* Ensure button text is visible against bright accent */
+            font-weight: 700;
+        }
+        .glow-button:focus-visible {
+            outline: 2px solid var(--bg-primary);
+            outline-offset: 2px;
+            box-shadow: 0 0 15px var(--accent-primary), 0 0 25px var(--accent-primary-hover);
         }
         .glow-button:hover {
-            box-shadow: 0 0 12px var(--accent-primary), 0 0 20px var(--accent-primary);
-            transform: translateY(-1px) scale(1.01);
-            background-image: linear-gradient(to right, var(--accent-primary), var(--accent-primary-hover));
+            box-shadow: 0 0 15px var(--accent-primary), 0 0 25px var(--accent-primary-hover);
+            transform: translateY(-2px) scale(1.01);
+            background-color: var(--accent-primary-hover);
+        }
+        
+        /* NEW: Global Input/Select/Textarea Styling (Enhanced Focus) */
+        input[type="text"], input[type="email"], input[type="password"], select, textarea {
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+        }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+        }
+        /* Explicitly defining focus-visible for accessibility */
+        input[type="text"]:focus-visible, input[type="email"]:focus-visible, input[type="password"]:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* NEW: Error Button Glow Enhancement */
+        .glow-error-button {
+            position: relative;
+            z-index: 10;
+            transition: var(--transition-slow);
+            box-shadow: 0 0 10px var(--accent-error);
+            background-color: var(--accent-error); 
+        }
+        .glow-error-button:hover {
+            box-shadow: 0 0 12px var(--accent-error), 0 0 20px var(--accent-error);
+            transform: translateY(-2px) scale(1.01);
         }
 
         /* NEW: Error Button Glow */
@@ -1922,30 +1978,31 @@
         
         .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 { 
             font-family: 'Inter', sans-serif;
-            font-weight: 800; 
-            margin-top: 2em; 
-            margin-bottom: 0.8em; 
-            line-height: 1.2; 
+            font-weight: 900; /* Bolder headings */
+            margin-top: 2.5em; 
+            margin-bottom: 1em; 
+            line-height: 1.1; 
             color: var(--accent-primary); 
-            padding-bottom: 0.3em;
+            padding-bottom: 0.5em;
+            letter-spacing: -0.02em; /* Tighter spacing for modern look */
         }
         .markdown-content h1 { 
-            font-size: 2.2rem; 
-            border-bottom: 3px solid var(--accent-primary); 
+            font-size: 2.5rem; /* Larger */
+            border-bottom: 4px solid var(--accent-primary); 
         }
         .markdown-content h2 { 
-            font-size: 1.8rem; 
+            font-size: 2rem; 
             border-bottom: 2px solid var(--border-color); 
         }
         .markdown-content h3 { 
-            font-size: 1.5rem; 
+            font-size: 1.6rem; 
             border-bottom: 1px solid var(--border-color);
         }
         .markdown-content h4 { 
-            font-size: 1.2rem; 
+            font-size: 1.3rem; 
             font-weight: 700; 
             border-bottom: none; 
-            margin-top: 1.5em;
+            margin-top: 2em;
         }
         
         .markdown-content p { margin-bottom: 1em; }
@@ -2082,21 +2139,22 @@
             background-color: var(--accent-primary-hover);
         }
         
-        /* Modern loading animation */
-        .loader-container { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
-        .loader-dot {
-            width: 12px; height: 12px; margin: 0 4px;
+        /* Modern loading animation (Pulsing Bar) */
+        .loader-container { display: flex; justify-content: flex-start; align-items: center; width: 100%; height: 100%; }
+        .loader-typing-bar {
+            width: 8px; height: 8px; margin: 0 3px;
             background-color: var(--loader-dot-color);
             border-radius: 50%; display: inline-block;
-            animation: bounce 1.4s infinite ease-in-out both;
+            opacity: 0.7;
+            animation: pulse-bar 1.5s infinite ease-in-out both;
         }
-        .loader-dot:nth-child(1) { animation-delay: -0.32s; }
-        .loader-dot:nth-child(2) { animation-delay: -0.16s; }
-        .loader-dot:nth-child(3) { animation-delay: 0s; }
+        .loader-typing-bar:nth-child(1) { animation-delay: -0.4s; }
+        .loader-typing-bar:nth-child(2) { animation-delay: -0.2s; }
+        .loader-typing-bar:nth-child(3) { animation-delay: 0s; }
         
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-            40% { transform: scale(1.0); opacity: 1; }
+        @keyframes pulse-bar {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
         }
 
         /* Main Chat Window Styling */
@@ -2109,29 +2167,28 @@
             flex-direction: column;
             background-color: var(--main-chat-window-bg);
             border-radius: 0;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            box-shadow: none;
             border-left: 1px solid var(--border-color);
-            transition: all 0.3s ease-in-out;
-        }
-        body[data-theme$="-dark"] #main-chat-window {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+            transition: var(--transition-slow);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
 
         /* Sidebar Styling */
         #sidebar {
-            width: 280px;
-            min-width: 280px;
+            width: 300px; /* Slightly wider */
+            min-width: 300px;
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--sidebar-border);
             display: flex;
             flex-direction: column;
-            padding: 1rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem; /* More padding */
+            box-shadow: var(--shadow-medium);
             position: relative;
             z-index: 30;
             height: 100vh;
             overflow-y: auto;
-            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+            transition: var(--transition-slow);
         }
         #sidebar.hidden-mobile {
             transform: translateX(-100%);
@@ -2162,22 +2219,30 @@
         
         /* New chat message styles */
         .chat-message {
-            margin-bottom: 0.75rem; padding: 1rem; border-radius: 1.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            word-break: break-word; transition: all 0.3s ease; transform: scale(0.95);
-            transform-origin: bottom; max-width: 85%; position: relative; padding-bottom: 2.5rem;
+            margin-bottom: 1rem; padding: 1.1rem 1.3rem; border-radius: 1.25rem; /* Slightly reduced radius */
+            box-shadow: var(--shadow-subtle);
+            word-break: break-word; transition: var(--transition-fast); transform: scale(1); 
+            transform-origin: center; max-width: 90%; position: relative; padding-bottom: 2.5rem;
         }
-
+        
+        /* User Bubble: Clear primary accent */
         .chat-message.user {
-            background-color: var(--user-bubble-bg); color: var(--user-bubble-text);
-            margin-left: auto; border-bottom-right-radius: 0.5rem;
-            background-image: linear-gradient(to bottom right, var(--user-bubble-bg), color-mix(in srgb, var(--user-bubble-bg) 80%, var(--accent-primary) 20%));
+            background-color: var(--user-bubble-bg); 
+            color: var(--text-primary); /* Use primary text color for readability */
+            margin-left: auto; 
+            border-bottom-right-radius: 0.5rem;
+            border-top-right-radius: 0.5rem; 
+            border: 1px solid var(--accent-primary);
         }
 
+        /* AI Bubble: Deeper background, softer look */
         .chat-message.ai {
-            background-color: var(--ai-bubble-bg); color: var(--ai-bubble-text);
-            margin-right: auto; border-bottom-left-radius: 0.5rem;
-            background-image: linear-gradient(to bottom left, var(--ai-bubble-bg), color-mix(in srgb, var(--ai-bubble-bg) 80%, var(--border-color) 20%));
+            background-color: var(--ai-bubble-bg); 
+            color: var(--text-primary); /* Use primary text color for readability */
+            margin-right: auto; 
+            border-bottom-left-radius: 0.5rem;
+            border-top-left-radius: 0.5rem; 
+            box-shadow: var(--shadow-medium);
         }
 
         /* Styling for chat attachments */
@@ -2223,15 +2288,20 @@
             margin-left: 0; color: var(--text-secondary);
         }
 
-        /* Code block specific styling */
+        /* Code block specific styling (Premium) */
         .code-block-container {
             position: relative;
             background-color: var(--code-block-bg);
             color: var(--text-primary);
             border-radius: 0.75rem; margin-top: 1rem; margin-bottom: 1rem;
-            overflow: hidden; border: 1px solid var(--code-block-border);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            transition: border 0.2s ease, box-shadow 0.2s ease; /* Added transition */
+            overflow: hidden; 
+            border: 1px solid var(--accent-secondary); /* Border uses accent secondary */
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition-fast);
+        }
+        /* Optional subtle glow for dark mode */
+        body[data-theme$="-dark"] .code-block-container {
+             box-shadow: 0 0 10px rgba(6, 182, 212, 0.15), var(--shadow-medium);
         }
         .code-block-container pre {
             margin: 0; padding: 1rem; overflow-x: auto;
@@ -2266,12 +2336,19 @@
         .code-block-copy-button:hover { background-color: var(--border-color); color: var(--text-primary); }
         .code-block-copy-button:active { transform: scale(0.95); }
 
-        /* Smallest font size for inline code blocks if any */
+        /* Smallest font size for inline code blocks if any (Enhanced) */
         .chat-message.ai .message-content code:not(pre > code) {
-            background-color: color-mix(in srgb, var(--accent-primary) 15%, transparent) !important;
-            border-radius: 0.25rem;
-            padding: 0.2em 0.4em; font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 0.9em; color: var(--accent-primary) !important;
+            background-color: var(--code-block-header-bg) !important;
+            border-radius: 0.35rem; /* Slightly larger radius */
+            padding: 0.2em 0.4em; 
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 0.9em; 
+            color: var(--accent-primary) !important;
+            border: 1px solid var(--code-block-border);
+            transition: var(--transition-fast);
+        }
+        .chat-message.ai .message-content code:not(pre > code):hover {
+            border-color: var(--accent-primary);
         }
 
         /* Ensure links are distinguishable */
@@ -2280,15 +2357,20 @@
         }
         .chat-message.ai .message-content a:hover { color: var(--accent-primary-hover); }
 
-        /* Styles for message action buttons (copy/dictate) */
+        /* Styles for message action buttons (copy/dictate) - Enhanced */
         .message-actions {
-            position: absolute; bottom: 0.5rem; right: 1rem; display: flex; gap: 0.5rem;
-            padding: 0.25rem 0.5rem; background-color: var(--header-bg);
-            border-radius: 0.75rem; backdrop-filter: blur(5px); transition: opacity 0.3s ease;
+            position: absolute; bottom: 0.5rem; right: 1rem; display: flex; gap: 0.25rem;
+            padding: 0.35rem 0.6rem; 
+            background-color: color-mix(in srgb, var(--bg-secondary) 80%, transparent); /* Semi-transparent base */
+            border-radius: 0.75rem; 
+            backdrop-filter: blur(8px); /* Stronger blur */
+            -webkit-backdrop-filter: blur(8px);
+            transition: var(--transition-fast);
             opacity: 0; z-index: 10;
             border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-subtle);
         }
-        .chat-message:hover .message-actions { opacity: 1; }
+        .chat-message:hover .message-actions { opacity: 1; bottom: 0.75rem; } /* Lift and fade in */
         .message-actions button {
             background: none; border: none; cursor: pointer; padding: 0.25rem;
             border-radius: 0.375rem; transition: background-color 0.2s ease, color 0.2s ease;
@@ -2321,28 +2403,33 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 1rem;
+            padding: 0.8rem 1rem;
             border-radius: 0.75rem;
             cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease;
+            transition: var(--transition-fast);
             color: var(--text-secondary);
             margin-bottom: 0.5rem;
             text-align: left;
+            border: 1px solid transparent; /* Added subtle border */
         }
         .sidebar-chat-item:hover {
             background-color: var(--sidebar-item-hover);
             color: var(--text-primary);
+            border-color: var(--accent-primary); /* Highlight border on hover */
         }
         .sidebar-chat-item.active {
             background-color: var(--accent-primary);
-            color: black;
+            color: var(--bg-secondary); /* Text color contrast against bright accent */
             font-weight: 600;
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-subtle);
         }
         .sidebar-chat-item.active .lucide {
-            color: black;
+            color: var(--bg-secondary);
         }
         .sidebar-chat-item.active:hover {
             background-color: var(--accent-primary-hover);
+            transform: translateY(-1px);
         }
         .sidebar-chat-item-content {
             display: flex;
@@ -2542,15 +2629,15 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 2rem;
-            transition: all 0.3s ease;
+            transition: var(--transition-slow);
             perspective: 1000px;
-            margin-top: 8rem;
+            margin-top: 5rem; /* Reduced top margin for better center alignment */
         }
         @media (max-width: 768px) {
             .sound-blob-wrapper {
-                width: 200px;
-                height: 200px;
-                margin-top: 12rem;
+                width: 250px; /* Slightly larger on mobile */
+                height: 250px;
+                margin-top: 8rem; /* Adjusted for smaller screen */
             }
         }
 
@@ -2693,18 +2780,20 @@
 
 
         .conversation-history-display {
-            max-width: 600px;
+            max-width: 700px; /* Slightly wider */
             width: 90%;
-            height: 120px;
+            height: 140px; /* Slightly taller */
             overflow-y: auto;
-            border: 1px solid var(--border-color);
-            border-radius: 1.5rem;
-            padding: 1.2rem;
+            border: 1px solid var(--accent-primary); /* Use accent for border */
+            border-radius: 1.75rem; /* Larger radius */
+            padding: 1.5rem; /* More padding */
             text-align: left;
             font-size: 1.1rem;
             line-height: 1.6;
-            background: linear-gradient(to top, var(--card-bg) 70%, color-mix(in srgb, var(--card-bg) 20%, transparent) 100%);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            /* Subtle Glass Effect for dark mode */
+            background: color-mix(in srgb, var(--card-bg) 70%, transparent);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 15px color-mix(in srgb, var(--accent-primary) 30%, transparent);
             color: var(--text-primary);
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -2826,18 +2915,14 @@
             transform: translateY(-1px);
         }
 
-        /* NEW CSS for Collapsible Settings */
-        #settings-content:not(.hidden) {
-            animation: slideDown 0.3s ease-out;
-            /* Using max-height transition for smooth opening/closing, must be large enough */
-            max-height: 800px;
+        /* NEW CSS for Collapsible Settings (Enhanced Smoothness) */
+        #settings-content {
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother curve */
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        #settings-content.hidden {
             max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-in;
+        }
+        #settings-content:not(.hidden) {
+            max-height: 1000px; /* Large enough to cover content */
         }
         
         /* --- Jump Buttons Styling --- */
@@ -2851,18 +2936,21 @@
             gap: 0.5rem;
         }
         .scroll-button {
-            background-color: var(--bg-secondary);
+            background-color: color-mix(in srgb, var(--card-bg) 80%, transparent);
             color: var(--text-secondary);
             border: 1px solid var(--border-color);
-            padding: 0.5rem;
+            padding: 0.75rem; /* Slightly larger targets */
             border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease;
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition-fast);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
         .scroll-button:hover {
             background-color: var(--accent-primary);
-            color: black;
-            transform: scale(1.05);
+            color: var(--bg-primary); /* Better contrast */
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 15px var(--accent-primary);
         }
 
         /* --- Chat Search Feature Styling --- */
@@ -2930,7 +3018,7 @@
             <!-- Last few spoken phrases will appear here -->
         </div>
 
-        <button id="conversation-mic-btn" aria-label="Toggle Microphone" class="flex items-center justify-center rounded-full shadow-lg cursor-pointer transition-all duration-300 glow-button conversation-mic-btn">
+        <button id="conversation-mic-btn" aria-label="Toggle Microphone" class="flex items-center justify-center rounded-full shadow-lg cursor-pointer transition-all duration-300 glow-button conversation-mic-btn" style="color: var(--bg-primary);">
             <span data-lucide="mic" class="w-8 h-8"></span>
         </button>
     </div>
@@ -2941,26 +3029,27 @@
 
     <!-- Sidebar (Updated Structure) -->
     <aside id="sidebar" class="hidden-mobile">
-        <div class="flex items-center justify-between pb-4 border-b border-[var(--sidebar-border)] mb-4">
-            <h2 class="text-xl font-bold flex items-center gap-2" style="color: var(--text-primary);">
-                <span data-lucide="sparkles" class="w-6 h-6" style="color: var(--accent-primary);"></span> Small AI v2
+        <!-- Sidebar Header (Logo/Title) -->
+        <div class="flex items-center justify-between pb-6 border-b border-[var(--sidebar-border)] mb-6 sticky top-0 bg-[var(--sidebar-bg)] z-30">
+            <h2 class="text-2xl font-black flex items-center gap-2" style="color: var(--text-primary);">
+                <span data-lucide="sparkles" class="w-7 h-7 animate-pulse" style="color: var(--accent-primary);"></span> Small AI v2
             </h2>
-            <button id="close-sidebar-btn" aria-label="Close Sidebar" title="Close Sidebar" class="md:hidden" style="color: var(--text-secondary); background-color: transparent; border: none;">
+            <button id="close-sidebar-btn" aria-label="Close Sidebar" title="Close Sidebar" class="md:hidden p-2 rounded-lg" style="color: var(--text-secondary); background-color: var(--sidebar-item-hover); border: none;">
                 <span data-lucide="x" class="w-6 h-6"></span>
             </button>
         </div>
 
         <!-- New Chat Button -->
-        <button id="new-chat-button" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4 glow-button" style="background-color: var(--accent-primary); color: black;">
-            <span data-lucide="plus" class="w-5 h-5 mr-2"></span> New Chat
+        <button id="new-chat-button" class="w-full flex items-center justify-center p-3.5 rounded-xl font-bold shadow-lg transition-colors mb-6 glow-button" style="background-color: var(--accent-primary); color: var(--bg-primary);">
+            <span data-lucide="plus" class="w-5 h-5 mr-2"></span> New Conversation
         </button>
         
         <!-- Previous Chats Section (Made flexible to take height) -->
-        <div class="flex-1 overflow-y-auto mb-4" id="previous-chats-section">
-            <h3 class="text-sm font-semibold uppercase sticky top-0 py-2 z-10" style="background-color: var(--sidebar-bg); color: var(--text-secondary);">Previous Chats</h3>
+        <div class="flex-1 overflow-y-auto mb-4 -mx-2 px-2" id="previous-chats-section">
+            <h3 class="text-xs font-bold tracking-wider uppercase sticky top-0 py-2 mb-2 z-10" style="background-color: var(--sidebar-bg); color: var(--text-secondary);">Chat History</h3>
             
             <!-- ADDED: Sidebar Chat Search Input -->
-            <input type="text" id="sidebar-chat-search" class="w-full p-2 rounded-md border text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] mb-3" placeholder="Search chats..." style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);">
+            <input type="text" id="sidebar-chat-search" class="w-full p-2.5 rounded-lg border text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] mb-4" placeholder="Search chats..." style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);">
 
             <ul id="sidebar-chat-list" class="space-y-1">
                 <!-- Chat items are loaded by JS based on auth state -->
@@ -2968,22 +3057,22 @@
         </div>
 
         <!-- Grouped Settings Section (Model, Theme, Version, API Key, Auth) - Optimized for space -->
-        <div class="mt-auto pt-4 border-t border-[var(--sidebar-border)] space-y-3">
+        <div class="mt-auto pt-5 border-t border-[var(--sidebar-border)] space-y-4 sticky bottom-0 bg-[var(--sidebar-bg)] z-30">
             
             <!-- NEW: Settings Toggle Button -->
             <!-- ADDED: relative class, ADDED: custom-prompt-indicator -->
-            <button id="toggle-settings-btn" class="w-full flex items-center justify-between p-3 rounded-xl font-semibold transition-colors mb-2 relative" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
-                <span class="flex items-center gap-2">
-                    <span data-lucide="settings" class="w-5 h-5"></span> Settings & Configuration
+            <button id="toggle-settings-btn" class="w-full flex items-center justify-between p-3 rounded-xl font-semibold transition-colors mb-2 relative hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);">
+                <span class="flex items-center gap-2 text-base">
+                    <span data-lucide="settings" class="w-5 h-5"></span> Advanced Settings
                 </span>
                 <!-- NEW: Custom Prompt Indicator (MOVED HERE) -->
                 <!-- Adjusted position to top-2 right-2 for better visibility on this button -->
-                <div id="custom-prompt-indicator" class="w-3 h-3 rounded-full absolute top-2 right-2 hidden" title="Custom Prompt is Active" style="background-color: var(--accent-primary); z-index: 5;"></div>
+                <div id="custom-prompt-indicator" class="w-3.5 h-3.5 rounded-full absolute top-1 right-1 hidden" title="Custom Prompt is Active" style="background-color: var(--accent-primary); z-index: 5; animation: prompt-pulse 1.5s infinite alternate;"></div>
                 <span data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="settings-chevron"></span>
             </button>
 
             <!-- Settings Content (Collapsible) -->
-            <div id="settings-content" class="space-y-3 hidden">
+            <div id="settings-content" class="space-y-4">
                 
                 <!-- Custom Prompt Button -->
                 <!-- REMOVED: Custom Prompt Indicator from here -->
@@ -3093,7 +3182,7 @@
                     <button id="delete-all-chats-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-2" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
                         <span data-lucide="folder-x" class="w-5 h-5 mr-2"></span> Delete All Chats
                     </button>
-                    <button id="clear-local-storage-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4 glow-error-button" style="color: white;">
+                    <button id="clear-local-storage-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-bold shadow-lg transition-colors mb-4 glow-error-button" style="color: var(--bg-primary);">
                         <span data-lucide="database" class="w-5 h-5 mr-2"></span> Clear Local Cache
                     </button>
                 </div>
@@ -3102,7 +3191,7 @@
             <!-- Authentication Status & Sign Out (Always visible) -->
             <div id="auth-status-container" class="pt-4 border-t border-[var(--sidebar-border)]">
                 <p class="text-sm font-semibold mb-2" style="color: var(--text-secondary);">Logged in as: <span id="user-email">Guest</span></p>
-                <button id="sign-out-button" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors glow-error-button" style="color: white;">
+                <button id="sign-out-button" class="w-full flex items-center justify-center p-3 rounded-xl font-bold shadow-lg transition-colors glow-error-button" style="color: var(--bg-primary);">
                     <span data-lucide="log-out" class="w-5 h-5 mr-2"></span> Sign Out
                 </button>
             </div>
@@ -3204,27 +3293,27 @@
         </div>
         
         <!-- Chat input section with attachment, voice and send button -->
-        <div id="chat-input-area-container" class="p-4 border-t border-[var(--border-color)] relative transition-all duration-300" style="background-color: var(--header-bg);">
+        <div id="chat-input-area-container" class="p-4 border-t border-[var(--border-color)] relative transition-all duration-300 shadow-xl" style="background-color: var(--header-bg); border-top: 1px solid var(--border-color);">
             <!-- Attachment preview -->
             <div id="chat-attachments-preview-container" class="mb-2 flex flex-wrap items-center gap-2 hidden">
                 <!-- Attachments previews will be dynamically added here -->
             </div>
 
-            <div class="flex gap-2 items-end flex-wrap">
+            <div class="flex gap-2 items-end flex-wrap w-full">
                 <!-- Voice Input Button -->
-                <button id="voice-input-btn" aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="voice-input-btn" aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-11 h-11 rounded-xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="mic" class="w-5 h-5"></span>
                 </button>
                 
                 <!-- Attach File Button -->
-                <label for="chat-file-upload" aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <label for="chat-file-upload" aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-11 h-11 rounded-xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="paperclip" class="w-5 h-5"></span>
                 </label>
                 <input type="file" id="chat-file-upload" accept="image/*, .txt, .pdf, .csv, .json, .xml, .md" class="hidden" multiple>
 
-                <textarea id="chat-input" class="flex-1 p-3 rounded-2xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[120px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);"></textarea>
+                <textarea id="chat-input" class="flex-1 p-3.5 rounded-xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[200px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary); min-height: 44px;"></textarea>
                 
-                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: white;">
+                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-11 h-11 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: var(--bg-primary);">
                     <span data-lucide="send" class="w-5 h-5"></span>
                 </button>
             </div>
@@ -3235,8 +3324,8 @@
     <div id="copy-message">Text copied to clipboard!</div>
 
     <!-- NEW: Custom Prompt Modal/Overlay -->
-    <div id="custom-prompt-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
-        <div class="p-6 rounded-xl shadow-2xl w-full max-w-md transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+    <div id="custom-prompt-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[110] hidden p-4 backdrop-blur-sm">
+        <div class="p-8 rounded-2xl shadow-xl w-full max-w-lg transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
                 <span data-lucide="sparkles" class="w-6 h-6" style="color: var(--accent-primary);"></span> Set Custom AI Prompt
             </h3>
@@ -3294,15 +3383,15 @@
     </div>
     
     <!-- NEW: Authentication Modal/Overlay -->
-    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-[120] p-4">
-        <div class="p-8 rounded-xl shadow-2xl w-full max-w-sm transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary); border: 2px solid var(--accent-primary);">
+    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-[120] p-4 backdrop-blur-md">
+        <div class="p-8 rounded-2xl shadow-xl w-full max-w-md transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary); border: 2px solid var(--accent-primary); box-shadow: var(--shadow-lg);">
             <h3 id="auth-title" class="text-2xl font-bold mb-6 text-center" style="color: var(--accent-primary);">Sign In to Small AI v2</h3>
             
             <!-- Email/Password Form -->
             <input type="email" id="auth-email" class="w-full p-3 rounded-lg border mb-3 focus:ring-2 focus:ring-[var(--accent-primary)]" placeholder="Email" required style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
             <input type="password" id="auth-password" class="w-full p-3 rounded-lg border mb-4 focus:ring-2 focus:ring-[var(--accent-primary)]" placeholder="Password" required style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
             
-            <button id="auth-action-btn" class="w-full p-3 rounded-lg font-semibold mb-2 glow-button">
+            <button id="auth-action-btn" class="w-full p-3.5 rounded-lg font-bold mb-2 glow-button" style="color: var(--bg-primary);">
                 Sign In
             </button>
             
@@ -3331,8 +3420,8 @@
     <!-- End Authentication Modal/Overlay -->
 
     <!-- NEW: Markdown Export Modal/Overlay -->
-    <div id="markdown-export-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
-        <div class="p-6 rounded-xl shadow-2xl w-full max-w-4xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+    <div id="markdown-export-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[110] hidden p-4 backdrop-blur-sm">
+        <div class="p-8 rounded-2xl shadow-xl w-full max-w-5xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
                 <span data-lucide="file-text" class="w-6 h-6" style="color: var(--accent-primary);"></span> Export Chat to Markdown
             </h3>
@@ -3442,8 +3531,8 @@
     <!-- END Jump Buttons -->
 
     <!-- NEW: Developer Console Modal (Request 3) -->
-    <div id="developer-console-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
-        <div class="p-6 rounded-xl shadow-2xl w-full max-w-4xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+    <div id="developer-console-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[110] hidden p-4 backdrop-blur-sm">
+        <div class="p-8 rounded-2xl shadow-xl w-full max-w-5xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
             <h3 class="text-xl font-bold mb-4 flex items-center justify-between border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
                 <span class="flex items-center gap-2">
                     <span data-lucide="bug" class="w-6 h-6" style="color: var(--accent-primary);"></span> Developer Console
@@ -4614,6 +4703,21 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
         }
 
+        // --- Core UI Rendering Helpers ---
+        
+        // Helper function to render the stylized welcome screen
+        function renderWelcomeScreen(initialMessage) {
+            chatHistoryDiv.innerHTML = `
+                <div id="initial-welcome-screen" class="flex-1 flex flex-col items-center justify-center text-center p-8 max-w-xl mx-auto" style="color: var(--text-secondary);">
+                    <span data-lucide="sparkles" class="w-12 h-12 mb-4" style="color: var(--accent-primary);"></span>
+                    <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Small AI v2</h2>
+                    <p class="text-lg mb-6">${initialMessage}</p>
+                    <p class="text-sm italic">You can attach files (paperclip), use voice input, or press Ctrl/Cmd+F to search the chat history.</p>
+                </div>
+            `;
+            createIcons(); 
+        }
+
         function renderSidebarChats(query = '') {
             sidebarChatList.innerHTML = '';
             const sortedSessions = Object.values(allChatSessions).sort((a, b) => b.timestamp - a.timestamp);
@@ -4666,12 +4770,12 @@
                 return;
             }
 
-            // Set the base title to ensure consistency for the auto-title check later.
-            const titleForNewSession = (initialTitle === 'Welcome Chat' || initialTitle === 'New Chat') 
-                                    ? initialTitle : 'New Chat'; 
-
             const initialMessage = 'Welcome to Small AI v2, your powerful multimodal AI assistant powered by Gemini. I specialize in detailed data analysis, coding, creative tasks, and project planning. I can analyze images, PDFs, code, and documents uploaded via the paperclip icon. Whether you need strategic analysis for specific domains or technical assistance, I\'m ready. How can I help you tackle a complex problem or analyze a file today?';
             
+            // Set the base title to ensure consistency for the auto-title check later.
+            const titleForNewSession = (initialTitle === 'Welcome Chat' || initialTitle === 'New Chat') 
+                                    ? 'Welcome Chat' : initialTitle; 
+
             const newId = generateUniqueId();
 
             const newSession = {
@@ -4695,7 +4799,8 @@
             adjustChatInputHeight();
             chatInput.focus();
 
-            appendChatMessage('ai', initialMessage);
+            // Always render the custom welcome screen for a new chat
+            renderWelcomeScreen(initialMessage);
             
             renderSidebarChats();
             sidebar.classList.add('hidden-mobile'); 
@@ -4729,26 +4834,36 @@
             adjustChatInputHeight();
             chatInput.focus();
 
-            session.history.forEach(msg => {
-                if (msg.role === 'user') {
-                    let userText = '';
-                    const displayAttachments = [];
-                    msg.parts.forEach(part => {
-                        if (part.text) {
-                            userText += part.text + ' ';
-                        } else if (part.inlineData) {
-                            displayAttachments.push({
-                                mimeType: part.inlineData.mimeType,
-                                data: part.inlineData.data,
-                                name: `attachment_${displayAttachments.length + 1}`
-                            });
-                        }
-                    });
-                    appendChatMessage('user', userText.trim(), displayAttachments);
-                } else {
-                    appendChatMessage('ai', msg.parts[0].text);
-                }
-            });
+            // Check if this is the initial welcome chat (only 1 AI message)
+            const initialMessageText = 'Welcome to Small AI v2, your powerful multimodal AI assistant powered by Gemini. I specialize in detailed data analysis, coding, creative tasks, and project planning. I can analyze images, PDFs, code, and documents uploaded via the paperclip icon. Whether you need strategic analysis for specific domains or technical assistance, I\'m ready. How can I help you tackle a complex problem or analyze a file today?';
+            const isWelcomeChat = session.history.length === 1 && session.history[0].role === 'model' && session.history[0].parts[0].text === initialMessageText;
+
+            if (isWelcomeChat) {
+                renderWelcomeScreen(initialMessageText);
+            } else {
+                // Render full history for active chats
+                session.history.forEach(msg => {
+                    if (msg.role === 'user') {
+                        let userText = '';
+                        const displayAttachments = [];
+                        msg.parts.forEach(part => {
+                            if (part.text) {
+                                userText += part.text + ' ';
+                            } else if (part.inlineData) {
+                                displayAttachments.push({
+                                    mimeType: part.inlineData.mimeType,
+                                    data: part.inlineData.data,
+                                    name: `attachment_${displayAttachments.length + 1}`
+                                });
+                            }
+                        });
+                        appendChatMessage('user', userText.trim(), displayAttachments);
+                    } else {
+                        appendChatMessage('ai', msg.parts[0].text);
+                    }
+                });
+            }
+            
             renderSidebarChats();
             sidebar.classList.add('hidden-mobile'); 
             sidebarOverlay.classList.remove('active');
@@ -5153,6 +5268,12 @@
             }
             
             messageTextCache.set(messageId, rawMessageContentForCache); 
+            
+            // NEW: Clear the initial welcome screen if it exists
+            const welcomeScreen = document.getElementById('initial-welcome-screen');
+            if (welcomeScreen) {
+                chatHistoryDiv.innerHTML = '';
+            }
 
             const actionsHTML = `
                 <div class="message-actions">
@@ -5269,10 +5390,11 @@
             }
         });
 
-        // Adjust chat input textarea height dynamically
+        // Adjust chat input textarea height dynamically (Updated for minimum height)
         function adjustChatInputHeight() {
-            chatInput.style.height = 'auto';
-            chatInput.style.height = chatInput.scrollHeight + 'px';
+            chatInput.style.height = '44px'; // Reset to minimum height (h-11 = 44px)
+            const newHeight = Math.min(chatInput.scrollHeight, 200); // Max height defined by CSS
+            chatInput.style.height = newHeight + 'px';
         }
         chatInput.addEventListener('input', adjustChatInputHeight);
         
@@ -6075,11 +6197,11 @@
             loadingMessage.style.color = 'var(--text-secondary)'; 
             loadingMessage.innerHTML = `
                 <div class="loader-container h-8">
-                    <div class="loader-dot"></div>
-                    <div class="loader-dot"></div>
-                    <div class="loader-dot"></div>
+                    <div class="loader-typing-bar"></div>
+                    <div class="loader-typing-bar"></div>
+                    <div class="loader-typing-bar"></div>
                 </div>
-                <span class="mt-2 block">AI is typing...</span>
+                <span class="mt-2 block font-medium" style="color: var(--accent-secondary);">AI is typing...</span>
             `;
             chatHistoryDiv.appendChild(loadingMessage);
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
@@ -6754,22 +6876,30 @@
 
         // --- Settings Toggle Event Listener (For Sidebar Redesign) ---
         if (toggleSettingsBtn) {
-            toggleSettingsBtn.addEventListener('click', () => {
-                const isHidden = settingsContent.classList.toggle('hidden');
+            const toggleSettingsVisibility = () => {
+                // Check if currently collapsed (maxHeight is 0 or initial state)
+                const isHidden = settingsContent.style.maxHeight === '0px' || settingsContent.style.maxHeight === '';
                 if (isHidden) {
-                    settingsChevron.style.transform = 'rotate(0deg)';
-                } else {
+                    // Open: Set max-height to scroll height
+                    settingsContent.style.maxHeight = settingsContent.scrollHeight + 'px';
                     settingsChevron.style.transform = 'rotate(180deg)';
+                } else {
+                    // Close: Set height temporarily before collapsing to ensure smooth transition
+                    settingsContent.style.maxHeight = settingsContent.scrollHeight + 'px';
+                    // Force reflow and collapse
+                    setTimeout(() => { settingsContent.style.maxHeight = '0px'; }, 10);
+                    settingsChevron.style.transform = 'rotate(0deg)';
                 }
                 createIcons();
-            });
+            };
             
-            // Initial State Check (Important for the chevron icon)
-            if (settingsContent.classList.contains('hidden')) {
-                settingsChevron.style.transform = 'rotate(0deg)';
-            } else {
-                settingsChevron.style.transform = 'rotate(180deg)';
-            }
+            toggleSettingsBtn.addEventListener('click', toggleSettingsVisibility);
+            
+            // Initial setup: Ensure it starts collapsed
+            // Note: The HTML must have the `hidden` class removed if using this JS logic
+            settingsContent.style.maxHeight = '0px'; 
+            settingsContent.classList.remove('hidden'); // Ensure CSS transition controls visibility
+            settingsChevron.style.transform = 'rotate(0deg)';
         }
 
         // Function to select a random theme and mode
