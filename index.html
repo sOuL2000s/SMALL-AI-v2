@@ -1830,6 +1830,12 @@
         }
 
         /* --- Global Styles & Overrides --- */
+        
+        /* F2: Custom Prompt Indicator Glow Animation */
+        @keyframes prompt-pulse {
+            0% { opacity: 0.5; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
 
         /* Apply theme colors */
         body {
@@ -2965,10 +2971,14 @@
         <div class="mt-auto pt-4 border-t border-[var(--sidebar-border)] space-y-3">
             
             <!-- NEW: Settings Toggle Button -->
-            <button id="toggle-settings-btn" class="w-full flex items-center justify-between p-3 rounded-xl font-semibold transition-colors mb-2" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+            <!-- ADDED: relative class, ADDED: custom-prompt-indicator -->
+            <button id="toggle-settings-btn" class="w-full flex items-center justify-between p-3 rounded-xl font-semibold transition-colors mb-2 relative" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
                 <span class="flex items-center gap-2">
                     <span data-lucide="settings" class="w-5 h-5"></span> Settings & Configuration
                 </span>
+                <!-- NEW: Custom Prompt Indicator (MOVED HERE) -->
+                <!-- Adjusted position to top-2 right-2 for better visibility on this button -->
+                <div id="custom-prompt-indicator" class="w-3 h-3 rounded-full absolute top-2 right-2 hidden" title="Custom Prompt is Active" style="background-color: var(--accent-primary); z-index: 5;"></div>
                 <span data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="settings-chevron"></span>
             </button>
 
@@ -2976,7 +2986,8 @@
             <div id="settings-content" class="space-y-3 hidden">
                 
                 <!-- Custom Prompt Button -->
-                <button id="toggle-custom-prompt-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors" style="background-color: var(--bg-secondary); color: var(--text-primary);">
+                <!-- REMOVED: Custom Prompt Indicator from here -->
+                <button id="toggle-custom-prompt-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors relative" style="background-color: var(--bg-secondary); color: var(--text-primary);">
                     <span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt
                 </button>
                 
@@ -2985,16 +2996,18 @@
                     <span data-lucide="layout-template" class="w-5 h-5 mr-2"></span> Manage Templates
                 </button>
 
-                <!-- User's Gemini API Key Input -->
+                <!-- API Key Selector & Management -->
                 <div>
-                    <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Your Gemini API Key</h3>
+                    <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">Active API Key</h3>
                     <div class="flex items-center gap-2">
-                        <input type="password" id="gemini-api-key-input" class="w-full p-2 rounded-md border text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" placeholder="Enter your key (saved securely)" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);">
-                        <button id="save-api-key-btn" title="Save API Key" class="flex items-center justify-center p-2 rounded-md shadow-md transition-all duration-300" style="background-color: var(--accent-primary); color: black;">
-                            <span data-lucide="save" class="w-4 h-4"></span>
+                        <select id="api-key-select" class="flex-1 p-2 rounded-md border text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select Active API Key">
+                            <!-- Options populated by JS -->
+                        </select>
+                        <button id="manage-api-keys-btn" title="Manage API Keys" class="flex items-center justify-center p-2 rounded-md shadow-md transition-all duration-300" style="background-color: var(--accent-secondary); color: black;">
+                            <span data-lucide="key-round" class="w-4 h-4"></span>
                         </button>
                     </div>
-                    <p id="api-key-status" class="text-xs mt-1" style="color: var(--text-secondary);">No key set. Using fallback (if available).</p>
+                    <p id="api-key-status" class="text-xs mt-1" style="color: var(--text-secondary);">Loading key status...</p>
                 </div>
                 
                 <!-- Model Selector -->
@@ -3456,6 +3469,45 @@
         </div>
     </div>
     <!-- END Developer Console Modal -->
+    
+    <!-- NEW: API Key Management Modal -->
+    <div id="api-key-management-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
+        <div class="p-6 rounded-xl shadow-2xl w-full max-w-lg transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
+                <span data-lucide="key-round" class="w-6 h-6" style="color: var(--accent-primary);"></span> Manage API Keys
+            </h3>
+            
+            <!-- Key Input Form -->
+            <div class="mb-6 p-4 rounded-lg" style="background-color: var(--bg-primary); border: 1px solid var(--border-color);">
+                <h4 class="font-semibold mb-2" style="color: var(--accent-secondary);">Add/Edit Key</h4>
+                <input type="text" id="api-key-label-input" class="w-full p-2 rounded-md border focus:ring-2 focus:ring-[var(--accent-primary)] transition-colors shadow-sm mb-2" placeholder="Label (e.g., 'Personal', 'Testing')" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                <input type="password" id="api-key-secret-input" class="w-full p-3 rounded-md border focus:ring-2 focus:ring-[var(--accent-primary)] transition-colors shadow-sm mb-4" placeholder="Enter full Gemini API Key" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                <div class="flex justify-end gap-2">
+                    <button id="clear-key-form-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">
+                        <span data-lucide="eraser" class="w-5 h-5 mr-2"></span> Clear
+                    </button>
+                    <button id="save-key-btn" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center" style="background-color: var(--accent-primary); color: black;">
+                        <span data-lucide="plus" class="w-5 h-5 mr-2"></span> Add Key
+                    </button>
+                </div>
+            </div>
+
+            <!-- Saved Keys List -->
+            <h4 class="font-semibold mb-3 flex items-center gap-2" style="color: var(--text-primary);">
+                <span data-lucide="list-checks" class="w-5 h-5" style="color: var(--accent-secondary);"></span> Saved Keys
+            </h4>
+            <ul id="saved-keys-list" class="space-y-3 max-h-40 overflow-y-auto pr-2">
+                <!-- Keys will be dynamically loaded here -->
+            </ul>
+
+            <div class="flex justify-end mt-6">
+                <button id="close-key-management-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <span data-lucide="x" class="w-5 h-5 mr-2"></span> Close
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END API Key Management Modal -->
 
     <script type="text/javascript">
         // Register Service Worker for PWA capabilities
@@ -3664,10 +3716,19 @@
         const userEmailSpan = document.getElementById('user-email');
         const signOutButton = document.getElementById('sign-out-button');
         
-        // NEW: API Key DOM elements
-        const geminiApiKeyInput = document.getElementById('gemini-api-key-input');
-        const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+        // NEW: API Key DOM elements (F1)
+        const apiKeySelect = document.getElementById('api-key-select'); // MODIFIED
+        const manageApiKeysBtn = document.getElementById('manage-api-keys-btn'); // NEW
         const apiKeyStatus = document.getElementById('api-key-status');
+        
+        // NEW: API Key Management Modal DOM elements (F1)
+        const apiKeyManagementModal = document.getElementById('api-key-management-modal'); // NEW
+        const apiKeyLabelInput = document.getElementById('api-key-label-input'); // NEW
+        const apiKeySecretInput = document.getElementById('api-key-secret-input'); // NEW
+        const saveKeyBtn = document.getElementById('save-key-btn'); // NEW
+        const clearKeyFormBtn = document.getElementById('clear-key-form-btn'); // NEW
+        const savedKeysList = document.getElementById('saved-keys-list'); // NEW
+        const closeKeyManagementBtn = document.getElementById('close-key-management-btn'); // NEW
 
         // NEW: Markdown Export DOM elements
         const exportMarkdownBtn = document.getElementById('export-markdown-btn');
@@ -3746,6 +3807,7 @@
         const CUSTOM_PROMPT_ACTIVE_KEY = 'isCustomPromptActive';
         const PROMPT_TEMPLATES_KEY = 'templates'; 
         const API_KEY_KEY = 'apiKey';
+        const API_KEYS_LIST_KEY = 'apiKeysList'; // NEW F1
         const MODEL_KEY = 'model';
         
         // NEW CONSTANT: Threshold for bulk text conversion (e.g., 500 characters)
@@ -3818,6 +3880,13 @@
 
         let customPromptText = '';
         let isCustomPromptActive = false;
+        
+        // F1: State for Multiple API Keys
+        let apiKeysList = []; // Array of {id, key, label, isActive}
+        let editingKeyId = null; // ID of the key currently being edited
+
+        // F2: Custom Prompt Indicator DOM
+        const customPromptIndicator = document.getElementById('custom-prompt-indicator'); 
 
         // NEW: Chat Search State
         let searchMatches = []; 
@@ -3893,10 +3962,12 @@
                 selectedModel = settings[MODEL_KEY] || DEFAULT_MODEL;
                 updateModelDropdown(); 
                     
-                // 3. API Key
-                userApiKey = settings[API_KEY_KEY] || null;
-                geminiApiKeyInput.value = userApiKey || '';
-                updateApiKeyStatus();
+                // 3. API Keys (F1)
+                apiKeysList = settings[API_KEYS_LIST_KEY] || [];
+                // Re-derive userApiKey (the active key string) from the list
+                const activeKey = apiKeysList.find(k => k.isActive);
+                userApiKey = activeKey ? activeKey.key : null;
+                updateApiKeySelectorAndStatus();
 
                 // 4. Conversation Settings
                 selectedVoice = settings[CONVERSATION_VOICE_KEY] || null;
@@ -4111,31 +4182,213 @@
             }
         }
         
-        // --- API Key Management ---
-        function updateApiKeyStatus() {
+        // --- API Key Management (F1) ---
+        
+        /**
+         * Updates the global userApiKey, selector UI, and status message.
+         */
+        function updateApiKeySelectorAndStatus() {
+            // 1. Find the active key
+            const activeKey = apiKeysList.find(k => k.isActive);
+            userApiKey = activeKey ? activeKey.key : null;
+
+            // 2. Update status text
             if (userApiKey) {
-                apiKeyStatus.textContent = 'Key saved. Using your custom key.';
+                apiKeyStatus.textContent = `Active Key: ${activeKey.label} (${userApiKey.substring(0, 4)}...${userApiKey.substring(userApiKey.length - 4)})`;
                 apiKeyStatus.style.color = 'var(--accent-success)';
-                geminiApiKeyInput.type = 'password';
             } else {
-                apiKeyStatus.textContent = 'No key set. Using fallback (if available).';
+                apiKeyStatus.textContent = 'No key selected or saved. Using fallback.';
                 apiKeyStatus.style.color = 'var(--accent-error)';
-                geminiApiKeyInput.type = 'text'; 
+            }
+
+            // 3. Update Selector options
+            apiKeySelect.innerHTML = '';
+            if (!userApiKey) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = '--- Select API Key ---';
+                apiKeySelect.appendChild(option);
+            }
+
+            apiKeysList.forEach(keyObj => {
+                const option = document.createElement('option');
+                option.value = keyObj.id;
+                option.textContent = keyObj.label;
+                if (keyObj.isActive) {
+                    option.selected = true;
+                }
+                apiKeySelect.appendChild(option);
+            });
+            
+            // If there's an active key but no matching option selected (shouldn't happen), try to select it.
+            if (activeKey && apiKeySelect.value !== activeKey.id) {
+                apiKeySelect.value = activeKey.id;
             }
         }
+
+        async function saveApiKeysList() {
+            if (!currentUser) return;
+            await saveUserSetting(API_KEYS_LIST_KEY, apiKeysList);
+            updateApiKeySelectorAndStatus();
+        }
         
-        saveApiKeyBtn.addEventListener('click', () => {
-            const newKey = geminiApiKeyInput.value.trim();
-            userApiKey = newKey || null;
-            saveUserSetting(API_KEY_KEY, userApiKey);
-            updateApiKeyStatus();
-            showCopyMessage('API Key settings saved!', 'var(--accent-primary)');
+        // Listener for the Selector change
+        apiKeySelect.addEventListener('change', (e) => {
+            const selectedId = e.target.value;
+            if (!selectedId) return; // Should only happen if '--- Select ---' is available
+
+            apiKeysList = apiKeysList.map(keyObj => ({
+                ...keyObj,
+                isActive: keyObj.id === selectedId
+            }));
+            saveApiKeysList();
+            showCopyMessage('Active API key switched.', 'var(--accent-primary)');
         });
-        
-        // Listen for enter press on API key input
-        geminiApiKeyInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                saveApiKeyBtn.click();
+
+        // --- API Key Management Modal Logic ---
+
+        manageApiKeysBtn.addEventListener('click', () => {
+            if (!currentUser) {
+                showError("Please sign in to manage API keys.");
+                return;
+            }
+            renderSavedKeysList();
+            clearKeyForm();
+            apiKeyManagementModal.classList.remove('hidden');
+        });
+
+        closeKeyManagementBtn.addEventListener('click', () => {
+            apiKeyManagementModal.classList.add('hidden');
+        });
+
+        function clearKeyForm() {
+            apiKeyLabelInput.value = '';
+            apiKeySecretInput.value = '';
+            editingKeyId = null;
+            saveKeyBtn.innerHTML = `<span data-lucide="plus" class="w-5 h-5 mr-2"></span> Add Key`;
+            createIcons();
+            apiKeyLabelInput.focus();
+            apiKeySecretInput.type = 'password';
+        }
+        clearKeyFormBtn.addEventListener('click', clearKeyForm);
+
+        function renderSavedKeysList() {
+            savedKeysList.innerHTML = '';
+            if (apiKeysList.length === 0) {
+                savedKeysList.innerHTML = '<li><p class="text-center text-sm p-4" style="color: var(--text-secondary);">No keys saved yet.</p></li>';
+                return;
+            }
+
+            apiKeysList.forEach(keyObj => {
+                const li = document.createElement('li');
+                li.classList.add('template-item'); // Reusing template-item styles
+                li.dataset.keyId = keyObj.id;
+                
+                const keyDisplay = keyObj.key.length > 8 
+                                 ? `${keyObj.key.substring(0, 4)}...${keyObj.key.substring(keyObj.key.length - 4)}` 
+                                 : keyObj.key;
+                                 
+                const activeIndicator = keyObj.isActive 
+                                       ? '<span data-lucide="check" class="w-4 h-4 ml-2 text-green-500"></span>' 
+                                       : '';
+
+                li.innerHTML = `
+                    <div class="template-item-header">
+                        <span class="template-item-name">${keyObj.label} ${activeIndicator}</span>
+                        <span class="text-xs" style="color: var(--text-secondary);">${keyDisplay}</span>
+                    </div>
+                    <div class="template-item-actions mt-2">
+                        <button class="use-key-btn" title="Set as Active Key" style="background-color: ${keyObj.isActive ? 'var(--accent-secondary)' : 'var(--bg-primary)'}; color: ${keyObj.isActive ? 'black' : 'var(--text-primary)'}; border: ${keyObj.isActive ? 'none' : '1px solid var(--border-color)'}">
+                            <span data-lucide="zap" class="w-4 h-4"></span> Activate
+                        </button>
+                        <button class="edit-key-btn" title="Edit Key" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                            <span data-lucide="edit" class="w-4 h-4"></span> Edit
+                        </button>
+                        <button class="delete-key-btn" title="Delete Key" style="background-color: var(--accent-error); color: white;">
+                            <span data-lucide="trash-2" class="w-4 h-4"></span> Delete
+                        </button>
+                    </div>
+                `;
+                savedKeysList.appendChild(li);
+            });
+            createIcons();
+        }
+
+        saveKeyBtn.addEventListener('click', () => {
+            const label = apiKeyLabelInput.value.trim() || 'Untitled Key';
+            const key = apiKeySecretInput.value.trim();
+
+            if (!key || key.length < 10) {
+                showError('Please enter a valid API Key.');
+                return;
+            }
+
+            if (editingKeyId) {
+                // Update existing key
+                apiKeysList = apiKeysList.map(k => k.id === editingKeyId ? { ...k, label, key } : k);
+                showCopyMessage(`Key "${label}" updated.`, 'var(--accent-primary)');
+            } else {
+                // Add new key
+                // If this is the first key added, make it active by default
+                const newId = generateUniqueId();
+                const isActive = apiKeysList.length === 0; 
+                apiKeysList.push({ id: newId, label, key, isActive });
+                if (isActive) {
+                    showCopyMessage(`First key saved and activated.`, 'var(--accent-primary)');
+                } else {
+                    showCopyMessage(`Key "${label}" added.`, 'var(--accent-primary)');
+                }
+            }
+            saveApiKeysList();
+            renderSavedKeysList();
+            clearKeyForm();
+        });
+
+        // Event delegation for key list actions
+        savedKeysList.addEventListener('click', (event) => {
+            const target = event.target;
+            const listItem = target.closest('.template-item');
+            if (!listItem) return;
+            const keyId = listItem.dataset.keyId;
+            const keyObj = apiKeysList.find(k => k.id === keyId);
+            if (!keyObj) return;
+
+            if (target.closest('.use-key-btn')) {
+                // Activate Key
+                if (keyObj.isActive) return;
+                apiKeysList = apiKeysList.map(k => ({ ...k, isActive: k.id === keyId }));
+                saveApiKeysList();
+                renderSavedKeysList();
+                showCopyMessage(`Key "${keyObj.label}" activated.`, 'var(--accent-primary)');
+
+            } else if (target.closest('.edit-key-btn')) {
+                // Edit Key
+                apiKeyLabelInput.value = keyObj.label;
+                apiKeySecretInput.value = keyObj.key; // Load the full key for editing
+                apiKeySecretInput.type = 'text'; // Temporarily show the key for easier copy/edit
+                editingKeyId = keyObj.id;
+                saveKeyBtn.innerHTML = `<span data-lucide="save" class="w-5 h-5 mr-2"></span> Update Key`;
+                createIcons();
+                apiKeyLabelInput.focus();
+                apiKeyManagementModal.querySelector('div:first-child').scrollTop = 0; 
+
+            } else if (target.closest('.delete-key-btn')) {
+                // Delete Key
+                if (confirm(`Are you sure you want to delete the API Key "${keyObj.label}"?`)) {
+                    apiKeysList = apiKeysList.filter(k => k.id !== keyId);
+                    
+                    // If the active key was deleted, try to activate the first remaining key
+                    if (keyObj.isActive && apiKeysList.length > 0) {
+                        apiKeysList[0].isActive = true; 
+                    } else if (keyObj.isActive && apiKeysList.length === 0) {
+                        userApiKey = null; // No keys left, rely on fallback
+                    }
+                    
+                    saveApiKeysList();
+                    renderSavedKeysList();
+                    showCopyMessage(`Key "${keyObj.label}" deleted.`, 'var(--accent-error)');
+                    clearKeyForm();
+                }
             }
         });
 
@@ -6106,6 +6359,14 @@
         // NEW: Function to update the custom prompt button's appearance (used to refresh UI after Firebase load/save)
         function updateCustomPromptButtonState() {
             if (isCustomPromptActive && customPromptText.trim() !== '') {
+                // F2: Activate visual indicator
+                if (customPromptIndicator) {
+                    customPromptIndicator.classList.remove('hidden');
+                    // Add a subtle pulsating glow effect via dynamic CSS style
+                    customPromptIndicator.style.boxShadow = `0 0 5px var(--accent-primary), 0 0 10px var(--accent-primary)`;
+                    customPromptIndicator.style.animation = 'prompt-pulse 1.5s infinite alternate';
+                }
+
                 toggleCustomPromptBtn.classList.remove('bg-secondary', 'text-primary');
                 toggleCustomPromptBtn.classList.add('glow-button');
                 toggleCustomPromptBtn.style.backgroundColor = 'var(--accent-primary)';
@@ -6113,6 +6374,13 @@
                 toggleCustomPromptBtn.innerHTML = `<span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Custom Prompt Active`;
                 customPromptStatus.textContent = "Custom prompt is active. This overrides personality settings.";
             } else {
+                // F2: Deactivate visual indicator
+                if (customPromptIndicator) {
+                    customPromptIndicator.classList.add('hidden');
+                    customPromptIndicator.style.boxShadow = 'none';
+                    customPromptIndicator.style.animation = 'none';
+                }
+
                 toggleCustomPromptBtn.classList.remove('glow-button');
                 toggleCustomPromptBtn.classList.add('bg-secondary', 'text-primary');
                 toggleCustomPromptBtn.style.backgroundColor = 'var(--bg-secondary)';
