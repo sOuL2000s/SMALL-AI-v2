@@ -2187,19 +2187,67 @@
         input:checked + .slider:before { transform: translateX(24px); }
         .slider:before { background-color: var(--bg-secondary); transition: .4s; }
 
-        /* Custom scrollbar for a sleek look (hidden) */
-        #sidebar-chat-list::-webkit-scrollbar,
+        /* Custom scrollbar for a sleek look */
+
+        /* Hide scrollbars for chat input only (to maintain clean aesthetics) */
         #chat-input::-webkit-scrollbar {
             width: 0 !important;
             height: 0 !important;
         }
-        #sidebar-chat-list,
         #chat-input {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        
+        /* Custom scrollbar for a sleek look */
 
-        /* Styles specifically for #chat-history scrollbar */
+        /* Hide scrollbars for chat input only (to maintain clean aesthetics) */
+        #chat-input::-webkit-scrollbar {
+            width: 0 !important;
+            height: 0 !important;
+        }
+        #chat-input {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Styles for #chat-history, #sidebar, and #previous-chats-section scrollbars */
+        #chat-history, 
+        #sidebar, /* <-- NEW: Target main sidebar scrollbar */
+        #previous-chats-section { 
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) var(--bg-secondary);
+        }
+
+        /* Webkit (Chrome, Safari, Edge) scrollbar styles */
+        #chat-history::-webkit-scrollbar,
+        #sidebar::-webkit-scrollbar, /* <-- NEW: Target main sidebar scrollbar */
+        #previous-chats-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat-history::-webkit-scrollbar-track,
+        #sidebar::-webkit-scrollbar-track, /* <-- NEW: Target main sidebar scrollbar */
+        #previous-chats-section::-webkit-scrollbar-track {
+            /* Use secondary background or tertiary for the track to blend */
+            background: var(--bg-secondary);
+            border-radius: var(--radius-full);
+        }
+
+        #chat-history::-webkit-scrollbar-thumb,
+        #sidebar::-webkit-scrollbar-thumb, /* <-- NEW: Target main sidebar scrollbar */
+        #previous-chats-section::-webkit-scrollbar-thumb {
+            background-color: var(--accent-primary);
+            border-radius: 10px;
+            /* Use secondary background for border to match track */
+            border: 2px solid var(--bg-secondary); 
+        }
+
+        #chat-history::-webkit-scrollbar-thumb:hover,
+        #sidebar::-webkit-scrollbar-thumb:hover, /* <-- NEW: Target main sidebar scrollbar */
+        #previous-chats-section::-webkit-scrollbar-thumb:hover {
+            background-color: var(--accent-primary-hover);
+        }
         #chat-history {
             overflow-y: auto;
             overflow-x: hidden;
@@ -2354,6 +2402,43 @@
         }
         .chat-attachment-preview-item .remove-attachment-btn:hover {
             background-color: color-mix(in srgb, var(--accent-primary) 20%, transparent);
+        }
+        
+        /* NEW: Prompt Generation Tool UI Styles (Request 4) */
+        #prompt-tool-container {
+            position: absolute;
+            bottom: 60px; /* Position above the chat-input */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            max-width: 90%;
+            width: 550px; /* Slightly wider */
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-primary);
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 15px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+            padding: 0.75rem 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        #prompt-tool-container.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 70px;
+        }
+        .prompt-tool-button {
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        @media (max-width: 600px) {
+            #prompt-tool-container {
+                width: calc(100% - 32px);
+            }
         }
 
         /* Styling for the copy message */
@@ -3394,6 +3479,25 @@
                 <!-- Attachments previews will be dynamically added here -->
             </div>
 
+            <!-- NEW: AI Prompt Generation Tool (Request 4) -->
+            <div id="prompt-tool-container" class="hidden">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-semibold flex items-center gap-2" style="color: var(--text-primary);">
+                        <span data-lucide="zap" class="w-4 h-4 animate-pulse" style="color: var(--accent-secondary);"></span>
+                        Draft detected. Improve it with AI Prompt Engineering?
+                    </p>
+                    <div class="flex gap-2">
+                        <button id="prompt-tool-accept-btn" class="prompt-tool-button" title="Generate a detailed, optimized prompt" style="background-color: var(--accent-primary); color: black;">
+                            <span data-lucide="check" class="w-4 h-4 inline-block mr-1"></span> Yes, Enhance
+                        </button>
+                        <button id="prompt-tool-cancel-btn" class="prompt-tool-button" title="Send the original draft" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">
+                            <span data-lucide="x" class="w-4 h-4 inline-block mr-1"></span> No, Send As Is
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- END AI Prompt Generation Tool -->
+
             <div class="flex gap-2 items-end flex-wrap w-full">
                 <!-- Voice Input Button -->
                 <button id="voice-input-btn" aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
@@ -3839,6 +3943,18 @@
         const sidebarChatList = document.getElementById('sidebar-chat-list');
         const chatInputAreaContainer = document.getElementById('chat-input-area-container'); 
 
+        // NEW: Prompt Generation Tool DOM elements (Request 4)
+        const promptToolContainer = document.getElementById('prompt-tool-container');
+        const promptToolAcceptBtn = document.getElementById('prompt-tool-accept-btn');
+        const promptToolCancelBtn = document.getElementById('prompt-tool-cancel-btn');
+
+        // NEW: State for prompt tool
+        let promptToolTimeout = null;
+        const PROMPT_MIN_LENGTH = 10;
+        // The maximum length is now set extremely high (e.g., 10000) 
+        // to effectively remove the limit on the user's initial draft.
+        // The API call itself has its own token limit, so this keeps the user experience flexible.
+        const PROMPT_MAX_LENGTH = 10000; 
         // NEW: Model Selector DOM elements
         const modelSelectSidebar = document.getElementById('model-select-sidebar'); 
         
@@ -5491,7 +5607,51 @@
             const newHeight = Math.min(chatInput.scrollHeight, 200); // Max height defined by CSS
             chatInput.style.height = newHeight + 'px';
         }
-        chatInput.addEventListener('input', adjustChatInputHeight);
+        // Utility for Prompt Tool visibility (Request 4)
+        function showPromptTool() {
+            promptToolContainer.classList.add('show');
+            promptToolContainer.classList.remove('hidden');
+            createIcons();
+        }
+
+        function hidePromptTool() {
+            if (promptToolTimeout) {
+                clearTimeout(promptToolTimeout);
+            }
+            promptToolContainer.classList.remove('show');
+            // Hide completely after transition finishes
+            setTimeout(() => {
+                promptToolContainer.classList.add('hidden');
+            }, 300);
+        }
+
+        function checkPromptToolVisibility() {
+            adjustChatInputHeight();
+            const text = chatInput.value.trim();
+            
+            // Check if user is actively typing a draft within the preferred length range
+            const isTypingDraft = text.length > PROMPT_MIN_LENGTH && text.length < PROMPT_MAX_LENGTH;
+            const isToolAvailable = currentUser && userApiKey && !sendChatBtn.disabled;
+            
+            if (isTypingDraft && isToolAvailable) {
+                // Show tool after a brief delay if user is still typing (1.5s delay)
+                if (promptToolTimeout) clearTimeout(promptToolTimeout);
+                promptToolTimeout = setTimeout(showPromptTool, 1500); 
+            } else {
+                hidePromptTool();
+            }
+        }
+        
+        // Listener for the chat input (MODIFIED)
+        chatInput.addEventListener('input', checkPromptToolVisibility);
+        
+        // Listener for blur to immediately hide the tool if not accepted
+        chatInput.addEventListener('blur', (e) => {
+            // Check if the related target is one of the buttons inside the tool
+            if (!e.relatedTarget || !e.relatedTarget.closest('#prompt-tool-container')) {
+                 hidePromptTool();
+            }
+        }, true); // Use capture phase for more robust blur detection
         
 
         // Event listener for voice input button (general chat)
@@ -5907,6 +6067,53 @@
             }, 1000);
         }
 
+        // NEW: Function to call the AI to generate a structured prompt (Request 4)
+        async function generateStructuredPrompt(userDraft, attachments) {
+            const fileList = attachments.map(a => `- ${a.name} (${a.mimeType})`).join('\n');
+            const fileContext = attachments.length > 0 
+                                ? `\n\n### Attached Files to be Analyzed:\n${fileList}\n(The target AI has access to the full content of these files, ensure your prompt tells it to analyze them.)` 
+                                : `\n\n(No files attached.)`;
+
+            const systemInstruction = `You are the world's best prompt engineering AI named 'Small AI v2 Prompt Engineer'. Your task is to take a user's raw input draft and attached file information, and transform it into a highly detailed, professional, and optimized prompt for the main Gemini AI model. 
+Criteria for the optimized prompt:
+1. **Role/Persona:** Clearly assign an expert persona (e.g., "You are a senior JavaScript developer").
+2. **Goal & Constraints:** Define the specific goal, required output format (e.g., Markdown, JSON), and length constraints.
+3. **Contextual Instructions:** If attached files exist, the generated prompt MUST explicitly instruct the target AI to analyze and incorporate the file content.
+4. **Actionable:** The final output MUST be the single, optimized prompt text, ready for the user to submit.
+
+Output ONLY the improved, single, structured prompt text. Do not include any pre-amble, comments, or explanations outside of the final optimized prompt itself.`;
+
+            const contents = [
+                {
+                    role: "user",
+                    parts: [{ 
+                        text: `USER DRAFT:\n---\n${userDraft}\n---${fileContext}\n\nBased on the draft and file context, generate the single, best-structured prompt for the target AI.` 
+                    }]
+                }
+            ];
+
+            try {
+                // Use the specified model for speed and capability (Required by R4)
+                const responseText = await callGeminiAPI(
+                    { 
+                        contents: contents, 
+                        generationConfig: { 
+                            temperature: 0.3, 
+                            maxOutputTokens: 1024 
+                        }
+                    }, 
+                    null, 
+                    'gemini-2.5-flash-preview-09-2025', 
+                    systemInstruction
+                );
+                return responseText.trim();
+            } catch (error) {
+                console.error("Prompt generation failed:", error);
+                showError(`Prompt Enhancement Failed: ${error.message}. Returning original draft.`);
+                return userDraft; // Return original draft as fallback
+            }
+        }
+        
         // Helper function to copy text to clipboard
         function copyToClipboard(text) { 
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -7516,6 +7723,53 @@
             }
         });
         
+        // --- Prompt Tool Event Handlers (Request 4) ---
+        
+        promptToolCancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hidePromptTool();
+            chatInput.focus(); 
+            // The user chose to send the original draft, so the tool just hides.
+        });
+
+        promptToolAcceptBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            hidePromptTool();
+
+            if (!currentUser || !userApiKey) {
+                showError("Please sign in and ensure an API key is active to use prompt enhancement.");
+                return;
+            }
+            
+            const userDraft = chatInput.value.trim();
+            if (userDraft.length === 0) return;
+
+            // 1. Show loading state on the main input button
+            const originalIconHtml = sendChatBtn.innerHTML;
+            sendChatBtn.disabled = true;
+            sendChatBtn.innerHTML = `<span data-lucide="loader-2" class="w-5 h-5 animate-spin"></span>`;
+            createIcons();
+
+            try {
+                const enhancedPrompt = await generateStructuredPrompt(userDraft, chatAttachments);
+                
+                // 2. Update the chat input with the enhanced prompt
+                chatInput.value = enhancedPrompt;
+                chatInput.dataset.initialText = enhancedPrompt;
+                adjustChatInputHeight();
+                
+                showCopyMessage("Prompt successfully enhanced! Review and send.", "var(--accent-success)");
+                chatInput.focus();
+
+            } finally {
+                // 3. Restore send button state
+                sendChatBtn.innerHTML = originalIconHtml;
+                sendChatBtn.disabled = false;
+                createIcons();
+            }
+        });
+
+
         // Core Firebase Authentication Listener
         auth.onAuthStateChanged(user => {
             handleAuthStateChange(user);
