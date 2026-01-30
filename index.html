@@ -11,8 +11,8 @@
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Inter for modern typography, Fira Code for monospace code -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
     <!-- Marked.js CDN for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Highlight.js for Code Syntax Highlighting -->
@@ -32,9 +32,49 @@
 
     <style>
         /*
-        * --- Custom Styles for AI Chat Assistant (Enhanced) ---
+        * --- Custom Styles for AI Chat Assistant (Enhanced UI/UX System) ---
         */
         
+        :root {
+            /* Typography */
+            --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            
+            /* Spacing Scale - 8px base */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            
+            /* Border Radius Scale */
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            --radius-2xl: 2rem;
+            --radius-full: 9999px;
+            
+            /* Transition System */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            
+            /* Z-Index Scale */
+            --z-base: 1;
+            --z-dropdown: 10;
+            --z-sticky: 20;
+            --z-fixed: 30;
+            --z-modal-backdrop: 100;
+            --z-modal: 110;
+            --z-popover: 120;
+            --z-tooltip: 130;
+        }
+
         /* Base font and transition settings for the whole page */
         html, body {
             height: 100%;
@@ -45,7 +85,11 @@
         }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             transition: var(--transition-slow);
             display: flex; 
             color: var(--text-primary); 
@@ -55,84 +99,118 @@
         
         /* Default Theme: Light Mode (PREMIUM) */
         body[data-theme="default-light"] {
-            --bg-primary: #F7F8FC;
+            /* Backgrounds */
+            --bg-primary: #FAFBFC;
             --bg-secondary: #FFFFFF;
-            --text-primary: #1F2937;
-            --text-secondary: #6B7280;
-            --border-color: #E5E7EB;
-            --card-bg: #FFFFFF;
-            --card-border: #E5E7EB;
-            --header-bg: #FFFFFF;
+            --bg-tertiary: #F5F7FA;
+            --bg-hover: #F0F4F8;
+            
+            /* Text Colors */
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-tertiary: #94A3B8;
+            --text-disabled: #CBD5E1;
+            
+            /* Border Colors */
+            --border-color: #E2E8F0;
+            --border-hover: #CBD5E1;
+            --border-focus: #6366F1;
+            
+            /* Accent Colors */
             --accent-primary: #6366F1;
             --accent-primary-hover: #4F46E5;
-            --accent-secondary: #06B6D4;
+            --accent-secondary: #8B5CF6;
             --accent-error: #EF4444;
             --accent-success: #10B981;
-            --user-bubble-bg: #EEF2FF;
-            --user-bubble-text: #1F2937; 
-            --ai-bubble-bg: #F9FAFB;
-            --ai-bubble-text: #1F2937; 
-            --sidebar-bg: #FFFFFF;
-            --sidebar-border: #E5E7EB;
-            --sidebar-item-hover: #F3F4F6;
+            --accent-warning: #F59E0B;
+            --accent-info: #3B82F6;
+            
+            /* Mapping old variables to new tokens */
+            --card-bg: var(--bg-secondary);
+            --card-border: var(--border-color);
+            --header-bg: var(--bg-secondary);
+            --user-bubble-bg: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            --user-bubble-text: var(--text-primary); 
+            --ai-bubble-bg: var(--bg-secondary);
+            --ai-bubble-text: var(--text-primary); 
+            --sidebar-bg: var(--bg-secondary);
+            --sidebar-border: var(--border-color);
+            --sidebar-item-hover: var(--bg-tertiary);
             --loader-dot-color: var(--accent-primary);
-            --main-chat-window-bg: rgba(255, 255, 255, 0.95);
-            --conversation-bg: rgba(255, 255, 255, 0.98);
+            --main-chat-window-bg: var(--bg-primary);
+            --conversation-bg: var(--bg-secondary);
             --conversation-text: var(--text-primary); 
             --conversation-indicator: var(--accent-primary);
-            --code-block-bg: #F0F4F7;
-            --code-block-header-bg: #EAEFF2;
-            --code-block-border: #DDE1E5;
+            --code-block-bg: #F8FAFC;
+            --code-block-header-bg: var(--bg-tertiary);
+            --code-block-border: var(--border-color);
 
-            /* NEW: Global Shadows & Transitions (Light Mode) */
-            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
-            --shadow-medium: 0 4px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15), 0 20px 50px rgba(0, 0, 0, 0.1);
-            --transition-fast: all 0.2s ease-out;
-            --transition-slow: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            /* NEW: Global Shadows (Light Mode) - Reusing old names */
+            --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             
-            background-color: var(--bg-primary);
+            background: linear-gradient(180deg, #FAFBFC 0%, #F5F7FA 100%);
         }
 
         /* Default Theme: Dark Mode (PREMIUM) */
         body[data-theme="default-dark"] {
-            --bg-primary: #0C0D17; /* Deep Navy Black */
-            --bg-secondary: #171825; /* Slightly lighter card/sidebar */
-            --text-primary: #CBD5E1; /* Light contrast text */
-            --text-secondary: #94A3B8; /* Muted secondary text */
-            --border-color: #334155; /* Subtle border */
-            --card-bg: #171825;
-            --card-border: #334155;
-            --header-bg: #10111A; /* Header/Input Bar Background */
-            --accent-primary: #8B5CF6; /* Vibrant Purple */
-            --accent-primary-hover: #7C3AED;
-            --accent-secondary: #06B6D4; /* Cyan/Teal for highlights */
+            /* Backgrounds */
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-tertiary: #334155;
+            --bg-hover: #475569;
+            
+            /* Text Colors */
+            --text-primary: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --text-tertiary: #94A3B8;
+            --text-disabled: #64748B;
+            
+            /* Border Colors */
+            --border-color: #334155;
+            --border-hover: #475569;
+            --border-focus: #818CF8;
+            
+            /* Accent Colors */
+            --accent-primary: #818CF8;
+            --accent-primary-hover: #6366F1;
+            --accent-secondary: #A78BFA;
             --accent-error: #F87171;
             --accent-success: #34D399;
-            --user-bubble-bg: #1F2937; /* Darker User Bubble */
-            --user-bubble-text: #CBD5E1; 
-            --ai-bubble-bg: #10111A; /* AI Bubble is BG Primary */
-            --ai-bubble-text: #CBD5E1; 
-            --sidebar-bg: #10111A;
-            --sidebar-border: #334155;
-            --sidebar-item-hover: #171825;
+            --accent-warning: #FBBF24;
+            --accent-info: #60A5FA;
+            
+            /* Mapping old variables to new tokens */
+            --card-bg: var(--bg-secondary);
+            --card-border: var(--border-color);
+            --header-bg: var(--bg-secondary);
+            --user-bubble-bg: linear-gradient(135deg, #312E81 0%, #3730A3 100%);
+            --user-bubble-text: var(--text-primary); 
+            --ai-bubble-bg: var(--bg-secondary);
+            --ai-bubble-text: var(--text-primary); 
+            --sidebar-bg: var(--bg-primary);
+            --sidebar-border: var(--border-color);
+            --sidebar-item-hover: var(--bg-secondary);
             --loader-dot-color: var(--accent-primary);
-            --main-chat-window-bg: rgba(16, 17, 26, 0.95); /* Nearly opaque */
-            --conversation-bg: rgba(16, 17, 26, 0.98);
+            --main-chat-window-bg: var(--bg-primary);
+            --conversation-bg: var(--bg-primary);
             --conversation-text: var(--text-primary); 
             --conversation-indicator: var(--accent-primary);
-            --code-block-bg: #171825;
-            --code-block-header-bg: #1F2937;
-            --code-block-border: #334155;
+            --code-block-bg: var(--bg-secondary);
+            --code-block-header-bg: var(--bg-tertiary);
+            --code-block-border: var(--border-color);
             
-            /* NEW: Global Shadows & Transitions */
-            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
-            --shadow-medium: 0 4px 10px rgba(0, 0, 0, 0.6), 0 1px 4px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.8), 0 20px 50px rgba(0, 0, 0, 0.9);
-            --transition-fast: all 0.2s ease-out;
-            --transition-slow: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            /* NEW: Global Shadows (Dark Mode) - Reusing old names */
+            --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             
-            background-color: var(--bg-primary);
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
         }
 
         /* Celestial Horizon Theme: Dark Mode */
@@ -1935,12 +2013,23 @@
         input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-primary) 20%, transparent);
         }
         /* Explicitly defining focus-visible for accessibility */
         input[type="text"]:focus-visible, input[type="email"]:focus-visible, input[type="password"]:focus-visible, select:focus-visible, textarea:focus-visible {
             outline: 2px solid var(--accent-primary);
             outline-offset: 2px;
+        }
+        
+        /* 14. Accessibility: Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         /* NEW: Error Button Glow Enhancement */
@@ -2125,14 +2214,14 @@
         }
 
         #chat-history::-webkit-scrollbar-track {
-            background: var(--sidebar-item-hover);
-            border-radius: 10px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
         }
 
         #chat-history::-webkit-scrollbar-thumb {
             background-color: var(--accent-primary);
             border-radius: 10px;
-            border: 2px solid var(--sidebar-item-hover);
+            border: 2px solid var(--bg-tertiary);
         }
 
         #chat-history::-webkit-scrollbar-thumb:hover {
@@ -2182,10 +2271,10 @@
             border-right: 1px solid var(--sidebar-border);
             display: flex;
             flex-direction: column;
-            padding: 1.5rem; /* More padding */
-            box-shadow: var(--shadow-medium);
+            padding: var(--space-lg); /* More padding */
+            box-shadow: var(--shadow-lg);
             position: relative;
-            z-index: 30;
+            z-index: var(--z-fixed);
             height: 100vh;
             overflow-y: auto;
             transition: var(--transition-slow);
@@ -2217,12 +2306,18 @@
             #hamburger-menu-button { display: none !important; }
         }
         
-        /* New chat message styles */
+        /* New chat message styles (Enhanced with Animation) */
+        @keyframes messageSlideIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
         .chat-message {
-            margin-bottom: 1rem; padding: 1.1rem 1.3rem; border-radius: 1.25rem; /* Slightly reduced radius */
-            box-shadow: var(--shadow-subtle);
-            word-break: break-word; transition: var(--transition-fast); transform: scale(1); 
+            margin-bottom: var(--space-lg); padding: var(--space-lg); border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            word-break: break-word; transition: var(--transition-base); transform: scale(1); 
             transform-origin: center; max-width: 90%; position: relative; padding-bottom: 2.5rem;
+            animation: messageSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
         /* User Bubble: Clear primary accent */
@@ -2230,8 +2325,8 @@
             background-color: var(--user-bubble-bg); 
             color: var(--text-primary); /* Use primary text color for readability */
             margin-left: auto; 
-            border-bottom-right-radius: 0.5rem;
-            border-top-right-radius: 0.5rem; 
+            border-bottom-right-radius: var(--radius-sm);
+            border-top-right-radius: var(--radius-sm); 
             border: 1px solid var(--accent-primary);
         }
 
@@ -2240,8 +2335,8 @@
             background-color: var(--ai-bubble-bg); 
             color: var(--text-primary); /* Use primary text color for readability */
             margin-right: auto; 
-            border-bottom-left-radius: 0.5rem;
-            border-top-left-radius: 0.5rem; 
+            border-bottom-left-radius: var(--radius-sm);
+            border-top-left-radius: var(--radius-sm); 
             box-shadow: var(--shadow-medium);
         }
 
@@ -2293,25 +2388,25 @@
             position: relative;
             background-color: var(--code-block-bg);
             color: var(--text-primary);
-            border-radius: 0.75rem; margin-top: 1rem; margin-bottom: 1rem;
+            border-radius: var(--radius-lg); margin-top: var(--space-md); margin-bottom: var(--space-md);
             overflow: hidden; 
             border: 1px solid var(--accent-secondary); /* Border uses accent secondary */
-            box-shadow: var(--shadow-medium);
-            transition: var(--transition-fast);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-base);
         }
         /* Optional subtle glow for dark mode */
         body[data-theme$="-dark"] .code-block-container {
              box-shadow: 0 0 10px rgba(6, 182, 212, 0.15), var(--shadow-medium);
         }
         .code-block-container pre {
-            margin: 0; padding: 1rem; overflow-x: auto;
-            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 0.9em; line-height: 1.4;
+            margin: 0; padding: var(--space-lg); overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.875rem; line-height: 1.7;
         }
         /* Override Prism.js default styles for code blocks */
         .code-block-container pre[class*="language-"] {
             background-color: var(--code-block-bg) !important;
-            padding: 1rem !important;
+            padding: var(--space-lg) !important;
             margin: 0 !important;
         }
 
@@ -3301,19 +3396,19 @@
 
             <div class="flex gap-2 items-end flex-wrap w-full">
                 <!-- Voice Input Button -->
-                <button id="voice-input-btn" aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-11 h-11 rounded-xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="voice-input-btn" aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="mic" class="w-5 h-5"></span>
                 </button>
                 
                 <!-- Attach File Button -->
-                <label for="chat-file-upload" aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-11 h-11 rounded-xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <label for="chat-file-upload" aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="paperclip" class="w-5 h-5"></span>
                 </label>
                 <input type="file" id="chat-file-upload" accept="image/*, .txt, .pdf, .csv, .json, .xml, .md" class="hidden" multiple>
 
-                <textarea id="chat-input" class="flex-1 p-3.5 rounded-xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[200px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary); min-height: 44px;"></textarea>
+                <textarea id="chat-input" class="flex-1 p-3.5 rounded-xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[200px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary); min-height: 56px;"></textarea>
                 
-                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-11 h-11 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: var(--bg-primary);">
+                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: var(--bg-primary);">
                     <span data-lucide="send" class="w-5 h-5"></span>
                 </button>
             </div>
@@ -5392,7 +5487,7 @@
 
         // Adjust chat input textarea height dynamically (Updated for minimum height)
         function adjustChatInputHeight() {
-            chatInput.style.height = '44px'; // Reset to minimum height (h-11 = 44px)
+            chatInput.style.height = '56px'; // Reset to minimum height (h-14 = 56px)
             const newHeight = Math.min(chatInput.scrollHeight, 200); // Max height defined by CSS
             chatInput.style.height = newHeight + 'px';
         }

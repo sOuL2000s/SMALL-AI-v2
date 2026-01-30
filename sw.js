@@ -1,4 +1,4 @@
-const CACHE_NAME = 'small-ai-v2-cache-v4.8'; // Increment this version number when you make significant changes to cached assets!
+const CACHE_NAME = 'small-ai-v2-cache-v4.9'; // Increment this version number when you make significant changes to cached assets!
 const urlsToCache = [
     '/', // The root HTML page
     'index.html', // The specific HTML file
