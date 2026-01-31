@@ -2013,12 +2013,13 @@
         input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+            /* Stronger shadow ring */
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-primary) 50%, transparent);
         }
         /* Explicitly defining focus-visible for accessibility */
         input[type="text"]:focus-visible, input[type="email"]:focus-visible, input[type="password"]:focus-visible, select:focus-visible, textarea:focus-visible {
-            outline: 2px solid var(--accent-primary);
-            outline-offset: 2px;
+            outline: 4px solid var(--accent-primary);
+            outline-offset: 4px;
         }
         
         /* 14. Accessibility: Reduced Motion */
@@ -2060,7 +2061,7 @@
         
         /* Markdown content styling for better readability (ENHANCED & RESPONSIVE) */
         .markdown-content {
-            line-height: 1.65;
+            line-height: 1.8; /* Increased line-height for better readability (R4) */
             word-break: break-word; /* Ensure long words break on mobile */
             overflow-wrap: break-word; /* Ensure long words break on mobile */
         }
@@ -2313,18 +2314,18 @@
 
         /* Sidebar Styling */
         #sidebar {
-            width: 300px; /* Slightly wider */
+            width: 300px; 
             min-width: 300px;
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--sidebar-border);
             display: flex;
             flex-direction: column;
-            padding: var(--space-lg); /* More padding */
+            padding: var(--space-lg);
             box-shadow: var(--shadow-lg);
             position: relative;
             z-index: var(--z-fixed);
             height: 100vh;
-            overflow-y: auto;
+            overflow-y: hidden; /* MODIFIED: Set primary sidebar to hidden overflow */
             transition: var(--transition-slow);
         }
         #sidebar.hidden-mobile {
@@ -2356,16 +2357,18 @@
         
         /* New chat message styles (Enhanced with Animation) */
         @keyframes messageSlideIn {
-            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            from { opacity: 0; transform: translateY(16px) scale(0.97); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
         .chat-message {
-            margin-bottom: var(--space-lg); padding: var(--space-lg); border-radius: var(--radius-xl);
+            margin-bottom: var(--space-2xl); /* More vertical space between messages */
+            padding: var(--space-xl); /* Increased internal padding */
+            border-radius: var(--radius-xl);
             box-shadow: var(--shadow-sm);
             word-break: break-word; transition: var(--transition-base); transform: scale(1); 
-            transform-origin: center; max-width: 90%; position: relative; padding-bottom: 2.5rem;
-            animation: messageSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: center; max-width: 90%; position: relative; padding-bottom: 3.5rem; /* Increased room for status/timestamp */
+            animation: messageSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); /* Slightly slower animation */
         }
         
         /* User Bubble: Clear primary accent */
@@ -2386,6 +2389,14 @@
             border-bottom-left-radius: var(--radius-sm);
             border-top-left-radius: var(--radius-sm); 
             box-shadow: var(--shadow-medium);
+        }
+
+        /* Suggestion 2: Closer spacing for consecutive messages of the same type */
+        .chat-message + .chat-message:not(.user) {
+            margin-top: -0.75rem; /* AI messages closer together */
+        }
+        .chat-message.user + .chat-message.user {
+            margin-top: -0.75rem; /* User messages closer together */
         }
 
         /* Styling for chat attachments */
@@ -2473,10 +2484,11 @@
             position: relative;
             background-color: var(--code-block-bg);
             color: var(--text-primary);
-            border-radius: var(--radius-lg); margin-top: var(--space-md); margin-bottom: var(--space-md);
+            border-radius: var(--radius-xl); /* Larger radius for a modern feel */
+            margin-top: var(--space-md); margin-bottom: var(--space-md);
             overflow: hidden; 
-            border: 1px solid var(--accent-secondary); /* Border uses accent secondary */
-            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color); /* Subtle border instead of bright accent */
+            box-shadow: var(--shadow-medium); /* Stronger default shadow */
             transition: var(--transition-base);
         }
         /* Optional subtle glow for dark mode */
@@ -2539,7 +2551,7 @@
 
         /* Styles for message action buttons (copy/dictate) - Enhanced */
         .message-actions {
-            position: absolute; bottom: 0.5rem; right: 1rem; display: flex; gap: 0.25rem;
+            position: absolute; bottom: 0.75rem; right: 1rem; display: flex; gap: 0.25rem;
             padding: 0.35rem 0.6rem; 
             background-color: color-mix(in srgb, var(--bg-secondary) 80%, transparent); /* Semi-transparent base */
             border-radius: 0.75rem; 
@@ -2550,7 +2562,7 @@
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow-subtle);
         }
-        .chat-message:hover .message-actions { opacity: 1; bottom: 0.75rem; } /* Lift and fade in */
+        .chat-message:hover .message-actions { opacity: 1; bottom: 1.25rem; } /* Lift and fade in more */
         .message-actions button {
             background: none; border: none; cursor: pointer; padding: 0.25rem;
             border-radius: 0.375rem; transition: background-color 0.2s ease, color 0.2s ease;
@@ -2561,6 +2573,15 @@
         .message-actions button:hover { background-color: var(--sidebar-item-hover); }
         .chat-message.user .message-actions { right: 1rem; left: auto; }
         .chat-message.ai .message-actions { left: 1rem; right: auto; }
+
+        /* Message Metadata Styling (P6) */
+        .chat-message .message-metadata {
+            z-index: 5;
+            transition: opacity 0.3s ease, bottom 0.3s ease;
+            bottom: 0.5rem; /* Ensure it stays low */
+        }
+        .chat-message.user .message-metadata { color: color-mix(in srgb, var(--user-bubble-text) 50%, transparent); }
+        .chat-message.ai .message-metadata { color: var(--text-tertiary); }
 
         /* New style for speech recognition button when active */
         .voice-input-active {
@@ -2617,6 +2638,19 @@
             gap: 0.75rem;
             flex-grow: 1;
             min-width: 0;
+        }
+        /* Overrides for the new stacked title/preview (P5) */
+        .sidebar-chat-item-content.flex-col {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+        /* Ensure the small preview text has good contrast against the chat title */
+        .sidebar-chat-item .text-xs:not(.ml-auto) {
+            color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
+        }
+        .sidebar-chat-item.active .text-xs {
+            color: var(--bg-secondary); /* High contrast white/primary background color when active */
         }
         .sidebar-chat-item-title {
             flex-grow: 1;
@@ -3163,6 +3197,95 @@
             border: 2px solid white;
         }
 
+        /* Command Palette Styles */
+        #command-palette-modal {
+            backdrop-filter: blur(6px);
+        }
+        #command-palette-modal .p-4 { padding: 1rem; }
+        #command-palette-input {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            outline: none;
+        }
+        #command-palette-list {
+            margin-top: 0.5rem;
+            list-style: none;
+            padding: 0.25rem 0;
+        }
+        .command-palette-item {
+            padding: 0.6rem 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 120ms;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        /* Inline Slash Suggestions (attached to chat input) */
+        #slash-suggestions {
+            position: absolute;
+            z-index: 220;
+            min-width: 260px;
+            max-width: 420px;
+            width: fit-content;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(3,6,23,0.35);
+            padding: 6px;
+            display: none; /* toggled via inline JS */
+            color: var(--text-primary);
+            will-change: transform, top, left;
+        }
+        #slash-suggestions.visible { display: block; }
+        #slash-suggestions-list { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; }
+
+        /* Scrollbar styling that adapts to theme variables */
+        #slash-suggestions-list::-webkit-scrollbar { width: 12px; height: 12px; }
+        #slash-suggestions-list::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 8px; }
+        #slash-suggestions-list::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent-primary), rgba(0,0,0,0.35)); border-radius: 8px; border: 2px solid var(--card-bg); }
+        /* Firefox */
+        #slash-suggestions-list { scrollbar-width: thin; scrollbar-color: var(--accent-primary) var(--bg-secondary); }
+
+        .slash-suggestion-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; display:flex; gap:8px; align-items:center; }
+        .slash-suggestion-item .label { font-weight:600; }
+        .slash-suggestion-item .meta { color: var(--text-secondary); font-size: 0.85rem; }
+        .slash-suggestion-item.selected { background: rgba(120,120,200,0.09); outline: 1px solid rgba(120,120,200,0.12); }
+        .slash-suggestion-empty { padding: 10px; color: var(--text-secondary); font-size: 0.9rem; }
+        .command-palette-item:hover, .command-palette-item.selected {
+            background-color: var(--sidebar-item-hover);
+        }
+        .command-palette-item .sample { font-weight: 600; }
+
+        /* Floating palette button (moved left to avoid overlapping the send button) */
+        #open-command-palette-btn {
+            position: fixed;
+            left: 18px; /* moved to the left to avoid send button on the right */
+            bottom: 18px;
+            z-index: 1200;
+            background-color: var(--accent-primary);
+            color: var(--bg-primary);
+            border-radius: 9999px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-xl);
+            cursor: pointer;
+            border: none;
+        }
+        #open-command-palette-btn:hover { transform: translateY(-2px); }
+        /* On very small screens hide the floating button to ensure input area is unobstructed */
+        @media (max-width: 520px) {
+            #open-command-palette-btn { display: none; }
+        }
+
     </style>
 </head>
 <body class="antialiased" data-theme="default-dark">
@@ -3220,17 +3343,19 @@
         </div>
 
         <!-- New Chat Button -->
-        <button id="new-chat-button" class="w-full flex items-center justify-center p-3.5 rounded-xl font-bold shadow-lg transition-colors mb-6 glow-button" style="background-color: var(--accent-primary); color: var(--bg-primary);">
+        <button id="new-chat-button" data-help-content="Start a fresh conversation, clearing the current context and history from view." class="w-full flex items-center justify-center p-3.5 rounded-xl font-bold shadow-lg transition-colors mb-6 glow-button" style="background-color: var(--accent-primary); color: var(--bg-primary);">
             <span data-lucide="plus" class="w-5 h-5 mr-2"></span> New Conversation
         </button>
         
         <!-- Previous Chats Section (Made flexible to take height) -->
-        <div class="flex-1 overflow-y-auto mb-4 -mx-2 px-2" id="previous-chats-section">
-            <h3 class="text-xs font-bold tracking-wider uppercase sticky top-0 py-2 mb-2 z-10" style="background-color: var(--sidebar-bg); color: var(--text-secondary);">Chat History</h3>
-            
-            <!-- ADDED: Sidebar Chat Search Input -->
-            <input type="text" id="sidebar-chat-search" class="w-full p-2.5 rounded-lg border text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] mb-4" placeholder="Search chats..." style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);">
+        <!-- NEW: Search and Header Container (Non-scrolling part) -->
+        <div id="sidebar-search-and-header" class="sticky top-0 bg-[var(--sidebar-bg)] z-30 pt-1 pb-4 border-b border-[var(--sidebar-border)]">
+            <h3 class="text-xs font-bold tracking-wider uppercase py-2 mb-2" style="color: var(--text-secondary);">Chat History</h3>
+            <input type="text" id="sidebar-chat-search" data-help-content="Filter your saved chats instantly. This search remains fixed as you scroll through history." class="w-full p-2.5 rounded-lg border text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" placeholder="Search chats..." style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);">
+        </div>
 
+        <!-- NEW: Scrollable container for just the list. Retains flex-1 for height. -->
+        <div class="flex-1 overflow-y-auto mb-4 -mx-2 px-2" id="previous-chats-section">
             <ul id="sidebar-chat-list" class="space-y-1">
                 <!-- Chat items are loaded by JS based on auth state -->
             </ul>
@@ -3256,7 +3381,7 @@
                 
                 <!-- Custom Prompt Button -->
                 <!-- REMOVED: Custom Prompt Indicator from here -->
-                <button id="toggle-custom-prompt-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors relative" style="background-color: var(--bg-secondary); color: var(--text-primary);">
+                <button id="toggle-custom-prompt-btn" data-help-content="Set a global System Instruction (persona) for the AI. This overrides the simpler Personality selector." class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors relative" style="background-color: var(--bg-secondary); color: var(--text-primary);">
                     <span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt
                 </button>
                 
@@ -3282,7 +3407,7 @@
                 <!-- Model Selector -->
                 <div>
                     <h3 class="text-sm font-semibold uppercase mb-2" style="color: var(--text-secondary);">AI Model</h3>
-                    <select id="model-select-sidebar" class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select AI Model">
+                    <select id="model-select-sidebar" data-help-content="Select the underlying AI model (e.g., Flash for speed, Pro for complexity). Affects response quality and speed." class="w-full p-2 rounded-md border text-sm focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);" aria-label="Select AI Model">
                         <!-- Options populated by JS -->
                     </select>
                 </div>
@@ -3396,12 +3521,12 @@
             <div class="flex items-center gap-2 md:gap-4 relative"> 
                 
                 <!-- 1. VISIBLE on ALL SCREENS: Find in Chat Button -->
-                <button id="find-chat-btn" aria-label="Find in Chat" title="Find in Chat" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="find-chat-btn" data-help-content="Search within the active chat history. Shortcut: Press Ctrl/Cmd + F anywhere in the window." aria-label="Find in Chat" title="Find in Chat" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="search" class="w-5 h-5"></span>
                 </button>
                 
                 <!-- 2. VISIBLE on ALL SCREENS: Conversation Mode Toggle Button -->
-                <button id="conversation-mode-toggle-btn" aria-label="Conversation Mode" title="Start Voice Conversation" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="conversation-mode-toggle-btn" data-help-content="Start a hands-free, voice-only conversation with the AI. Requires microphone permission." aria-label="Conversation Mode" title="Start Voice Conversation" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="messages-square" class="w-5 h-5"></span>
                 </button>
 
@@ -3429,13 +3554,13 @@
                 <!-- End More Actions Dropdown -->
 
                 <!-- 4. WIDER SCREEN UTILITY BUTTONS (Visible only on desktop/tablet) -->
-                <button id="developer-console-btn" aria-label="Developer Console" title="Developer Console (View Logs)" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="developer-console-btn" aria-label="Developer Console" title="Developer Console (View Logs)" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="terminal" class="w-5 h-5"></span>
                 </button>
-                <button id="summarize-context-btn" aria-label="Summarize Chat Context" title="Summarize Chat Context for Prompt" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="summarize-context-btn" aria-label="Summarize Chat Context" title="Summarize Chat Context for Prompt" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="file-text" class="w-5 h-5"></span>
                 </button>
-                <button id="export-markdown-btn" aria-label="Export Chat to Markdown" title="Export Chat to Markdown" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="export-markdown-btn" aria-label="Export Chat to Markdown" title="Export Chat to Markdown" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="download" class="w-5 h-5"></span>
                 </button>
                 
@@ -3500,17 +3625,17 @@
 
             <div class="flex gap-2 items-end flex-wrap w-full">
                 <!-- Voice Input Button -->
-                <button id="voice-input-btn" aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="voice-input-btn" data-help-content="Use speech-to-text to dictate your message draft directly into the input field." aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="mic" class="w-5 h-5"></span>
                 </button>
                 
                 <!-- Attach File Button -->
-                <label for="chat-file-upload" aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <label for="chat-file-upload" data-help-content="Attach files (images, PDFs, code, data dumps). You can also drag-and-drop files directly onto the input area." aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="paperclip" class="w-5 h-5"></span>
                 </label>
                 <input type="file" id="chat-file-upload" accept="image/*, .txt, .pdf, .csv, .json, .xml, .md" class="hidden" multiple>
 
-                <textarea id="chat-input" class="flex-1 p-3.5 rounded-xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[200px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary); min-height: 56px;"></textarea>
+                <textarea id="chat-input" data-help-content="Supports rich text input. Use slash commands like /new or /export for quick actions." class="flex-1 p-3.5 rounded-xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[200px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary); min-height: 56px;"></textarea>
                 
                 <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: var(--bg-primary);">
                     <span data-lucide="send" class="w-5 h-5"></span>
@@ -3658,7 +3783,30 @@
         </div>
     </div>
     <!-- END Markdown Export Modal/Overlay -->
-    
+
+    <!-- NEW: Command Palette Modal (Quick-Access) -->
+    <div id="command-palette-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-start justify-center z-[210] hidden p-4 pt-24">
+        <div class="w-full max-w-xl bg-[var(--card-bg)] rounded-lg shadow-xl" style="border:1px solid var(--border-color);">
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <input id="command-palette-input" placeholder="Type a command (e.g. model flash or search orders) — Enter to run" class="" />
+                    <button id="close-command-palette-btn" class="px-3 py-2 rounded" style="background:var(--bg-primary); border:1px solid var(--border-color);">Close</button>
+                </div>
+                <ul id="command-palette-list" class="max-h-64 overflow-y-auto space-y-1"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Command Palette Button (Ctrl/Cmd+K) -->
+    <button id="open-command-palette-btn" title="Command Palette (Ctrl/Cmd+K)">
+        <span data-lucide="command" class="w-5 h-5"></span>
+    </button>
+
+    <!-- Inline slash suggestions (assists while typing in chat input) -->
+    <div id="slash-suggestions" aria-hidden="true" role="region" aria-label="Command suggestions">
+        <ul id="slash-suggestions-list" role="listbox" aria-label="Suggestions"></ul>
+    </div>
+
     <!-- NEW: Attachment Editor Modal/Overlay (The 'Canvas') -->
     <div id="attachment-editor-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
         <div class="p-6 rounded-xl shadow-2xl w-full max-w-4xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
@@ -3819,6 +3967,108 @@
                 lucide.createIcons();
             }
         };
+
+        // --- NEW: Global Tooltip Manager (Suggestion 13) ---
+        // Tooltip timeout handle
+        let tooltipTimeout;
+
+        /**
+         * Positions and shows the global tooltip based on mouse coordinates or focused elements.
+         */
+        function showGlobalTooltip(event) {
+            // Determine the target element that has the data attribute
+            let target = null;
+            try {
+                target = event && event.target && event.target.closest ? event.target.closest('[data-help-content]') : null;
+            } catch (err) {
+                target = null;
+            }
+
+            if (!target) {
+                hideGlobalTooltip();
+                return;
+            }
+
+            const content = target.dataset.helpContent;
+            if (!content) return;
+
+            // Clear any existing hide timeouts
+            clearTimeout(tooltipTimeout);
+
+            // Set content and prepare positioning
+            const tooltipEl = document.getElementById('global-tooltip');
+            if (!tooltipEl) return;
+
+            tooltipEl.innerHTML = content;
+            tooltipEl.style.opacity = '0';
+            // Make visible for layout measurement so width/height are known
+            tooltipEl.style.visibility = 'visible';
+            tooltipEl.classList.remove('opacity-0');
+
+            // Use a slight delay to prevent immediate flickering on quick movements
+            tooltipTimeout = setTimeout(() => {
+                // If the event has mouse coordinates, use them; otherwise, position relative to the element's bounding rect
+                if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
+                    positionTooltip(event, tooltipEl);
+                } else {
+                    const rect = target.getBoundingClientRect();
+                    const fakeEvent = { clientX: rect.left + (rect.width / 2), clientY: rect.top + (rect.height / 2) };
+                    positionTooltip(fakeEvent, tooltipEl);
+                }
+
+                // Finally, reveal the tooltip
+                tooltipEl.style.opacity = '1';
+                tooltipEl.style.visibility = 'visible';
+                tooltipEl.setAttribute('aria-hidden', 'false');
+            }, 150);
+        }
+
+        /**
+         * Hides the global tooltip.
+         */
+        function hideGlobalTooltip() {
+            clearTimeout(tooltipTimeout);
+            const tooltipEl = document.getElementById('global-tooltip');
+            if (!tooltipEl) return;
+            tooltipEl.style.opacity = '0';
+            tooltipEl.style.visibility = 'hidden';
+            tooltipEl.setAttribute('aria-hidden', 'true');
+        }
+
+        /**
+         * Calculates position to prevent the tooltip from going off-screen.
+         */
+        function positionTooltip(event, tooltipEl) {
+            const tooltipWidth = tooltipEl.offsetWidth;
+            const tooltipHeight = tooltipEl.offsetHeight;
+            const padding = 10;
+            
+            // Determine target position based on mouse (or target element if preferred)
+            let x = event.clientX + 15; // Offset 15px from cursor
+            let y = event.clientY + 15;
+
+            // Check right boundary
+            if (x + tooltipWidth + padding > window.innerWidth) {
+                // Flip to the left of the cursor
+                x = event.clientX - tooltipWidth - 15; 
+                
+                // If it's still off screen to the left, center it horizontally
+                if (x < padding) { 
+                    x = (window.innerWidth - tooltipWidth) / 2;
+                }
+            }
+            
+            // Check bottom boundary
+            if (y + tooltipHeight + padding > window.innerHeight) {
+                // Flip to the top of the cursor
+                y = event.clientY - tooltipHeight - 15;
+            }
+
+            tooltipEl.style.left = `${x}px`;
+            tooltipEl.style.top = `${y}px`;
+            tooltipEl.style.position = 'fixed';
+            tooltipEl.style.zIndex = '1000';
+        }
 
         // --- Developer Console Interception (MODIFIED for Request 3) ---
         const originalConsole = {
@@ -3988,6 +4238,471 @@
         const toggleCustomPromptBtn = document.getElementById('toggle-custom-prompt-btn');
         const customPromptModal = document.getElementById('custom-prompt-modal');
         const customPromptInput = document.getElementById('custom-prompt-input');
+
+        // Quick Start Guide Modal
+        const quickStartModal = document.getElementById('quick-start-modal');
+        const closeQuickStartBtn = document.getElementById('close-quick-start-btn');
+        if (closeQuickStartBtn) closeQuickStartBtn.addEventListener('click', () => { quickStartModal.classList.add('hidden'); document.body.style.overflow = ''; });
+
+        function openQuickStartGuideModal() {
+            if (quickStartModal) {
+                quickStartModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // --- Command Palette (Quick-Access UI) ---
+        const commandPaletteModal = document.getElementById('command-palette-modal');
+        const commandPaletteInput = document.getElementById('command-palette-input');
+        const commandPaletteList = document.getElementById('command-palette-list');
+        const openCommandPaletteBtn = document.getElementById('open-command-palette-btn');
+        const closeCommandPaletteBtn = document.getElementById('close-command-palette-btn');
+
+        const COMMANDS = [
+            { cmd: 'clear', title: 'Clear Input', desc: 'Clear the chat input and attachments', sample:'/clear' },
+            { cmd: 'export', title: 'Export Chat', desc: 'Open Markdown Export modal for current chat', sample:'/export', options: ['md','pdf','html','json'] },
+            { cmd: 'new', title: 'New Chat', desc: 'Start a new conversation session', sample:'/new' },
+            { cmd: 'help', title: 'Quick Start Guide', desc: 'Open the quick start guide modal', sample:'/help' },
+            { cmd: 'guide', title: 'Quick Start Guide (alias)', desc: 'Alias for /help', sample:'/guide' },
+            { cmd: 'settings', title: 'Open Settings', desc: 'Open sidebar and expand settings', sample:'/settings' },
+            { cmd: 'summarize', title: 'Summarize Chat', desc: 'Generate contextual summary into Custom Prompt', sample:'/summarize' },
+            { cmd: 'model', title: 'Switch Model', desc: 'Switch AI model (e.g., /model flash)', sample:'/model flash', options: ['gpt-4o','gpt-4o-mini','flash','gpt-3.5-turbo','gpt-4o-mini-embedding'] },
+            { cmd: 'template', title: 'Load Template', desc: 'Load and activate a saved prompt template', sample:'/template MyTemplate' },
+            { cmd: 'search', title: 'Search in Chat', desc: 'Open in-chat search and run a query', sample:'/search your query' },
+
+            /* Additional commands to cover the full app features */
+            { cmd: 'theme', title: 'Apply Theme', desc: 'Apply a theme by name or use /theme random', sample:'/theme celestial-horizon-light', options: ['dark','light','system','random'] },
+            { cmd: 'dark', title: 'Dark Mode', desc: 'Switch to dark mode (alias /dark or /light)', sample:'/dark' },
+            { cmd: 'light', title: 'Light Mode', desc: 'Switch to light mode', sample:'/light' },
+            { cmd: 'voice', title: 'Voice Input', desc: 'Start/stop voice input (speech-to-text)', sample:'/voice start', options: ['start','stop','toggle'] },
+            { cmd: 'attach', title: 'Attach Files', desc: 'Open the file picker to attach files', sample:'/attach', options: ['file','url'] },
+            { cmd: 'download', title: 'Download Markdown', desc: 'Download the current chat as Markdown', sample:'/download', options: ['md','pdf'] },
+            { cmd: 'signin', title: 'Sign in', desc: 'Open sign-in flow (Google)', sample:'/signin', options: ['google'] },
+            { cmd: 'signout', title: 'Sign out', desc: 'Sign out of the current session', sample:'/signout' },
+            { cmd: 'console', title: 'Developer Console', desc: 'Open the developer console to view logs', sample:'/console' },
+            { cmd: 'delete-all', title: 'Delete All Chats', desc: 'Delete all saved chat sessions (confirmation required)', sample:'/delete-all' },
+            { cmd: 'clear-storage', title: 'Clear Browser Data', desc: 'Clear local storage, caches and service workers', sample:'/clear-storage' },
+            { cmd: 'rename', title: 'Rename Chat', desc: 'Rename the active chat: /rename New Title', sample:'/rename Project Plan' },
+            { cmd: 'save-prompt', title: 'Save Custom Prompt', desc: 'Save current Custom Prompt as active', sample:'/save-prompt' },
+            { cmd: 'manage-templates', title: 'Manage Templates', desc: 'Open prompt templates manager', sample:'/manage-templates' },
+            { cmd: 'prompt-tool', title: 'Prompt Enhancement Tool', desc: 'Open prompt enhancement tool', sample:'/prompt-tool' },
+            { cmd: 'random-theme', title: 'Random Theme', desc: 'Pick a random theme and mode', sample:'/random-theme' }
+        ];
+
+        let paletteSelectedIndex = -1;
+        let paletteOpenedFromChatInput = false; // tracks when palette was opened via chat input /slash trigger
+        
+
+        function renderCommandPalette(filter = '') {
+            if (!commandPaletteList) return;
+            const q = filter.trim().toLowerCase();
+            let results = COMMANDS.filter(c => {
+                if (!q) return true;
+                return c.cmd.indexOf(q) === 0 || c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) || c.sample.toLowerCase().includes(q);
+            });
+            if (results.length === 0 && q.includes(' ')) {
+                const firstWord = q.split(' ')[0];
+                results = COMMANDS.filter(c => c.cmd.startsWith(firstWord));
+            }
+            commandPaletteList.innerHTML = '';
+            results.forEach((c, i) => {
+                const li = document.createElement('li');
+                li.className = 'command-palette-item';
+                li.tabIndex = -1;
+                li.dataset.command = c.cmd;
+                li.dataset.sample = c.sample;
+                li.innerHTML = `<div class="sample">${c.sample}</div><div class="text-xs" style="color:var(--text-secondary);">${c.desc}</div>`;
+                li.addEventListener('click', () => {
+                    executePaletteCommand(commandPaletteInput.value || c.sample);
+                });
+                li.addEventListener('mouseover', () => {
+                    setPaletteSelection(i);
+                });
+                commandPaletteList.appendChild(li);
+            });
+            if (results.length > 0) setPaletteSelection(0); else setPaletteSelection(-1);
+        }
+
+        function setPaletteSelection(i) {
+            const items = commandPaletteList ? commandPaletteList.querySelectorAll('.command-palette-item') : [];
+            items.forEach((it, idx) => {
+                if (idx === i) it.classList.add('selected'); else it.classList.remove('selected');
+            });
+            paletteSelectedIndex = i;
+        }
+
+        function openCommandPalette(initialText = '') {
+            if (!commandPaletteModal) return;
+            commandPaletteModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (commandPaletteInput) commandPaletteInput.value = initialText;
+            renderCommandPalette(initialText);
+            setTimeout(() => { if (commandPaletteInput) commandPaletteInput.focus(); }, 50);
+            // If this palette was opened from chat input, mark the flag
+            paletteOpenedFromChatInput = !!initialText || paletteOpenedFromChatInput;
+        }
+
+        function closeCommandPalette() {
+            if (!commandPaletteModal) return;
+            commandPaletteModal.classList.add('hidden');
+            document.body.style.overflow = '';
+            if (commandPaletteInput) commandPaletteInput.value = '';
+            if (commandPaletteList) commandPaletteList.innerHTML = '';
+            // If this was opened from the chat input, restore focus to it
+            if (paletteOpenedFromChatInput) {
+                chatInput.focus();
+                paletteOpenedFromChatInput = false;
+            }
+            paletteSelectedIndex = -1;
+        }
+
+        // ---------------------- Inline Slash Suggestions ----------------------
+        const slashSuggestionsBox = document.getElementById('slash-suggestions');
+        const slashSuggestionsList = document.getElementById('slash-suggestions-list');
+        let slashSuggestions = [];
+        let slashSelectedIndex = -1;
+
+        function getCursorTokenInfo(inputEl) {
+            const val = inputEl.value || '';
+            if (!val.startsWith('/')) return null;
+            const caretPos = inputEl.selectionStart || 0;
+            const raw = val.slice(1); // drop leading '/'
+            const parts = raw.split(/\s+/);
+            // determine which token caret is inside
+            let accum = 0;
+            for (let i = 0; i < parts.length; i++) {
+                const p = parts[i];
+                const start = accum; // relative to raw
+                const end = accum + p.length; // inclusive end index
+                if (caretPos - 1 >= start && caretPos - 1 <= end) {
+                    // compute global positions (in original input value)
+                    const globalStart = 1 + start;
+                    const globalEnd = globalStart + p.length;
+                    return { parts, tokenIndex: i, token: p, globalStart, globalEnd };
+                }
+                accum = end + 1; // account for the space
+            }
+            // caret after last token (or at end)
+            const lastIdx = parts.length - 1;
+            const globalStart = 1 + (raw.length - (parts[lastIdx] ? parts[lastIdx].length : 0));
+            return { parts, tokenIndex: parts.length - 1, token: parts[lastIdx] || '', globalStart, globalEnd: 1 + raw.length };
+        }
+
+        function findCommandEntry(cmdName) {
+            if (!cmdName) return null;
+            return COMMANDS.find(c => c.cmd === cmdName);
+        }
+
+        function renderInlineSuggestions() {
+            try {
+                if (!slashSuggestionsBox || !slashSuggestionsList || !chatInput) return;
+                const info = getCursorTokenInfo(chatInput);
+                if (!info) { closeInlineSuggestions(); return; }
+                // If the command palette modal is visible, don't show inline box
+                if (commandPaletteModal && !commandPaletteModal.classList.contains('hidden')) { closeInlineSuggestions(); return; }
+
+                const { parts, tokenIndex, token } = info;
+                const lower = (token || '').toLowerCase();
+                let suggestions = [];
+
+                if (tokenIndex === 0) {
+                    // suggest commands
+                    suggestions = COMMANDS.filter(c => c.cmd.startsWith(lower) || c.title.toLowerCase().includes(lower) || c.desc.toLowerCase().includes(lower) || c.sample.toLowerCase().includes(lower))
+                        .slice(0, 12)
+                        .map(c => ({ label: c.cmd, meta: c.desc, value: c.cmd }));
+                } else {
+                    // suggest options for the command in parts[0]
+                    const cmd = parts[0];
+                    const entry = findCommandEntry(cmd);
+                    if (entry && entry.options && entry.options.length) {
+                        suggestions = entry.options.filter(o => o.toLowerCase().indexOf(lower) === 0 || o.toLowerCase().includes(lower))
+                            .slice(0, 20)
+                            .map(o => ({ label: o, meta: entry.title, value: o }));
+                    }
+                }
+
+                slashSuggestions = suggestions;
+                slashSelectedIndex = suggestions.length > 0 ? 0 : -1;
+                // render list
+                slashSuggestionsList.innerHTML = '';
+                if (suggestions.length === 0) {
+                    const li = document.createElement('li');
+                    li.className = 'slash-suggestion-empty';
+                    li.innerText = tokenIndex === 0 ? 'No matching commands' : 'No matching options for this command';
+                    slashSuggestionsList.appendChild(li);
+                    openInlineSuggestions();
+                    return;
+                }
+                suggestions.forEach((s, i) => {
+                    const li = document.createElement('li');
+                    li.className = 'slash-suggestion-item';
+                    li.tabIndex = -1;
+                    li.setAttribute('role','option');
+                    li.setAttribute('aria-selected', i === slashSelectedIndex ? 'true' : 'false');
+                    if (i === slashSelectedIndex) li.classList.add('selected');
+                    li.dataset.index = i;
+                    li.innerHTML = `<div class="label">${s.label}</div><div class="meta">${s.meta || ''}</div>`;
+                    li.addEventListener('click', () => {
+                        applyInlineSuggestion(i);
+                    });
+                    li.addEventListener('mouseover', () => {
+                        setSlashSelection(i);
+                    });
+                    slashSuggestionsList.appendChild(li);
+                });
+                openInlineSuggestions();
+            } catch (err) {
+                console.error('Error while rendering inline suggestions', err);
+                if (typeof showError === 'function') showError('Suggestion error: ' + (err && err.message));
+                closeInlineSuggestions();
+            }
+        }
+
+        function setSlashSelection(i) {
+            const items = slashSuggestionsList ? slashSuggestionsList.querySelectorAll('.slash-suggestion-item') : [];
+            items.forEach((it, idx) => {
+                if (idx === i) {
+                    it.classList.add('selected');
+                    it.setAttribute('aria-selected','true');
+                } else {
+                    it.classList.remove('selected');
+                    it.setAttribute('aria-selected','false');
+                }
+            });
+            slashSelectedIndex = i;
+        }
+
+        function openInlineSuggestions() {
+            if (!slashSuggestionsBox || !chatInput) return;
+            // position the box near the chat input's caret (prefer above the textarea)
+            const rect = chatInput.getBoundingClientRect();
+            // Make visible off-screen for measurement
+            slashSuggestionsBox.style.left = (rect.left + window.scrollX) + 'px';
+            slashSuggestionsBox.style.top = '0px';
+            slashSuggestionsBox.classList.add('visible');
+            slashSuggestionsBox.style.visibility = 'hidden';
+
+            // measure
+            const boxRect = slashSuggestionsBox.getBoundingClientRect();
+            const boxH = boxRect.height;
+            const boxW = boxRect.width;
+
+            // Decide placement: prefer above input
+            let desiredTop = rect.top + window.scrollY - boxH - 8; // 8px gap
+            let placeAbove = true;
+            if (desiredTop < window.scrollY + 8) {
+                // not enough space above; place below
+                desiredTop = rect.top + window.scrollY + rect.height + 8;
+                placeAbove = false;
+            }
+
+            // Clamp left so it stays inside viewport
+            let desiredLeft = rect.left + window.scrollX;
+            const maxLeft = window.scrollX + document.documentElement.clientWidth - boxW - 8;
+            if (desiredLeft > maxLeft) desiredLeft = Math.max(8 + window.scrollX, maxLeft);
+            if (desiredLeft < 8 + window.scrollX) desiredLeft = 8 + window.scrollX;
+
+            slashSuggestionsBox.style.left = desiredLeft + 'px';
+            slashSuggestionsBox.style.top = desiredTop + 'px';
+            slashSuggestionsBox.style.transform = 'none';
+            slashSuggestionsBox.style.visibility = 'visible';
+            // add a class to indicate placement used
+            if (placeAbove) slashSuggestionsBox.classList.add('placed-above'); else slashSuggestionsBox.classList.remove('placed-above');
+
+            slashSuggestionsBox.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeInlineSuggestions() {
+            if (!slashSuggestionsBox) return;
+            slashSuggestionsBox.classList.remove('visible');
+            slashSuggestionsBox.setAttribute('aria-hidden', 'true');
+            slashSuggestionsList.innerHTML = '';
+            slashSuggestions = [];
+            slashSelectedIndex = -1;
+        }
+
+        async function applyInlineSuggestion(index) {
+            try {
+                if (!chatInput) return;
+                const info = getCursorTokenInfo(chatInput);
+                if (!info) return;
+                const s = slashSuggestions[index];
+                if (!s) return;
+                const { globalStart, globalEnd, tokenIndex } = info;
+                // globalStart/globalEnd are positions relative to whole input
+                const before = chatInput.value.slice(0, globalStart);
+                const after = chatInput.value.slice(globalEnd);
+                // If replacing command token, add trailing space to move to options
+                const insertText = (tokenIndex === 0) ? (s.value + ' ') : (s.value + ' ');
+                chatInput.value = before + insertText + after;
+                // position the caret after inserted text
+                const newPos = before.length + insertText.length;
+                chatInput.setSelectionRange(newPos, newPos);
+                // If we just inserted a command that has options, present options automatically
+                const entry = tokenIndex === 0 ? findCommandEntry(s.value) : null;
+                if (tokenIndex === 0 && entry && entry.options && entry.options.length) {
+                    // re-render inline suggestions for next token
+                    renderInlineSuggestions();
+                    return;
+                }
+
+                // If we inserted an option (tokenIndex > 0), execute the command immediately
+                if (tokenIndex > 0) {
+                    try {
+                        const cmdName = info.parts[0];
+                        const cmdStr = '/' + cmdName + ' ' + s.value;
+                        const handled = await handleSlashCommand(cmdStr);
+                        if (handled) {
+                            chatInput.value = '';
+                            adjustChatInputHeight();
+                        }
+                    } catch (err) {
+                        console.error('Error executing command after option selection', err);
+                        if (typeof showError === 'function') showError('Failed to run command: ' + (err && err.message));
+                    }
+                    closeInlineSuggestions();
+                    chatInput.focus();
+                    return;
+                }
+
+                // If this command has no options, execute it immediately
+                if (tokenIndex === 0 && entry && (!entry.options || entry.options.length === 0)) {
+                    // execute asynchronously and clear input if handled
+                    (async () => {
+                        const handled = await handleSlashCommand('/' + entry.cmd);
+                        if (handled) {
+                            chatInput.value = '';
+                            adjustChatInputHeight();
+                        }
+                    })();
+                }
+                closeInlineSuggestions();
+                chatInput.focus();
+            } catch (err) {
+                console.error('Error in applyInlineSuggestion', err);
+                if (typeof showError === 'function') showError('Suggestion apply failed: ' + (err && err.message));
+            }
+        }
+
+        // Keyboard handling while suggestions visible
+        chatInput.addEventListener('keydown', async (e) => {
+            if (slashSuggestions && slashSuggestions.length && slashSuggestionsBox && slashSuggestionsBox.classList.contains('visible')) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setSlashSelection(Math.min(slashSelectedIndex + 1, slashSuggestions.length - 1));
+                    const items = slashSuggestionsList.querySelectorAll('.slash-suggestion-item'); if (items[slashSelectedIndex]) items[slashSelectedIndex].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setSlashSelection(Math.max(slashSelectedIndex - 1, 0));
+                    const items = slashSuggestionsList.querySelectorAll('.slash-suggestion-item'); if (items[slashSelectedIndex]) items[slashSelectedIndex].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'Enter' || e.key === 'Tab') {
+                    if (slashSelectedIndex >= 0) {
+                        e.preventDefault();
+                        await applyInlineSuggestion(slashSelectedIndex);
+                    }
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeInlineSuggestions();
+                }
+            }
+        });
+
+        // keep inline suggestions in sync as the user types
+        chatInput.addEventListener('input', (e) => {
+            const val = chatInput.value || '';
+            if (val.startsWith('/')) {
+                // don't show both the big palette and inline suggestions at once
+                if (!commandPaletteModal || commandPaletteModal.classList.contains('hidden')) {
+                    renderInlineSuggestions();
+                } else {
+                    closeInlineSuggestions();
+                }
+            } else {
+                closeInlineSuggestions();
+            }
+        });
+
+        // hide suggestions when focus leaves
+        chatInput.addEventListener('blur', (e) => {
+            setTimeout(() => { closeInlineSuggestions(); }, 150);
+        });
+
+        // --------------------------------------------------------------------
+
+        function executePaletteCommand(inputValue) {
+            let s = (inputValue || '').trim();
+            if (!s) {
+                const items = commandPaletteList ? commandPaletteList.querySelectorAll('.command-palette-item') : [];
+                if (paletteSelectedIndex >= 0 && items[paletteSelectedIndex]) {
+                    s = items[paletteSelectedIndex].dataset.sample || '';
+                } else {
+                    closeCommandPalette();
+                    return;
+                }
+            }
+            if (!s.startsWith('/')) s = '/' + s;
+            (async () => {
+                const handled = await handleSlashCommand(s);
+                if (handled) {
+                    // If the palette was opened from chat input, clear the chat input to avoid re-triggering
+                    if (paletteOpenedFromChatInput) {
+                        chatInput.value = '';
+                        adjustChatInputHeight();
+                    }
+                    closeCommandPalette();
+                } else showError(`Failed to execute: ${s}`);
+            })();
+        }
+
+        if (commandPaletteInput) {
+            commandPaletteInput.addEventListener('input', (e) => renderCommandPalette(e.target.value));
+            commandPaletteInput.addEventListener('keydown', (e) => {
+                const items = commandPaletteList ? commandPaletteList.querySelectorAll('.command-palette-item') : [];
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setPaletteSelection(Math.min(paletteSelectedIndex + 1, items.length - 1));
+                    if (items[paletteSelectedIndex]) items[paletteSelectedIndex].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setPaletteSelection(Math.max(paletteSelectedIndex - 1, 0));
+                    if (items[paletteSelectedIndex]) items[paletteSelectedIndex].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    executePaletteCommand(commandPaletteInput.value);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeCommandPalette();
+                    // If palette was opened from chat input, restore focus there
+                    if (paletteOpenedFromChatInput) {
+                        chatInput.focus();
+                        paletteOpenedFromChatInput = false;
+                    }
+                }
+            });
+        }
+
+        if (openCommandPaletteBtn) openCommandPaletteBtn.addEventListener('click', () => openCommandPalette());
+        if (closeCommandPaletteBtn) closeCommandPaletteBtn.addEventListener('click', () => closeCommandPalette());
+        if (commandPaletteModal) commandPaletteModal.addEventListener('click', (e) => { if (e.target === commandPaletteModal) closeCommandPalette(); });
+
+        // Global keyboard shortcut: Ctrl/Cmd + K to open command palette
+        window.addEventListener('keydown', (e) => {
+            const isInputActive = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                openCommandPalette();
+            } else if (e.key === 'Escape') {
+                if (commandPaletteModal && !commandPaletteModal.classList.contains('hidden')) closeCommandPalette();
+            }
+            // If user presses '/' while focus is on chat input, show inline assistive suggestions (don't auto-open full palette)
+            if (e.key === '/' && document.activeElement === chatInput) {
+                // Wait one tick so the slash is present in the input, then render inline suggestions
+                setTimeout(() => {
+                    renderInlineSuggestions();
+                }, 0);
+            }
+        });
+
         const saveCustomPromptBtn = document.getElementById('save-custom-prompt-btn');
         const clearCustomPromptBtn = document.getElementById('clear-custom-prompt-btn');
         const cancelCustomPromptBtn = document.getElementById('cancel-custom-prompt-btn');
@@ -4154,6 +4869,48 @@
         ];
         const DEFAULT_MODEL = "gemini-2.5-flash-preview-09-2025";
         let selectedModel = DEFAULT_MODEL;
+
+        // Available theme names (both dark and light variants) — used for inline slash suggestions
+        const AVAILABLE_THEMES = [
+            'default-light','default-dark',
+            'celestial-horizon-dark','celestial-horizon-light',
+            'verdant-calm-dark','verdant-calm-light',
+            'cybernetic-pulse-dark','cybernetic-pulse-light',
+            'urban-pulse-dark','urban-pulse-light',
+            'rustic-ember-dark','rustic-ember-light',
+            'neon-mirage-dark','neon-mirage-light',
+            'ivory-bloom-dark','ivory-bloom-light',
+            'obsidian-night-dark','obsidian-night-light',
+            'solar-dawn-dark','solar-dawn-light',
+            'aurora-drift-dark','aurora-drift-light',
+            'timeless-echo-dark','timeless-echo-light',
+            'mystic-void-dark','mystic-void-light',
+            'darkest-bw-dark','darkest-bw-light',
+            'coder-dark','coder-light',
+            'cyberpunk-dark','cyberpunk-light',
+            'matrix-dark','matrix-light',
+            'solarized-light','solarized-dark',
+            'dracula-dark','dracula-light',
+            'monokai-dark','monokai-light',
+            'nord-dark','nord-light',
+            'gruvbox-dark','gruvbox-light',
+            'catppuccin-dark','catppuccin-light',
+            'cosmic-nexus-dark','cosmic-nexus-light',
+            'starship-minimal-dark','starship-minimal-light',
+            'offbeat-cosmic-dark','offbeat-cosmic-light'
+        ];
+
+        // Inject the actual model/theme lists into the COMMANDS metadata so inline suggestions stay in sync
+        (function syncCommandOptions() {
+            try {
+                const themeCmd = COMMANDS.find(c => c.cmd === 'theme');
+                if (themeCmd) themeCmd.options = AVAILABLE_THEMES;
+                const modelCmd = COMMANDS.find(c => c.cmd === 'model');
+                if (modelCmd) modelCmd.options = availableModels;
+            } catch (err) {
+                console.error('Failed to sync command options', err);
+            }
+        })();
 
         let allChatSessions = {}; 
         let currentSessionId = null;
@@ -4958,10 +5715,31 @@
                 }
                 li.dataset.sessionId = session.id;
 
+                // Extract last message text (or attachment marker) (P5)
+                const lastMessage = session.history.length > 0 ? session.history[session.history.length - 1] : null;
+                let lastMessageText = 'Start conversation...';
+                if (lastMessage) {
+                    const textPart = lastMessage.parts.find(p => p.text);
+                    if (textPart) {
+                         lastMessageText = textPart.text.substring(0, 40) + (textPart.text.length > 40 ? '...' : '');
+                    } else if (lastMessage.parts.some(p => p.inlineData)) {
+                         lastMessageText = '[Attachment/Media]';
+                    }
+                    if (lastMessage.role === 'user') {
+                        lastMessageText = `You: ${lastMessageText}`;
+                    }
+                }
+                // Format timestamp
+                const lastActivity = session.timestamp ? new Date(session.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                
                 li.innerHTML = `
-                    <div class="sidebar-chat-item-content">
-                        <span data-lucide="message-square" class="w-5 h-5" style="color: inherit;"></span>
-                        <span class="sidebar-chat-item-title" title="${session.title}">${session.title}</span>
+                    <div class="sidebar-chat-item-content flex-col items-start gap-1">
+                        <div class="flex items-center justify-between w-full">
+                            <span data-lucide="message-square" class="w-5 h-5 flex-shrink-0 mr-2" style="color: inherit;"></span>
+                            <span class="sidebar-chat-item-title text-base font-semibold truncate flex-1" title="${session.title}">${session.title}</span>
+                            <span class="text-xs ml-auto flex-shrink-0" style="color: var(--text-tertiary);">${lastActivity}</span>
+                        </div>
+                        <p class="text-xs truncate w-full pl-7" style="color: var(--text-secondary);">${lastMessageText}</p>
                     </div>
                     <div class="sidebar-chat-item-actions">
                         <!-- ADDED: Rename Button -->
@@ -5489,6 +6267,17 @@
                 chatHistoryDiv.innerHTML = '';
             }
 
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            // Initial status is 'Sent' for user, 'Received' for AI (P6)
+            const status = (role === 'user' ? '<span data-lucide="check" class="w-3 h-3"></span> Sent' : '<span data-lucide="message-square" class="w-3 h-3"></span> Processed');
+            
+            const metadataHTML = `
+                <div class="message-metadata absolute bottom-1 left-1/2 transform -translate-x-1/2 text-xs flex items-center gap-3" style="color: var(--text-tertiary);">
+                    <span class="message-status flex items-center gap-1">${status}</span>
+                    <span class="message-timestamp">${timestamp}</span>
+                </div>
+            `;
+            
             const actionsHTML = `
                 <div class="message-actions">
                     <button class="copy-message-btn" title="Copy message" data-message-id="${messageId}">
@@ -5500,7 +6289,7 @@
                 </div>
             `;
             
-            messageDiv.innerHTML = contentHTML + actionsHTML;
+            messageDiv.innerHTML = contentHTML + metadataHTML + actionsHTML;
             chatHistoryDiv.appendChild(messageDiv);
             
             setTimeout(() => {
@@ -5516,6 +6305,43 @@
             collectCodeBlocks();
         }
         
+        // Global helper function for updating message status (Suggestion 6)
+        function updateMessageStatus(messageElement, newStatus) {
+            if (!messageElement) return;
+            const statusSpan = messageElement.querySelector('.message-status');
+            if (!statusSpan) return;
+
+            let icon = '';
+            let text = '';
+            let color = 'var(--text-tertiary)';
+
+            if (newStatus === 'processed') {
+                icon = 'check-circle';
+                text = 'Processed';
+                color = 'var(--accent-success)';
+            } else if (newStatus === 'sent') {
+                icon = 'check';
+                text = 'Sent';
+            } else if (newStatus === 'error') {
+                icon = 'alert-triangle';
+                text = 'Failed';
+                color = 'var(--accent-error)';
+            } else if (newStatus === 'received') {
+                icon = 'message-square';
+                text = 'Received';
+            }
+
+            statusSpan.style.color = color;
+            statusSpan.innerHTML = `<span data-lucide="${icon}" class="w-3 h-3"></span> ${text}`;
+            createIcons();
+        }
+
+        // Legacy placeholder – main slash handler implemented near chat input to support extended commands
+        function handleSlashCommand(command) {
+            // Deprecated here; the comprehensive handler is defined closer to the input event listener
+            return false;
+        }
+
         // Event listener for chat file upload
         chatFileUpload.addEventListener('change', async (event) => {
             const files = Array.from(event.target.files);
@@ -6494,19 +7320,34 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             
             const loadingMessage = document.createElement('div');
             loadingMessage.id = 'chat-loading';
-            loadingMessage.classList.add('p-4', 'text-center', 'text-sm');
-            loadingMessage.style.color = 'var(--text-secondary)'; 
+            loadingMessage.classList.add('chat-message', 'ai', 'p-4', 'text-sm', 'max-w-xs', 'mx-auto'); /* Use AI bubble styling (P6) */
+            loadingMessage.style.paddingBottom = 'var(--space-lg)'; // Adjust padding for simpler loading message
             loadingMessage.innerHTML = `
                 <div class="loader-container h-8">
                     <div class="loader-typing-bar"></div>
                     <div class="loader-typing-bar"></div>
                     <div class="loader-typing-bar"></div>
                 </div>
-                <span class="mt-2 block font-medium" style="color: var(--accent-secondary);">AI is typing...</span>
+                <!-- NEW: Add a rotating status message (P6) -->
+                <div id="loading-status" class="mt-2 block font-medium text-center" style="color: var(--accent-secondary);">Crafting response...</div>
             `;
             chatHistoryDiv.appendChild(loadingMessage);
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
             
+            // R6: Simulate rotating loading messages 
+            const statusMessages = ["AI is thinking...", "Processing request...", "Crafting response...", "Analyzing data...", "Consulting the nexus..."];
+            let statusIndex = 0;
+            const statusElement = document.getElementById('loading-status');
+            const updateStatus = () => {
+                if (statusElement) {
+                    statusElement.textContent = statusMessages[statusIndex];
+                    statusIndex = (statusIndex + 1) % statusMessages.length;
+                }
+            };
+            updateStatus(); // Initial run
+            const statusInterval = setInterval(updateStatus, 2000); // Change every 2 seconds
+            loadingMessage.dataset.statusInterval = statusInterval; // Store interval ID
+
             try {
                 const payload = {
                     contents: currentSessionHistory, 
@@ -6518,6 +7359,16 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                 appendChatMessage('ai', responseText);
                 
                 await updateCurrentSessionHistory(); 
+
+                // Update statuses: mark AI and user messages as processed (Suggestion 6)
+                const lastAiMessage = chatHistoryDiv.lastChild;
+                if (lastAiMessage) {
+                    updateMessageStatus(lastAiMessage, 'processed');
+                }
+                const lastUserMessage = chatHistoryDiv.children[chatHistoryDiv.children.length - 2];
+                if (lastUserMessage && lastUserMessage.classList.contains('user')) {
+                    updateMessageStatus(lastUserMessage, 'processed');
+                }
                 
                 // R1: Check if this was the THIRD full exchange (history length is now 7: AI + 3x(U/A)) and needs a title.
                 // The historyLengthBeforeUserMessage will be 5 when the history contains: 
@@ -6536,21 +7387,292 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                 // Safely remove the user message and the loading spinner, but keep the previous history
                 currentSessionHistory.pop(); 
                 await updateCurrentSessionHistory(); 
-            } finally {
+                // Update the last user message shown (if any) to reflect the error status
+                const lastUserMessageOnError = chatHistoryDiv.lastChild;
+                if (lastUserMessageOnError && lastUserMessageOnError.classList.contains('user')) {
+                    updateMessageStatus(lastUserMessageOnError, 'error');
+                }
+            } finally { 
                 sendChatBtn.disabled = false;
                 const loadingDiv = document.getElementById('chat-loading');
                 if (loadingDiv) {
+                    const statusInterval = loadingDiv.dataset.statusInterval;
+                    if (statusInterval) clearInterval(statusInterval); // Clear interval (P6)
                     loadingDiv.remove();
                 }
                 chatInput.focus();
             }
         });
         
-        // Add event listener for the 'Enter' key on the chat input
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key ==='Enter' && !e.shiftKey) {
+        // --- Slash Command Handler ---
+        async function handleSlashCommand(input) {
+            const raw = input.trim();
+            if (!raw.startsWith('/')) return false;
+            const parts = raw.slice(1).trim().split(/\s+/);
+            const cmd = (parts.shift() || '').toLowerCase();
+            const arg = parts.join(' ').trim();
+
+            switch (cmd) {
+                case 'clear':
+                    chatInput.value = '';
+                    chatAttachments = [];
+                    displayChatAttachments();
+                    adjustChatInputHeight();
+                    showCopyMessage('Input and attachments cleared.', 'var(--accent-secondary)');
+                    return true;
+
+                case 'export':
+                    openMarkdownExportModal();
+                    return true;
+
+                case 'new':
+                    createNewChatSession();
+                    return true;
+
+                case 'help':
+                case 'guide':
+                    openQuickStartGuideModal();
+                    return true;
+
+                case 'settings':
+                    // Open sidebar and expand settings section
+                    if (hamburgerMenuButton) hamburgerMenuButton.click();
+                    setTimeout(() => { if (toggleSettingsBtn) toggleSettingsBtn.click(); }, 300);
+                    return true;
+
+                case 'summarize':
+                    handleSummarizeChat();
+                    return true;
+
+                case 'model':
+                    if (!arg) {
+                        showCopyMessage(`Current model: ${selectedModel}`, 'var(--accent-primary)');
+                        return true;
+                    }
+                    // Try to find matching model alias
+                    let foundModel = availableModels.find(m => m.toLowerCase().includes(arg.toLowerCase()));
+                    if (foundModel) {
+                        selectedModel = foundModel;
+                        if (currentUser) saveUserSetting(MODEL_KEY, selectedModel);
+                        updateModelDropdown();
+                        showCopyMessage(`AI Model changed to ${selectedModel}`, 'var(--accent-primary)');
+                    } else {
+                        showError(`No model found matching '${arg}'.`);
+                    }
+                    return true;
+
+                case 'theme':
+                    if (!arg) {
+                        showCopyMessage(`Current theme: ${currentThemeName} (${currentMode})`, 'var(--accent-primary)');
+                        return true;
+                    }
+                    if (arg.toLowerCase() === 'random') {
+                        handleRandomThemeSwitch();
+                        return true;
+                    }
+
+                    // Normalize and detect variants like 'name-light' or 'name dark'
+                    let modeToApply = currentMode;
+                    let themeNameCandidate = arg.trim();
+                    const lowerArg = themeNameCandidate.toLowerCase();
+
+                    // If arg exactly matches a known variant (e.g., 'celestial-horizon-light'), use it directly
+                    const exactMatch = AVAILABLE_THEMES.find(t => t.toLowerCase() === lowerArg);
+                    if (exactMatch) {
+                        const idx = exactMatch.lastIndexOf('-');
+                        themeNameCandidate = exactMatch.slice(0, idx);
+                        modeToApply = exactMatch.slice(idx + 1);
+                    } else {
+                        // Check for trailing ' dark' or ' light' (space-separated)
+                        const themeParts = themeNameCandidate.split(/\s+/);
+                        const possibleMode = themeParts[themeParts.length - 1].toLowerCase();
+                        if (possibleMode === 'dark' || possibleMode === 'light') {
+                            modeToApply = possibleMode;
+                            themeNameCandidate = themeParts.slice(0, -1).join(' ');
+                        } else if (/\-(dark|light)$/i.test(themeNameCandidate)) {
+                            // If user typed 'name-dark' or 'name-light'
+                            const idx = themeNameCandidate.lastIndexOf('-');
+                            modeToApply = themeNameCandidate.slice(idx + 1).toLowerCase();
+                            themeNameCandidate = themeNameCandidate.slice(0, idx);
+                        }
+                    }
+
+                    // Validate that the resolved variant exists
+                    const variant = `${themeNameCandidate}-${modeToApply}`;
+                    const variantExists = AVAILABLE_THEMES.some(t => t.toLowerCase() === variant.toLowerCase());
+                    if (!variantExists) {
+                        showError(`No theme found matching '${arg}'. Try listing available themes with '/theme' or pick an exact variant like 'celestial-horizon-light'.`);
+                        return true;
+                    }
+
+                    // Apply and save
+                    applyTheme(themeNameCandidate, modeToApply);
+                    if (currentUser) {
+                        saveUserSetting('themeName', themeNameCandidate);
+                        saveUserSetting('themeMode', modeToApply);
+                    }
+                    showCopyMessage(`Theme set: ${themeNameCandidate} (${modeToApply})`, 'var(--accent-primary)');
+                    return true;
+
+                case 'dark':
+                    applyTheme(currentThemeName, 'dark');
+                    if (currentUser) saveUserSetting('themeMode', 'dark');
+                    showCopyMessage('Switched to dark mode', 'var(--accent-primary)');
+                    return true;
+
+                case 'light':
+                    applyTheme(currentThemeName, 'light');
+                    if (currentUser) saveUserSetting('themeMode', 'light');
+                    showCopyMessage('Switched to light mode', 'var(--accent-primary)');
+                    return true;
+
+                case 'voice':
+                    if (arg === 'start') {
+                        if (typeof recognition !== 'undefined' && recognition) {
+                            try { recognition.start(); showCopyMessage('Voice input started.', 'var(--accent-primary)'); } catch(e) { showError('Could not start recognition.'); }
+                        } else { showError('Speech recognition not available in this browser.'); }
+                        return true;
+                    } else if (arg === 'stop') {
+                        if (typeof recognition !== 'undefined' && recognition) { recognition.stop(); showCopyMessage('Voice input stopped.', 'var(--accent-primary)'); } else { showError('Speech recognition not available.'); }
+                        return true;
+                    } else {
+                        // Toggle
+                        if (voiceInputBtn) voiceInputBtn.click();
+                        return true;
+                    }
+
+                case 'attach':
+                    if (chatFileUpload) chatFileUpload.click();
+                    return true;
+
+                case 'download':
+                case 'download-md':
+                    const downloadBtn = document.getElementById('download-markdown-btn');
+                    if (downloadBtn) downloadBtn.click(); else showError('Download button not found.');
+                    return true;
+
+                case 'signin':
+                    if (typeof handleGoogleSignIn === 'function') handleGoogleSignIn(); else if (googleSignInBtn) googleSignInBtn.click();
+                    return true;
+
+                case 'signout':
+                case 'logout':
+                    if (typeof handleSignOut === 'function') handleSignOut(); else if (signOutButton) signOutButton.click();
+                    return true;
+
+                case 'console':
+                case 'developer-console':
+                    if (typeof openDeveloperConsole === 'function') openDeveloperConsole(); else if (developerConsoleBtn) developerConsoleBtn.click();
+                    return true;
+
+                case 'delete-all':
+                    if (deleteAllChatsBtn) deleteAllChatsBtn.click(); else showError('Delete All Chats button not found.');
+                    return true;
+
+                case 'clear-storage':
+                    if (clearLocalStorageBtn) clearLocalStorageBtn.click(); else showError('Clear storage control not found.');
+                    return true;
+
+                case 'rename':
+                    if (!currentSessionId) { showError('No active session to rename.'); return true; }
+                    if (!arg) {
+                        openRenameChatModal(currentSessionId);
+                        return true;
+                    }
+                    renamingSessionId = currentSessionId;
+                    renameChatInput.value = arg;
+                    await saveChatRename();
+                    return true;
+
+                case 'save-prompt':
+                    if (saveCustomPromptBtn) saveCustomPromptBtn.click();
+                    return true;
+
+                case 'manage-templates':
+                    if (promptTemplatesModal) promptTemplatesModal.classList.remove('hidden');
+                    return true;
+
+                case 'prompt-tool':
+                    showPromptTool();
+                    return true;
+
+                case 'random-theme':
+                    handleRandomThemeSwitch();
+                    return true;
+
+                case 'template':
+                    if (!arg) {
+                        // Open templates modal as a fallback
+                        if (promptTemplatesModal) promptTemplatesModal.classList.remove('hidden');
+                        return true;
+                    }
+                    let template = promptTemplates.find(t => t.name.toLowerCase() === arg.toLowerCase()) || promptTemplates.find(t => t.name.toLowerCase().includes(arg.toLowerCase()));
+                    if (template) {
+                        customPromptInput.value = template.content;
+                        saveCustomPromptBtn.click();
+                        showCopyMessage(`Custom prompt set from template: "${template.name}"`, 'var(--accent-success)');
+                    } else {
+                        showError(`Template '${arg}' not found.`);
+                    }
+                    return true;
+
+                case 'search':
+                    if (!chatSearchInputContainer) return false;
+                    if (!arg) {
+                        chatSearchInputContainer.classList.remove('hidden');
+                        chatSearchInput.focus();
+                        return true;
+                    }
+                    chatSearchInputContainer.classList.remove('hidden');
+                    chatSearchInput.value = arg;
+                    highlightChatMatches(arg);
+                    if (searchMatches.length > 0) {
+                        currentMatchIndex = 0;
+                        navigateChatMatch('next');
+                    }
+                    chatSearchInput.focus();
+                    return true;
+
+                default:
+                    showError(`Unknown command: /${cmd}. Try /help for the quick guide.`);
+                    return true;
+            }
+        }
+
+        // Add event listener for the 'Enter' key on the chat input (supports slash commands)
+        chatInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
+                const userInput = chatInput.value.trim();
+                if (userInput.startsWith('/')) {
+                    // Command; let handler run
+                    const handled = await handleSlashCommand(userInput);
+                    if (handled) {
+                        chatInput.value = '';
+                        adjustChatInputHeight();
+                        return;
+                    }
+                }
                 sendChatBtn.click();
+            }
+        });
+
+        // Open/close command palette or show inline suggestions when user begins typing a slash in the chat input
+        chatInput.addEventListener('input', (e) => {
+            const val = chatInput.value || '';
+            if (val.startsWith('/') && !commandPaletteModal.classList.contains('hidden')) {
+                // palette is already open: update it
+                paletteOpenedFromChatInput = true;
+                if (commandPaletteInput) { commandPaletteInput.value = val.slice(1); renderCommandPalette(commandPaletteInput.value); }
+            } else if (val.startsWith('/') && commandPaletteModal.classList.contains('hidden')) {
+                // show inline assistive suggestions rather than auto-opening the full palette
+                renderInlineSuggestions();
+            } else {
+                // removed slash or not typing a slash-based command
+                if (paletteOpenedFromChatInput && !val.startsWith('/')) {
+                    closeCommandPalette();
+                }
+                closeInlineSuggestions();
             }
         });
 
@@ -7826,7 +8948,49 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             
             // Initial call to ensure code block visibility is correct (likely hidden if chat is empty)
             collectCodeBlocks(); 
+
+            // --- Tooltip Manager Setup ---
+            // Attach the tooltip manager to the entire body using delegation
+            document.body.addEventListener('mouseover', (e) => {
+                if (e.target.closest('[data-help-content]')) {
+                    showGlobalTooltip(e);
+                } else {
+                    hideGlobalTooltip();
+                }
+            });
+
+            // Update the tooltip position while moving the mouse for fluid placement
+            document.body.addEventListener('mousemove', (e) => {
+                const tooltipEl = document.getElementById('global-tooltip');
+                if (tooltipEl && tooltipEl.style.visibility === 'visible') {
+                    positionTooltip(e, tooltipEl);
+                }
+            });
+
+            // Ensure the tooltip hides on mouseout from the document or specific element
+            document.body.addEventListener('mouseout', (e) => {
+                // We use a slight delay for mouseout to handle transitions between nearby elements
+                setTimeout(hideGlobalTooltip, 50); 
+            });
+
+            // Keyboard accessibility: show tooltip on focus and hide on blur
+            document.body.addEventListener('focusin', (e) => {
+                if (e.target && e.target.closest && e.target.closest('[data-help-content]')) {
+                    showGlobalTooltip(e);
+                }
+            });
+
+            document.body.addEventListener('focusout', (e) => {
+                if (e.target && e.target.closest && e.target.closest('[data-help-content]')) {
+                    hideGlobalTooltip();
+                }
+            });
         });
     </script>
+
+    <!-- GLOBAL TOOLTIP CONTAINER -->
+    <div id="global-tooltip" role="status" aria-live="polite" aria-hidden="true" class="fixed p-2 rounded-lg text-xs shadow-xl pointer-events-none opacity-0 transition-opacity duration-150" 
+         style="background-color: var(--card-bg, #fff); border: 1px solid var(--border-color, #e2e8f0); color: var(--text-primary, #111827); max-width: 300px; z-index: 1000;">
+    </div>
 </body>
 </html>
