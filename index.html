@@ -3663,8 +3663,11 @@
     <div id="attachment-editor-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
         <div class="p-6 rounded-xl shadow-2xl w-full max-w-4xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
-                <span data-lucide="pencil" class="w-6 h-6" style="color: var(--accent-primary);"></span> Edit Attachment: <span id="editor-filename"></span>
+                <span data-lucide="pencil" class="w-6 h-6" style="color: var(--accent-primary);"></span> Edit Attachment
             </h3>
+            
+            <!-- NEW: Filename Input for Renaming -->
+            <input type="text" id="attachment-editor-filename-input" class="w-full p-3 rounded-md border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm mb-4" placeholder="Enter new filename (e.g., my_code.js)" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
             
             <!-- Editor Text Area (Editable Canvas) -->
             <textarea id="attachment-editor-input" class="flex-1 w-full p-4 rounded-lg border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm resize-none" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); font-family: 'Fira Code', monospace; font-size: 0.9em;"></textarea>
@@ -4064,7 +4067,7 @@
         // NEW: Attachment Editor DOM elements
         const attachmentEditorModal = document.getElementById('attachment-editor-modal');
         const attachmentEditorInput = document.getElementById('attachment-editor-input');
-        const editorFilenameSpan = document.getElementById('editor-filename');
+        const attachmentEditorFilenameInput = document.getElementById('attachment-editor-filename-input'); // NEW input
         const saveEditorBtn = document.getElementById('save-editor-btn');
         const cancelEditorBtn = document.getElementById('cancel-editor-btn');
 
@@ -6098,8 +6101,6 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                     { 
                         contents: contents, 
                         generationConfig: { 
-                            temperature: 0.3, 
-                            maxOutputTokens: 1024 
                         }
                     }, 
                     null, 
@@ -6373,8 +6374,6 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                 const payload = {
                     contents: [{ role: "user", parts: [{ text: textHistory }] }],
                     generationConfig: {
-                        temperature: 0.2,
-                        maxOutputTokens: 2048,
                     }
                 };
                 
@@ -7423,15 +7422,26 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
         }
         
         // Helper function to create a new File object and new base64 string from updated text
-        function updateAttachmentData(index, newText) {
+        function updateAttachmentData(index, newText, newFilename) { // MODIFIED ARGUMENTS
             if (index < 0 || index >= chatAttachments.length) return false;
 
             const oldAttachment = chatAttachments[index];
             const mimeType = oldAttachment.mimeType;
-            const filename = oldAttachment.name;
+            const oldFilename = oldAttachment.name;
+            
+            // Ensure filename has an extension if it didn't before (simple check)
+            let filename = newFilename.trim() || oldFilename;
+            if (filename !== oldFilename && filename.indexOf('.') === -1) {
+                // Try to infer extension from old name or mime type, default to .txt
+                const inferredExt = oldFilename.split('.').pop() || mimeType.split('/').pop() || 'txt';
+                if (inferredExt !== filename) {
+                    filename += `.${inferredExt}`;
+                }
+            }
 
             // 1. Create new Blob/File from the new text
             const newBlob = new Blob([newText], { type: mimeType });
+            // Crucially, we use the new `filename` here
             const newFile = new File([newBlob], filename, { type: mimeType });
 
             // 2. Generate new Base64 string synchronously
@@ -7445,7 +7455,7 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                     file: newFile,
                     mimeType: mimeType,
                     data: newBase64Data,
-                    name: filename
+                    name: filename // Save the new filename
                 };
 
                 displayChatAttachments();
@@ -7461,7 +7471,8 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             const attachment = chatAttachments[index];
             editingAttachmentIndex = index;
 
-            editorFilenameSpan.textContent = attachment.name;
+            // Use the input field for the filename
+            attachmentEditorFilenameInput.value = attachment.name;
 
             // Decode the Base64 data back to raw text for editing
             const decodedText = base64ToText(attachment.data);
@@ -7469,7 +7480,7 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
 
             attachmentEditorModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden'; 
-            attachmentEditorInput.focus();
+            attachmentEditorFilenameInput.focus(); // Focus on filename first
         }
 
         function closeAttachmentEditor() {
@@ -7507,8 +7518,11 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
 
         saveEditorBtn.addEventListener('click', () => {
             const newText = attachmentEditorInput.value;
+            const newFilename = attachmentEditorFilenameInput.value; // GET NEW FILENAME
+            
             if (editingAttachmentIndex !== -1) {
-                updateAttachmentData(editingAttachmentIndex, newText);
+                // Pass both new text and new filename
+                updateAttachmentData(editingAttachmentIndex, newText, newFilename); 
             }
             closeAttachmentEditor();
         });
