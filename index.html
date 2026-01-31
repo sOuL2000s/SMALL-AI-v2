@@ -2417,7 +2417,7 @@
         
         /* NEW: Prompt Generation Tool UI Styles (Request 4) */
         #prompt-tool-container {
-            position: absolute;
+            position: relative;
             bottom: 60px; /* Position above the chat-input */
             left: 50%;
             transform: translateX(-50%);
@@ -3807,6 +3807,28 @@
     </div>
     <!-- END Markdown Export Modal/Overlay -->
 
+    <!-- NEW: Documentation Modal/Overlay -->
+    <div id="documentation-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[110] hidden p-4 backdrop-blur-sm">
+        <div class="p-8 rounded-2xl shadow-xl w-full max-w-5xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
+                <span data-lucide="book-open" class="w-6 h-6" style="color: var(--accent-primary);"></span> Small AI v2 Documentation & Guide
+            </h3>
+            
+            <div id="documentation-content" class="flex-1 w-full p-4 rounded-lg border overflow-y-auto markdown-content" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                <!-- Documentation content is loaded here by JS -->
+                Loading documentation...
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="flex justify-end gap-3 mt-4">
+                <button id="close-documentation-modal-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <span data-lucide="x" class="w-5 h-5 mr-2"></span> Close
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END Documentation Modal/Overlay -->
+
     <!-- NEW: Command Palette Modal (Quick-Access) -->
     <div id="command-palette-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-start justify-center z-[210] hidden p-4 pt-24">
         <div class="w-full max-w-xl bg-[var(--card-bg)] rounded-lg shadow-xl" style="border:1px solid var(--border-color);">
@@ -3845,6 +3867,9 @@
             
             <!-- Footer Actions -->
             <div class="flex justify-end gap-3 mt-4">
+                <button id="convert-to-input-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center transition-colors" style="background-color: var(--accent-secondary); color: black;">
+                    <span data-lucide="text-cursor" class="w-5 h-5 mr-2"></span> Convert to Text Input
+                </button>
                 <button id="cancel-editor-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
                     <span data-lucide="x" class="w-5 h-5 mr-2"></span> Cancel
                 </button>
@@ -4262,15 +4287,92 @@
         const customPromptModal = document.getElementById('custom-prompt-modal');
         const customPromptInput = document.getElementById('custom-prompt-input');
 
-        // Quick Start Guide Modal
-        const quickStartModal = document.getElementById('quick-start-modal');
+        // Quick Start Guide Modal (Kept for existing legacy reference, but unused for /guide now)
+        const quickStartModal = document.getElementById('quick-start-modal'); // Assuming quick-start-modal remains hidden/not fully implemented
         const closeQuickStartBtn = document.getElementById('close-quick-start-btn');
-        if (closeQuickStartBtn) closeQuickStartBtn.addEventListener('click', () => { quickStartModal.classList.add('hidden'); document.body.style.overflow = ''; });
+        if (closeQuickStartBtn) closeQuickStartBtn.addEventListener('click', () => { if(quickStartModal) quickStartModal.classList.add('hidden'); document.body.style.overflow = ''; });
+        
+        // NEW: Documentation Modal DOM elements
+        const documentationModal = document.getElementById('documentation-modal');
+        const documentationContent = document.getElementById('documentation-content');
+        const closeDocumentationModalBtn = document.getElementById('close-documentation-modal-btn');
 
         function openQuickStartGuideModal() {
             if (quickStartModal) {
                 quickStartModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function openDocumentationModal() {
+            if (!documentationModal || !documentationContent) return;
+
+            // --- Dynamic Command Table Generation ---
+            let commandTable = `| Command | Description | Example |\n| :--- | :--- | :--- |`;
+            
+            // Filter out redundant commands for the documentation table (e.g., /guide is alias of /help)
+            const documentedCommands = COMMANDS.filter(c => 
+                c.cmd !== 'guide' && c.cmd !== 'dark' && c.cmd !== 'light' && c.cmd !== 'download-md'
+            ).sort((a, b) => a.cmd.localeCompare(b.cmd)); // Sort alphabetically
+
+            documentedCommands.forEach(c => {
+                const sample = c.sample || `/${c.cmd}`;
+                commandTable += `\n| **\` /${c.cmd} \`** | ${c.desc} | \`${sample}\` |`;
+            });
+            // ------------------------------------------
+
+            const docContent = `
+# Small AI v2 Documentation & Quick Guide
+
+Welcome to Small AI v2! This guide covers the key features and slash commands.
+
+---
+
+## 🚀 Chat Input & Attachments
+You can interact with the AI using text or by uploading various file types.
+
+*   **File Upload:** Use the **paperclip** icon to upload images, PDFs, code files, and data (CSV, JSON, XML).
+*   **Drag & Drop:** Drag files directly onto the input area.
+*   **Bulk Text Handling:** If you paste a large amount of text (e.g., code snippets, data dumps), it will be automatically converted into a file attachment, keeping your main prompt clean.
+
+## 🗣️ Voice Modes
+Small AI v2 offers two distinct voice features:
+
+1.  **Voice Input (Mic Icon):** Converts your speech to text and inserts it into the chat input field for editing and sending.
+2.  **Conversation Mode (Messages Icon in Header):** Provides a fully hands-free, real-time voice chat experience with spoken responses from the AI.
+
+## ⚙️ Advanced Settings (Sidebar)
+
+Access advanced settings via the "Advanced Settings" button in the sidebar.
+
+*   **Custom Prompt:** Set a global system instruction (persona/rule-set) for the AI. This overrides the simpler "Personality" selector.
+*   **Prompt Templates:** Save and manage reusable custom prompts for specific tasks (e.g., "Code Reviewer," "Marketing Strategist").
+*   **API Key Management:** Securely store and manage multiple Gemini API keys.
+*   **AI Model:** Select the specific Gemini model (Flash for speed, Pro for complexity).
+*   **Themes:** Choose from 30+ themes and modes (light/dark) or use the "Shuffle" button for a random theme.
+
+## 💬 Slash Commands (The easiest way to control the app!)
+
+Type a slash **/** into the chat input to see suggestions or use one of the following:
+
+${commandTable}
+
+## 🛠️ Data & Security
+
+*   Your chat history, custom prompts, and API keys are securely stored in **Google Firebase Firestore** under your user account.
+*   The application does **NOT** log your messages or API keys on the server.
+*   The **"Clear Local Cache"** button removes all browser data (storage, cache, service workers), requiring a re-login, but does not affect your cloud-saved chat history.
+            `;
+
+            documentationContent.innerHTML = marked.parse(docContent); 
+            
+            documentationModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+            createIcons();
+            
+            // Re-render KaTeX if needed (although not strictly necessary for this static document)
+            if (window.renderMathInElement) {
+                renderMathInElement(documentationContent, { delimiters: [{ left: '$$', right: '$$', display: true }] });
             }
         }
 
@@ -4431,7 +4533,7 @@
                 if (tokenIndex === 0) {
                     // suggest commands
                     suggestions = COMMANDS.filter(c => c.cmd.startsWith(lower) || c.title.toLowerCase().includes(lower) || c.desc.toLowerCase().includes(lower) || c.sample.toLowerCase().includes(lower))
-                        .slice(0, 12)
+                        .slice(0, 100)
                         .map(c => ({ label: c.cmd, meta: c.desc, value: c.cmd }));
                 } else {
                     // suggest options for the command in parts[0]
@@ -4439,7 +4541,7 @@
                     const entry = findCommandEntry(cmd);
                     if (entry && entry.options && entry.options.length) {
                         suggestions = entry.options.filter(o => o.toLowerCase().indexOf(lower) === 0 || o.toLowerCase().includes(lower))
-                            .slice(0, 20)
+                            .slice(0, 100) 
                             .map(o => ({ label: o, meta: entry.title, value: o }));
                     }
                 }
@@ -4552,55 +4654,37 @@
                 const s = slashSuggestions[index];
                 if (!s) return;
                 const { globalStart, globalEnd, tokenIndex } = info;
+                
                 // globalStart/globalEnd are positions relative to whole input
                 const before = chatInput.value.slice(0, globalStart);
                 const after = chatInput.value.slice(globalEnd);
-                // If replacing command token, add trailing space to move to options
-                const insertText = (tokenIndex === 0) ? (s.value + ' ') : (s.value + ' ');
+                
+                // If replacing command token (index 0) or an option (index > 0), ensure a trailing space is added.
+                // If the command is completed, we should not add a space to allow the user to immediately press Enter.
+                
+                const entry = tokenIndex === 0 ? findCommandEntry(s.value) : null;
+                
+                // Determine if we need a trailing space to prompt for the next argument/option
+                let needsSpace = (tokenIndex === 0 && entry && entry.options && entry.options.length) || (tokenIndex > 0 && entry && entry.options && entry.options.length > 0);
+                
+                const insertText = s.value + (needsSpace ? ' ' : '');
+                
                 chatInput.value = before + insertText + after;
-                // position the caret after inserted text
+                
+                // Position the caret after inserted text
                 const newPos = before.length + insertText.length;
                 chatInput.setSelectionRange(newPos, newPos);
-                // If we just inserted a command that has options, present options automatically
-                const entry = tokenIndex === 0 ? findCommandEntry(s.value) : null;
+                
+                // If we just inserted a command that has options, present options automatically (no execution)
                 if (tokenIndex === 0 && entry && entry.options && entry.options.length) {
-                    // re-render inline suggestions for next token
                     renderInlineSuggestions();
-                    return;
+                    return; // Keep suggestions open for the next token
                 }
-
-                // If we inserted an option (tokenIndex > 0), execute the command immediately
-                if (tokenIndex > 0) {
-                    try {
-                        const cmdName = info.parts[0];
-                        const cmdStr = '/' + cmdName + ' ' + s.value;
-                        const handled = await handleSlashCommand(cmdStr);
-                        if (handled) {
-                            chatInput.value = '';
-                            adjustChatInputHeight();
-                        }
-                    } catch (err) {
-                        console.error('Error executing command after option selection', err);
-                        if (typeof showError === 'function') showError('Failed to run command: ' + (err && err.message));
-                    }
-                    closeInlineSuggestions();
-                    chatInput.focus();
-                    return;
-                }
-
-                // If this command has no options, execute it immediately
-                if (tokenIndex === 0 && entry && (!entry.options || entry.options.length === 0)) {
-                    // execute asynchronously and clear input if handled
-                    (async () => {
-                        const handled = await handleSlashCommand('/' + entry.cmd);
-                        if (handled) {
-                            chatInput.value = '';
-                            adjustChatInputHeight();
-                        }
-                    })();
-                }
+                
+                // Otherwise, close the suggestions and await user's Enter press
                 closeInlineSuggestions();
                 chatInput.focus();
+
             } catch (err) {
                 console.error('Error in applyInlineSuggestion', err);
                 if (typeof showError === 'function') showError('Suggestion apply failed: ' + (err && err.message));
@@ -4808,6 +4892,7 @@
         const attachmentEditorFilenameInput = document.getElementById('attachment-editor-filename-input'); // NEW input
         const saveEditorBtn = document.getElementById('save-editor-btn');
         const cancelEditorBtn = document.getElementById('cancel-editor-btn');
+        const convertToInputBtn = document.getElementById('convert-to-input-btn'); // NEW LINE
 
         // NEW: Developer Console DOM elements (Request 3)
         const developerConsoleBtn = document.getElementById('developer-console-btn');
@@ -5800,7 +5885,8 @@
                 timestamp: Date.now()
             };
             
-            await saveChatToDB(newSession);
+            // NEW: Do NOT save to DB yet. Store locally in allChatSessions
+            allChatSessions[newId] = newSession; 
             
             currentSessionId = newId;
             
@@ -7342,6 +7428,11 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
 
             currentSessionHistory.push({ role: 'user', parts: userParts });
             appendChatMessage('user', userMessage, chatAttachments);
+
+            // R2: If this was a brand new chat (history.length was 1 due to AI welcome), save it now after the user message.
+            if (isNewChat) {
+                await saveChatToDB(allChatSessions[currentSessionId]); 
+            }
             
             chatInput.value = '';
             chatInput.dataset.initialText = '';
@@ -7465,7 +7556,7 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
 
                 case 'help':
                 case 'guide':
-                    openQuickStartGuideModal();
+                    openDocumentationModal();
                     return true;
 
                 case 'settings':
@@ -8564,6 +8655,32 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
 
         // --- NEW: Attachment Editor Logic ---
 
+        // --- Attachment Editor: Convert to Text Input Logic ---
+        
+        function handleConvertToTextInput() {
+            if (editingAttachmentIndex === -1) return;
+
+            const textToMove = attachmentEditorInput.value;
+            const attachmentName = attachmentEditorFilenameInput.value;
+
+            // 1. Append the text to the main chat input
+            if (chatInput.value.trim().length > 0) {
+                chatInput.value += `\n\n--- Attachment: ${attachmentName} ---\n`;
+            }
+            chatInput.value += textToMove;
+            
+            // 2. Remove the attachment from the global list
+            chatAttachments.splice(editingAttachmentIndex, 1);
+            
+            // 3. Update UI and close modal
+            displayChatAttachments();
+            adjustChatInputHeight();
+            closeAttachmentEditor();
+            chatInput.focus();
+            
+            showCopyMessage('Content moved from attachment to chat input!', 'var(--accent-secondary)');
+        }
+
         // Helper function to convert base64 back to text
         function base64ToText(base64) {
             try {
@@ -8672,6 +8789,9 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
 
         cancelEditorBtn.addEventListener('click', closeAttachmentEditor);
 
+        // NEW: Convert to text input listener
+        convertToInputBtn.addEventListener('click', handleConvertToTextInput);
+
         saveEditorBtn.addEventListener('click', () => {
             const newText = attachmentEditorInput.value;
             const newFilename = attachmentEditorFilenameInput.value; // GET NEW FILENAME
@@ -8722,6 +8842,11 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
         if (exportMarkdownBtn) exportMarkdownBtn.addEventListener('click', openMarkdownExportModal);
         if (closeMarkdownModalBtn) closeMarkdownModalBtn.addEventListener('click', closeMarkdownExportModal);
         if (downloadMarkdownBtn) downloadMarkdownBtn.addEventListener('click', downloadMarkdownFile);
+        // NEW: Documentation Modal Event Listener
+        if (closeDocumentationModalBtn) closeDocumentationModalBtn.addEventListener('click', () => {
+            documentationModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        });        
         if (markdownTabEdit) markdownTabEdit.addEventListener('click', () => switchMarkdownTab('edit'));
         if (markdownTabPreview) markdownTabPreview.addEventListener('click', () => switchMarkdownTab('preview'));
         if (copyMarkdownBtn) copyMarkdownBtn.addEventListener('click', () => {
