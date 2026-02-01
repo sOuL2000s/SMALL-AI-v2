@@ -2325,7 +2325,7 @@
             position: relative;
             z-index: var(--z-fixed);
             height: 100vh;
-            overflow-y: hidden; /* MODIFIED: Set primary sidebar to hidden overflow */
+            overflow-y: auto; /* FIX: Allow entire sidebar to scroll if content overflows, especially the settings panel */ 
             transition: var(--transition-slow);
         }
         #sidebar.hidden-mobile {
@@ -2415,40 +2415,46 @@
             background-color: color-mix(in srgb, var(--accent-primary) 20%, transparent);
         }
         
-        /* NEW: Prompt Generation Tool UI Styles (Request 4) */
+        /* NEW: Prompt Generation Tool UI Styles (Enhanced, Minimal, Responsive) */
         #prompt-tool-container {
-            position: relative;
-            bottom: 60px; /* Position above the chat-input */
+            position: fixed; /* FIX: Use fixed position relative to viewport to prevent overlap when textarea expands */
+            bottom: 0; /* JS will set the actual bottom value */
             left: 50%;
             transform: translateX(-50%);
             z-index: 50;
-            max-width: 90%;
-            width: 550px; /* Slightly wider */
-            background-color: var(--card-bg);
-            border: 1px solid var(--accent-primary);
-            border-radius: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 15px color-mix(in srgb, var(--accent-primary) 30%, transparent);
-            padding: 0.75rem 1rem;
+            width: 90%; /* Increased relative width on larger screens for responsiveness */
+            max-width: 480px; /* Smaller overall max-width */
+            /* Subtle Glassmorphism Effect */
+            background: color-mix(in srgb, var(--card-bg) 85%, transparent); 
+            border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent); 
+            border-radius: 0.75rem; /* Slightly smaller radius */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2), 0 0 8px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+            padding: 0.6rem 0.8rem; /* Reduced padding */
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px); /* Stronger blur for modern look */
+            -webkit-backdrop-filter: blur(8px);
         }
         #prompt-tool-container.show {
             opacity: 1;
             visibility: visible;
-            bottom: 70px;
+            /* bottom value will be set dynamically by JS */
         }
         .prompt-tool-button {
-            padding: 0.5rem 0.8rem;
-            border-radius: 0.75rem;
+            padding: 0.4rem 0.7rem; /* Reduced button size */
+            border-radius: 0.5rem; /* Smaller radius for smaller button */
             font-weight: 600;
+            font-size: 0.875rem; /* Ensure text is still readable */
             transition: all 0.2s ease;
         }
         @media (max-width: 600px) {
             #prompt-tool-container {
-                width: calc(100% - 32px);
+                width: calc(100% - 24px); /* Use slightly less padding on mobile */
+                max-width: none;
+            }
+            .prompt-tool-button {
+                 padding: 0.3rem 0.5rem; /* Even smaller buttons on small screens */
             }
         }
 
@@ -3304,9 +3310,16 @@
             border: none;
         }
         #open-command-palette-btn:hover { transform: translateY(-2px); }
-        /* On very small screens hide the floating button to ensure input area is unobstructed */
+        /* Adjust floating button position for small screens to prevent overlap with input buttons */
         @media (max-width: 520px) {
-            #open-command-palette-btn { display: none; }
+            #open-command-palette-btn {
+                left: 12px;
+                bottom: 72px; /* Lift it above the 56px high input controls + padding */
+                display: flex; /* Ensure it is visible */
+                width: 40px; /* Slightly smaller touch target on mobile */
+                height: 40px;
+                font-size: 0.8rem;
+            }
         }
 
     </style>
@@ -3629,17 +3642,20 @@
 
             <!-- NEW: AI Prompt Generation Tool (Request 4) -->
             <div id="prompt-tool-container" class="hidden">
-                <div class="flex items-center justify-between">
-                    <p class="text-sm font-semibold flex items-center gap-2" style="color: var(--text-primary);">
+                <!-- Use a single responsive flex container -->
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <!-- Minimalist Prompt Text -->
+                    <p class="text-sm font-semibold flex items-center gap-1 flex-shrink-0" style="color: var(--text-primary);">
                         <span data-lucide="zap" class="w-4 h-4 animate-pulse" style="color: var(--accent-secondary);"></span>
-                        Draft detected. Improve it with AI Prompt Engineering?
+                        Enhance prompt with AI?
                     </p>
-                    <div class="flex gap-2">
+                    <!-- Buttons Container (reverse order for better flow on mobile if wrapping) -->
+                    <div class="flex gap-2 ml-auto">
                         <button id="prompt-tool-accept-btn" class="prompt-tool-button" title="Generate a detailed, optimized prompt" style="background-color: var(--accent-primary); color: black;">
-                            <span data-lucide="check" class="w-4 h-4 inline-block mr-1"></span> Yes, Enhance
+                            <span data-lucide="sparkles" class="w-4 h-4 inline-block mr-0.5"></span> Enhance
                         </button>
                         <button id="prompt-tool-cancel-btn" class="prompt-tool-button" title="Send the original draft" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">
-                            <span data-lucide="x" class="w-4 h-4 inline-block mr-1"></span> No, Send As Is
+                            Send As Is
                         </button>
                     </div>
                 </div>
@@ -6558,8 +6574,27 @@ ${commandTable}
         }
         // Utility for Prompt Tool visibility (Request 4)
         function showPromptTool() {
-            promptToolContainer.classList.add('show');
+            // Ensure the tool is visible (not display: none) before measuring the footer
             promptToolContainer.classList.remove('hidden');
+            
+            // Calculate bottom position based on the dynamic height of the input area
+            const inputAreaRect = chatInputAreaContainer.getBoundingClientRect();
+            // Distance from viewport bottom to the top edge of the input area
+            const footerTopFromBottom = window.innerHeight - inputAreaRect.top; 
+            
+            // Set the resting bottom position (just below the input area, for slide-in effect)
+            // Use 10px offset below the input area for smooth slide up
+            promptToolContainer.style.bottom = `${footerTopFromBottom - 10}px`;
+
+            // Apply the 'show' class which triggers the opacity/visibility transition
+            promptToolContainer.classList.add('show');
+            
+            // Immediately apply the final bottom position via a micro-task, using the calculated value
+            // Final position is 12px above the top of the input area
+            setTimeout(() => {
+                promptToolContainer.style.bottom = `${footerTopFromBottom + 12}px`;
+            }, 10);
+            
             createIcons();
         }
 
@@ -6567,7 +6602,16 @@ ${commandTable}
             if (promptToolTimeout) {
                 clearTimeout(promptToolTimeout);
             }
+            
+            // Recalculate the position just before hiding, to ensure the slide-down starts at the correct height
+            const inputAreaRect = chatInputAreaContainer.getBoundingClientRect();
+            const footerTopFromBottom = window.innerHeight - inputAreaRect.top; 
+            
+            // Set the transition target to the hidden position (10px below the input area top)
+            promptToolContainer.style.bottom = `${footerTopFromBottom - 10}px`;
+
             promptToolContainer.classList.remove('show');
+            
             // Hide completely after transition finishes
             setTimeout(() => {
                 promptToolContainer.classList.add('hidden');
