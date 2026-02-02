@@ -22,7 +22,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <!-- Lucide Icons for a modern, futuristic feel -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide-dynamic@latest/dist/lucide.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <!-- NEW: Firebase SDKs -->
@@ -77,14 +76,14 @@
 
         /* Base font and transition settings for the whole page */
         html, body {
-            height: 100%;
+            height: 100%; /* Keep 100% for flex sizing */
             margin: 0;
             padding: 0;
-            overflow-y: hidden; /* Control vertical scroll via chat-history */
             overflow-x: hidden; /* Prevent body horizontal scroll */
         }
         
         body {
+            min-height: 100vh; /* Ensure full viewport height */
             font-family: var(--font-body);
             font-size: 16px;
             line-height: 1.6;
@@ -93,6 +92,7 @@
             transition: var(--transition-slow);
             display: flex; 
             color: var(--text-primary); 
+            width: 100%; /* Ensure body stretches full width */
         }
 
         /* --- Theme Definitions --- */
@@ -2299,8 +2299,10 @@
         #main-chat-window {
             flex: 1;
             max-width: 100%;
-            min-height: 100vh;
-            height: 100vh;
+            min-height: 100vh; /* Fallback for older browsers */
+            min-height: 100dvh; /* Use dynamic viewport height for mobile responsiveness */
+            height: 100vh; /* Fallback for older browsers */
+            height: 100dvh; /* Use dynamic viewport height for mobile responsiveness */
             display: flex;
             flex-direction: column;
             background-color: var(--main-chat-window-bg);
@@ -2312,7 +2314,7 @@
             -webkit-backdrop-filter: blur(5px);
         }
 
-        /* Sidebar Styling */
+        /* Sidebar Styling (R3 Refinement) */
         #sidebar {
             width: 300px; 
             min-width: 300px;
@@ -2324,8 +2326,9 @@
             box-shadow: var(--shadow-lg);
             position: relative;
             z-index: var(--z-fixed);
-            height: 100vh;
-            overflow-y: auto; /* FIX: Allow entire sidebar to scroll if content overflows, especially the settings panel */ 
+            height: 100vh; /* Fallback */
+            height: 100dvh; /* Use dynamic viewport height */
+            overflow-y: auto; 
             transition: var(--transition-slow);
         }
         #sidebar.hidden-mobile {
@@ -3314,7 +3317,8 @@
         @media (max-width: 520px) {
             #open-command-palette-btn {
                 left: 12px;
-                bottom: 72px; /* Lift it above the 56px high input controls + padding */
+                /* Adjusted bottom for smaller input buttons (40px) + p-4 padding (approx 72px footer height + 12px gap) */
+                bottom: 84px; 
                 display: flex; /* Ensure it is visible */
                 width: 40px; /* Slightly smaller touch target on mobile */
                 height: 40px;
@@ -3544,25 +3548,28 @@
         <!-- Header for the chat (Revised for Mobile Dropdown) -->
         <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]" style="background-color: var(--header-bg);">
             <!-- Left side (Hamburger + Title) -->
-            <div class="flex items-center min-w-0 max-w-[50%] sm:max-w-none">
+            <!-- FIX: Increased max-width on mobile to prevent icon overlap, ensuring title visibility -->
+            <div class="flex items-center min-w-0 max-w-[65%] sm:max-w-none">
                 <button id="hamburger-menu-button" aria-label="Open Sidebar Menu" title="Open Menu" style="background-color: var(--header-bg); border-color: var(--border-color); color: var(--text-primary);">
                     <span data-lucide="menu" class="w-6 h-6"></span>
                 </button>
                 <h1 class="text-xl font-bold flex items-center gap-2 truncate" style="color: var(--text-primary);">
-                    <span data-lucide="sparkles" class="w-6 h-6" style="color: var(--accent-primary);"></span> Current Chat
+                    <!-- FIX: Added flex-shrink-0 to the icon to prevent it from collapsing/shrinking -->
+                    <span data-lucide="sparkles" class="w-6 h-6 flex-shrink-0" style="color: var(--accent-primary);"></span> Current Chat
                 </h1>
             </div>
             
             <!-- Right side of header - Essential/Dropdown/Toggle -->
-            <div class="flex items-center gap-2 md:gap-4 relative"> 
+            <div class="flex items-center gap-2 md:gap-4 relative flex-shrink-0"> 
                 
-                <!-- 1. VISIBLE on ALL SCREENS: Find in Chat Button -->
-                <button id="find-chat-btn" data-help-content="Search within the active chat history. Shortcut: Press Ctrl/Cmd + F anywhere in the window." aria-label="Find in Chat" title="Find in Chat" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <!-- 1. VISIBLE on ALL SCREENS: Find in Chat Button (Only one visible on mobile) -->
+                <!-- FIX: Added mr-1 (margin-right 0.25rem) to push the search icon slightly right on small screens -->
+                <button id="find-chat-btn" data-help-content="Search within the active chat history. Shortcut: Press Ctrl/Cmd + F anywhere in the window." aria-label="Find in Chat" title="Find in Chat" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] mr-1 sm:mr-0" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="search" class="w-5 h-5"></span>
                 </button>
                 
-                <!-- 2. VISIBLE on ALL SCREENS: Conversation Mode Toggle Button -->
-                <button id="conversation-mode-toggle-btn" data-help-content="Start a hands-free, voice-only conversation with the AI. Requires microphone permission." aria-label="Conversation Mode" title="Start Voice Conversation" class="flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <!-- Conversation Mode Toggle Button (Desktop-only visibility) -->
+                <button id="conversation-mode-toggle-btn" data-help-content="Start a hands-free, voice-only conversation with the AI. Requires microphone permission." aria-label="Conversation Mode" title="Start Voice Conversation" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="messages-square" class="w-5 h-5"></span>
                 </button>
 
@@ -3575,6 +3582,20 @@
                     <!-- Dropdown Menu Content -->
                     <div id="mobile-action-dropdown-menu" class="absolute right-0 top-12 hidden w-48 rounded-lg shadow-xl py-1 z-50" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
                         
+                        <!-- NEW: Dark Mode Toggle (MOVED HERE) -->
+                        <div class="flex items-center justify-between gap-2 px-3 py-2 hover:bg-[var(--sidebar-item-hover)]">
+                            <span class="text-sm" style="color: var(--text-primary);">Dark Mode</span>
+                            <label class="switch relative inline-block w-14 h-8 flex-shrink-0">
+                                <input type="checkbox" id="dark-mode-toggle-mobile-dropdown" class="opacity-0 w-0 h-0">
+                                <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full before:absolute before:content-[''] before:h-6 before:w-6 before:left-1 before:bottom-1 before:rounded-full"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- Conversation Mode Toggle (Moved here previously) -->
+                        <button id="conversation-mode-toggle-btn-mobile" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[var(--sidebar-item-hover)]" title="Start Voice Conversation">
+                            <span data-lucide="messages-square" class="w-4 h-4" style="color: var(--text-secondary);"></span> Conversation Mode
+                        </button>
+
                         <!-- These buttons are now only in the dropdown on mobile -->
                         <button id="developer-console-btn-mobile" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[var(--sidebar-item-hover)]" title="Developer Console (View Logs)">
                             <span data-lucide="terminal" class="w-4 h-4" style="color: var(--text-secondary);"></span> Developer Console
@@ -3600,9 +3621,9 @@
                     <span data-lucide="download" class="w-5 h-5"></span>
                 </button>
                 
-                <!-- 5. Dark Mode Toggle (Toggle label hidden on mobile, switch always visible) -->
-                <div class="flex items-center gap-2">
-                    <span class="text-sm hidden sm:inline" style="color: var(--text-secondary);">Dark Mode</span>
+                <!-- 5. Dark Mode Toggle (Desktop-only visibility now) -->
+                <div class="flex items-center gap-2 hidden sm:flex">
+                    <span class="text-sm" style="color: var(--text-secondary);">Dark Mode</span>
                     <label class="switch relative inline-block w-14 h-8">
                         <input type="checkbox" id="dark-mode-toggle" class="opacity-0 w-0 h-0">
                         <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full before:absolute before:content-[''] before:h-6 before:w-6 before:left-1 before:bottom-1 before:rounded-full"></span>
@@ -3663,20 +3684,21 @@
             <!-- END AI Prompt Generation Tool -->
 
             <div class="flex gap-2 items-end flex-wrap w-full">
-                <!-- Voice Input Button -->
-                <button id="voice-input-btn" data-help-content="Use speech-to-text to dictate your message draft directly into the input field." aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <!-- Voice Input Button (Smaller on Mobile, md:w-14) -->
+                <button id="voice-input-btn" data-help-content="Use speech-to-text to dictate your message draft directly into the input field." aria-label="Voice Input" title="Voice Input (Speech-to-Text)" class="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="mic" class="w-5 h-5"></span>
                 </button>
                 
-                <!-- Attach File Button -->
-                <label for="chat-file-upload" data-help-content="Attach files (images, PDFs, code, data dumps). You can also drag-and-drop files directly onto the input area." aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <!-- Attach File Button (Smaller on Mobile, md:w-14) -->
+                <label for="chat-file-upload" data-help-content="Attach files (images, PDFs, code, data dumps). You can also drag-and-drop files directly onto the input area." aria-label="Attach File" title="Attach Files" class="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl shadow-lg cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-[var(--sidebar-item-hover)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="paperclip" class="w-5 h-5"></span>
                 </label>
                 <input type="file" id="chat-file-upload" accept="image/*, .txt, .pdf, .csv, .json, .xml, .md" class="hidden" multiple>
 
                 <textarea id="chat-input" data-help-content="Supports rich text input. Use slash commands like /new or /export for quick actions." class="flex-1 p-3.5 rounded-xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[200px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary); min-height: 56px;"></textarea>
                 
-                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: var(--bg-primary);">
+                <!-- Send Button (Smaller on Mobile, md:w-14) -->
+                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: var(--bg-primary);">
                     <span data-lucide="send" class="w-5 h-5"></span>
                 </button>
             </div>
@@ -4247,6 +4269,7 @@
 
         const mainChatWindow = document.getElementById('main-chat-window');
         const darkModeToggle = document.getElementById('dark-mode-toggle'); 
+        const darkModeToggleMobile = document.getElementById('dark-mode-toggle-mobile-dropdown'); // MODIFIED LINE
         const appThemeSelect = document.getElementById('app-theme-select-sidebar'); 
         const newChatButton = document.getElementById('new-chat-button');
         const chatHistoryDiv = document.getElementById('chat-history');
@@ -4290,6 +4313,7 @@
         // NEW: Conversation Mode DOM elements
         const conversationModeOverlay = document.getElementById('conversation-mode-overlay');
         const conversationModeToggleBtn = document.getElementById('conversation-mode-toggle-btn');
+        const conversationModeToggleBtnMobile = document.getElementById('conversation-mode-toggle-btn-mobile'); // NEW LINE
         const conversationModeCloseBtn = document.getElementById('conversation-mode-close-btn');
         const voiceSelect = document.getElementById('voice-select');
         const personalitySelect = document.getElementById('personality-select');
@@ -5723,7 +5747,10 @@ ${commandTable}
             currentMode = mode;
             document.body.dataset.theme = `${themeName}-${mode}`;
             
-            darkModeToggle.checked = (mode === 'dark'); 
+            const isDark = (mode === 'dark');
+            if (darkModeToggle) darkModeToggle.checked = isDark; 
+            if (darkModeToggleMobile) darkModeToggleMobile.checked = isDark; // SYNC MOBILE TOGGLE
+            
             if (appThemeSelect && appThemeSelect.value !== themeName) {
                 appThemeSelect.value = themeName; 
             }
@@ -5731,14 +5758,35 @@ ${commandTable}
 
         applyTheme(currentThemeName, currentMode);
 
-        // Event listener for Dark/Light Mode Toggle
-        darkModeToggle.addEventListener('change', () => {
-            const newMode = darkModeToggle.checked ? 'dark' : 'light';
+        // Master function to handle mode changes
+        const handleModeChange = (isDark) => {
+            const newMode = isDark ? 'dark' : 'light';
             applyTheme(currentThemeName, newMode);
+            // Sync the other toggle state without re-triggering the change event
+            if (darkModeToggle && darkModeToggle.checked !== isDark) {
+                darkModeToggle.checked = isDark;
+            }
+            if (darkModeToggleMobile && darkModeToggleMobile.checked !== isDark) {
+                darkModeToggleMobile.checked = isDark;
+            }
             if (currentUser) {
                 saveUserSetting('themeMode', newMode);
             }
-        });
+        };
+        
+        // Event listener for Desktop Dark/Light Mode Toggle
+        if (darkModeToggle) { // Ensure toggle exists (desktop)
+            darkModeToggle.addEventListener('change', (e) => {
+                handleModeChange(e.target.checked);
+            });
+        }
+
+        // Event listener for Mobile Dropdown Dark/Light Mode Toggle (NEW)
+        if (darkModeToggleMobile) {
+            darkModeToggleMobile.addEventListener('change', (e) => {
+                handleModeChange(e.target.checked);
+            });
+        }
 
         // Event listener for Theme Selector
         if (appThemeSelect) {
@@ -8873,6 +8921,7 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
 
         // Conversation Mode Event Listeners
         if (conversationModeToggleBtn) conversationModeToggleBtn.addEventListener('click', startConversationMode);
+        if (conversationModeToggleBtnMobile) conversationModeToggleBtnMobile.addEventListener('click', startConversationMode); // NEW LINE
         if (conversationModeCloseBtn) conversationModeCloseBtn.addEventListener('click', stopConversationMode);
         if (conversationMicBtn) conversationMicBtn.addEventListener('click', () => {
             if (isUserListeningInConversation && conversationSpeechRecognition) {
