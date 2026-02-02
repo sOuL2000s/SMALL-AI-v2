@@ -5630,21 +5630,45 @@ ${commandTable}
                 chatInput.scrollLeft = chatInput.scrollWidth;
             };
 
-            recognition.onend = () => {
+            recognition.onend = async () => {
                 isVoiceInputActive = false;
                 voiceInputBtn.classList.remove('voice-input-active');
                 updateButtonIcon(voiceInputBtn, 'mic', 'w-5 h-5');
                 chatInput.placeholder = 'Type your message or ask a question...';
                 
-                if (finalTranscript.trim() !== '') {
-                    chatInput.value = (chatInput.dataset.initialText || '') + finalTranscript.trim();
-                    chatInput.dataset.initialText = chatInput.value;
-                } else if (chatInput.value.trim() === (chatInput.dataset.initialText || '').trim()) {
+                const initialText = chatInput.dataset.initialText || '';
+                const rawSpokenText = finalTranscript.trim();
+
+                if (rawSpokenText !== '') {
+                    // NEW: Apply AI polishing to the final transcript
+                    try {
+                        let history = (currentSessionId && allChatSessions[currentSessionId]) 
+                                    ? allChatSessions[currentSessionId].history 
+                                    : [];
+                        
+                        // Temporarily show "Polishing..." in the input field
+                        chatInput.value = initialText + rawSpokenText + ' (Polishing...)';
+                        adjustChatInputHeight();
+                        
+                        const polishedText = await interpretAndPunctuateTranscript(rawSpokenText, history);
+                        
+                        chatInput.value = initialText + polishedText;
+                        chatInput.dataset.initialText = chatInput.value;
+                        showCopyMessage('Voice input polished by AI for clarity!', 'var(--accent-secondary)');
+                        
+                    } catch (e) {
+                        console.error("AI polishing failed, falling back to raw transcript:", e);
+                        chatInput.value = initialText + rawSpokenText;
+                        chatInput.dataset.initialText = chatInput.value;
+                        showError("AI polishing failed. Using raw voice transcription.");
+                    }
+                } else if (chatInput.value.trim() === initialText.trim()) {
                     // No new speech added, keep existing text.
                 } else {
-                    chatInput.value = chatInput.dataset.initialText || '';
+                    chatInput.value = initialText; // Reset if interim results were abandoned
                 }
                 adjustChatInputHeight();
+                chatInput.focus(); // Ensure focus returns to the input field
             };
 
             recognition.onerror = (event) => {
@@ -8038,6 +8062,48 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             }
         }
 
+        // NEW: Function to use AI for intelligent punctuation and nuance interpretation
+        async function interpretAndPunctuateTranscript(rawText, history) {
+            // Highly optimized prompt for minimal AI capability usage (R4)
+            const systemInstruction = `You are an intelligent transcription AI. Your task is to take the user's raw, unpunctuated, or ambiguous speech transcript and contextually correct it.
+Criteria:
+1. Punctuate, capitalize, and format the text properly.
+2. Correct common speech recognition errors (homophones, informal phrasing).
+3. Based on the context of the prior conversation (provided in history), infer the user's intent and subtly refine the phrasing to be more articulate and clear, maximizing the recognition of their nuances and underlying meaning.
+4. If the user is asking a question, ensure the output is clearly phrased as a question.
+5. Output ONLY the polished, final text. Do not include any pre-amble, comments, or quotes.`;
+
+            // Prepare truncated history for context
+            const historyForContext = history.slice(-4).map(msg => { // Last 4 messages for tight context
+                const textPart = msg.parts.find(p => p.text);
+                return {
+                    role: msg.role,
+                    parts: [{ text: textPart ? textPart.text.substring(0, 200) : '[Attachment]' }] 
+                };
+            });
+            
+            // Add the raw transcript as the final user message
+            historyForContext.push({ role: "user", parts: [{ text: `RAW TRANSCRIPT: "${rawText}". Based on the conversation history, intelligently polish this transcript.` }] });
+
+            try {
+                const payload = {
+                    contents: historyForContext,
+                    generationConfig: {
+                        temperature: 0.1, // Low temperature for high precision/correction
+                        maxOutputTokens: 150, // Short output for speed
+                    }
+                };
+                
+                // Use a fast, low-cost model for transcription polishing
+                const polishedText = await callGeminiAPI(payload, null, 'gemini-2.5-flash-lite-preview-09-2025', systemInstruction);
+                return polishedText.trim();
+
+            } catch (error) {
+                console.warn("AI transcription polishing failed, using raw text.", error);
+                return rawText; // Fallback to raw text if polishing fails
+            }
+        }
+
         async function handleUserSpeechEnd(userText) {
             updateConversationStatus('Thinking...', 'thinking');
             setSoundBlobState('idle'); 
@@ -8045,13 +8111,18 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             if (!currentSessionId || !allChatSessions[currentSessionId]) {
                  await createNewChatSession(userText.substring(0, 50) || 'New Chat');
             }
-
+            
             const currentSessionHistory = allChatSessions[currentSessionId].history;
-            currentSessionHistory.push({ role: 'user', parts: [{ text: userText }] });
-            appendChatMessage('user', userText); 
+            
+            // NEW: Step 1: Polish the raw transcript using AI
+            const polishedText = await interpretAndPunctuateTranscript(userText, currentSessionHistory);
+
+            // Use the polished text for history, display, and API call
+            currentSessionHistory.push({ role: 'user', parts: [{ text: polishedText }] });
+            appendChatMessage('user', polishedText); 
             await updateCurrentSessionHistory();
 
-            updateConversationDisplay(`<span class="user-utterance">You: ${userText}</span>`);
+            updateConversationDisplay(`<span class="user-utterance">You: ${polishedText}</span>`);
 
             try {
                 const payload = {
