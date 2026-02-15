@@ -1954,7 +1954,43 @@
         .shadow-lg { box-shadow: var(--shadow-medium); }
         .shadow-xl { box-shadow: var(--shadow-lg); }
         .shadow-2xl { box-shadow: var(--shadow-lg); }
-        #error-message { background-color: var(--accent-error); color: white; }
+        
+        /* Fix the error container to prevent layout shift and add transition */
+        #error-message {
+            background-color: var(--accent-error);
+            color: white;
+            /* Ensure fixed position is used correctly */
+            position: fixed;
+            top: 1rem; /* Use a fixed top value */
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%); /* Start off-screen above */
+            z-index: 500; /* High Z-index to ensure visibility */
+            width: 90%;
+            max-width: 400px; /* Reduced max-width for better mobile centering */
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-xl);
+            opacity: 0; /* Start hidden */
+            visibility: hidden;
+            transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth slide-down transition */
+        }
+        /* New CSS class for showing the error message */
+        #error-message.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0); /* Slide into view */
+        }
+        /* Ensure close button is styled correctly */
+        #error-message .close-error-btn {
+            background: none;
+            border: none;
+            color: white;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        #error-message .close-error-btn:hover {
+            opacity: 1;
+        }
         body[data-theme$="-dark"] #error-message { background-color: var(--accent-error); color: white; }
 
         /* Custom Styles for Developer Console */
@@ -4946,12 +4982,63 @@ ${commandTable}
 
         const errorContainer = document.createElement('div');
         errorContainer.id = 'error-message';
-        errorContainer.classList.add('hidden', 'px-6', 'py-4', 'rounded-xl', 'relative', 'shadow-md', 'my-4', 'fixed', 'top-4', 'left-1/2', '-translate-x-1/2', 'z-50', 'w-11/12', 'max-w-md');
+        // Note: Tailwind classes are removed here as the #error-message CSS block now handles positioning/styling
+        // User fix: Ensuring essential layout classes are present for positioning and padding.
+        errorContainer.classList.add('flex', 'items-center', 'justify-between', 'px-6', 'py-4'); 
+        
+        const errorIcon = document.createElement('span');
+        errorIcon.setAttribute('data-lucide', 'alert-triangle');
+        errorIcon.classList.add('w-5', 'h-5', 'mr-3', 'flex-shrink-0');
+        
+        const contentWrapper = document.createElement('div');
+        contentWrapper.classList.add('flex-1', 'flex', 'items-center');
+        
         const errorText = document.createElement('span');
         errorText.id = 'error-text';
-        errorText.classList.add('block', 'sm:inline');
-        errorContainer.appendChild(errorText);
+        errorText.classList.add('font-medium', 'text-sm');
+        
+        const closeButton = document.createElement('button');
+        closeButton.id = 'close-error-btn';
+        closeButton.classList.add('ml-4', 'close-error-btn', 'flex-shrink-0');
+        closeButton.innerHTML = '<span data-lucide="x" class="w-5 h-5"></span>';
+        
+        // Append elements
+        contentWrapper.appendChild(errorIcon);
+        contentWrapper.appendChild(errorText);
+        errorContainer.appendChild(contentWrapper);
+        errorContainer.appendChild(closeButton);
         document.body.appendChild(errorContainer);
+        
+        // NEW: Global function to hide error
+        function hideError() {
+            // Use dataset to store the timeout handle
+            if (errorContainer.dataset.timeoutId) {
+                clearTimeout(errorContainer.dataset.timeoutId);
+            }
+            // Use the .show class to trigger the CSS transition back off-screen
+            errorContainer.classList.remove('show');
+        }
+
+        // Add event listener for the close button
+        closeButton.addEventListener('click', hideError);
+
+        // Function to display an error message (MODIFIED to use .show class)
+        function showError(message) {
+            // Clear existing timeout if one exists
+            if (errorContainer.dataset.timeoutId) {
+                clearTimeout(errorContainer.dataset.timeoutId);
+            }
+            errorText.textContent = message;
+            // The 'show' class handles the transition into the viewport
+            errorContainer.classList.add('show');
+            createIcons(); // Re-render icons after content update
+            
+            // Set timeout to hide (5 seconds)
+            const timeoutId = setTimeout(() => {
+                hideError();
+            }, 5000);
+            errorContainer.dataset.timeoutId = timeoutId;
+        }
 
         // NEW: Rename Chat Modal DOM elements
         const renameChatModal = document.getElementById('rename-chat-modal');
@@ -6277,15 +6364,6 @@ ${commandTable}
             if (mimeType.includes('csv') || mimeType.includes('excel')) return 'file-spreadsheet';
             if (mimeType.includes('json') || mimeType.includes('xml') || mimeType.includes('code') || mimeType.includes('markdown')) return 'file-code';
             return 'file';
-        }
-
-        // Function to display an error message
-        function showError(message) {
-            errorText.textContent = message;
-            errorContainer.classList.remove('hidden');
-            setTimeout(() => {
-                errorContainer.classList.add('hidden');
-            }, 5000); 
         }
         
         // --- Marked.js Setup for Advanced Rendering (Code Blocks, Highlighting, & Math) ---
