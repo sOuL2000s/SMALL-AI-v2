@@ -2542,6 +2542,12 @@
             text-shadow: 0 0 10px color-mix(in srgb, var(--conversation-indicator) 50%, transparent);
             transition: color 0.3s ease, text-shadow 0.3s ease;
         }
+        @media (max-width: 480px) {
+            .conversation-status-text {
+                font-size: 1.6rem; /* Smaller font size for mobile */
+                min-height: 2em;
+            }
+        }
         .conversation-status-text.listening-state { color: var(--accent-secondary); text-shadow: 0 0 15px var(--accent-secondary); }
         .conversation-status-text.speaking-state { color: var(--accent-primary); text-shadow: 0 0 15px var(--accent-primary); }
         .conversation-status-text.error-state { color: var(--accent-error); text-shadow: 0 0 15px var(--accent-error); }
@@ -2621,10 +2627,11 @@
         .template-item-name {
             font-weight: 600;
             color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal; /* Allow text wrapping for better mobile display */
+            word-break: break-word; /* Ensure long words break on small screens */
+            /* Removed overflow: hidden; and text-overflow: ellipsis; as they conflict with normal white-space */
             flex-grow: 1;
+            min-width: 0; /* Allows flex item to shrink within flex container */
         }
         .template-item-content {
             font-size: 0.875rem;
@@ -2637,9 +2644,21 @@
         }
         .template-item-actions {
             display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
             gap: 0.5rem;
-            justify-content: flex-end;
+            justify-content: flex-end; /* Align to the end by default */
             margin-top: 0.5rem;
+        }
+        /* Specific responsiveness for template item actions on very small screens */
+        @media (max-width: 380px) {
+            .template-item-actions {
+                justify-content: space-between; /* Distribute buttons across the width when wrapped */
+                gap: 0.25rem; /* Reduce gap between buttons */
+            }
+            .template-item-actions button {
+                padding: 0.3rem 0.6rem; /* Reduce button padding */
+                font-size: 0.75rem; /* Reduce font size */
+            }
         }
         .template-item-actions button {
             padding: 0.4rem 0.8rem;
@@ -3071,7 +3090,7 @@
     </div>
 
     <!-- NEW: Prompt Templates Modal/Overlay -->
-    <div id="prompt-templates-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
+    <div id="prompt-templates-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-2 sm:p-4">
         <div class="p-6 rounded-xl shadow-2xl w-full max-w-2xl transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
                 <span data-lucide="layout-template" class="w-6 h-6" style="color: var(--accent-primary);"></span> Manage Prompt Templates
@@ -3177,9 +3196,27 @@
                 <button id="close-markdown-modal-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
                     <span data-lucide="x" class="w-5 h-5 mr-2"></span> Close
                 </button>
-                <button id="download-markdown-btn" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center" style="background-color: var(--accent-primary); color: black;">
-                    <span data-lucide="download" class="w-5 h-5 mr-2"></span> Download .md
-                </button>
+                <!-- NEW: Dropdown for Download Formats -->
+                <div class="relative inline-block text-left">
+                    <button id="download-options-btn" type="button" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center justify-center" style="background-color: var(--accent-primary); color: black; min-width: 140px;" aria-expanded="false" aria-haspopup="true">
+                        <span data-lucide="download" class="w-5 h-5 mr-2"></span> Download
+                        <span data-lucide="chevron-down" class="w-4 h-4 ml-1"></span>
+                    </button>
+                    
+                    <div id="download-format-dropdown" class="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg hidden z-50" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="download-options-btn">
+                            <button id="download-pdf-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
+                                <span data-lucide="file-text" class="w-4 h-4"></span> .pdf (Best)
+                            </button>
+                            <button id="download-md-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
+                                <span data-lucide="file-code" class="w-4 h-4"></span> .md (Markdown)
+                            </button>
+                            <button id="download-txt-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
+                                <span data-lucide="file" class="w-4 h-4"></span> .txt (Plain Text)
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -3380,6 +3417,7 @@
 
         // --- Global State and Constants ---
         
+        const appName = "Small AI v2"; // Define app name for use in PDF export and other places
         const DEFAULT_THEME_NAME = 'default';
         const DEFAULT_MODE = 'dark';
         const CONVERSATION_VOICE_KEY = 'conversationVoice'; 
@@ -5819,11 +5857,22 @@
             switchMarkdownTab('edit');
         }
 
-        function closeMarkdownExportModal() {
+        /**
+         * Closes the Markdown/Export modal and resets UI state.
+         */
+        function closeMarkdownModal() {
             markdownExportModal.classList.add('hidden');
             document.body.style.overflow = '';
+            // Reset dropdown state
+            if (downloadFormatDropdown) {
+                downloadFormatDropdown.classList.add('hidden');
+                downloadOptionsBtn.setAttribute('aria-expanded', 'false');
+            }
         }
 
+        /**
+         * Downloads the current chat content as a Markdown (.md) file.
+         */
         function downloadMarkdownFile() {
             const content = markdownExportInput.value;
             const currentSession = allChatSessions[currentSessionId];
@@ -5841,7 +5890,146 @@
             URL.revokeObjectURL(url);
             
             showCopyMessage('Markdown file downloaded!', 'var(--accent-success)');
-            closeMarkdownExportModal();
+            closeMarkdownModal(); // Close after download
+        }
+
+        /**
+         * Converts the current chat markdown content to plain text and downloads it.
+         * Simple markdown stripping, not exhaustive.
+         */
+        function downloadPlaintextFile() {
+            const markdownContent = markdownExportInput.value;
+            const currentSession = allChatSessions[currentSessionId];
+            const filename = `${currentSession.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.txt`;
+
+            // Basic markdown stripping for plain text
+            let plainText = markdownContent
+                .replace(/^#+\s/gm, '') // Remove headers
+                .replace(/(\*\*|__)(.*?)\1/g, '$2') // Remove bold
+                .replace(/(\*|_)(.*?)\1/g, '$2') // Remove italics
+                .replace(/`{1,3}([^`]+)`{1,3}/g, '$1') // Remove inline code and code blocks
+                .replace(/!\[.*?\]\((.*?)\)/g, '') // Remove images
+                .replace(/\[.*?\]\((.*?)\)/g, '$1') // Replace links with their URLs
+                .replace(/^>\s/gm, '') // Remove blockquotes
+                .replace(/^-(\s)/gm, '\u2022$1') // Replace list hyphens with bullet points
+                .replace(/\n\s*\n/g, '\n\n') // Normalize multiple newlines
+                .trim();
+
+            const blob = new Blob([plainText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showCopyMessage('Plain text file downloaded!', 'var(--accent-success)');
+            closeMarkdownModal(); // Close after download
+        }
+
+        /**
+         * Generates a PDF from the rendered HTML preview of the chat.
+         * Optimized for selectable text, accurate styling, and branding.
+         */
+        async function exportChatToPdf() {
+            if (!currentUser || !currentSessionId || !allChatSessions[currentSessionId]) {
+                showError("No active chat session found to export. Start a chat first.");
+                return;
+            }
+
+            // Ensure the preview tab is active and rendered correctly for html2pdf.
+            switchMarkdownTab('preview'); 
+            
+            // Wait for rendering to complete before creating the PDF (critical for images/math)
+            await new Promise(resolve => setTimeout(resolve, 500)); 
+
+            const currentSession = allChatSessions[currentSessionId];
+            const filename = `${currentSession.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.pdf`;
+
+            // Create a temporary container to clone the preview content and remove unnecessary elements
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = markdownExportPreview.innerHTML; // Clone the rendered content
+
+            // Remove interactive elements from the cloned content that shouldn't appear in PDF
+            tempDiv.querySelectorAll('.message-actions').forEach(el => el.remove());
+            tempDiv.querySelectorAll('.code-block-copy-button').forEach(el => el.remove());
+            
+            // Apply current theme styles directly to the cloned content for accurate rendering
+            // This is crucial because html2pdf takes a snapshot, so styles need to be explicit
+            tempDiv.style.fontFamily = getComputedStyle(document.body).getPropertyValue('--font-body');
+            tempDiv.style.color = getComputedStyle(document.body).getPropertyValue('--text-primary');
+            tempDiv.style.backgroundColor = getComputedStyle(document.body).getPropertyValue('--bg-secondary');
+            
+            // It is also helpful to explicitly set basic block styles to ensure predictability
+            tempDiv.style.padding = '10pt'; // Ensure some internal padding for content
+
+            // Options for html2pdf
+            // Optimized for selectable text by removing explicit scale/dpi
+            const pdfOptions = {
+                // Set margins for content to avoid overlapping header/footer
+                // [top, left, bottom, right] in points (1 inch = 72pt)
+                margin: [40, 15, 30, 15], 
+                filename: filename,
+                enableLinks: true, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { 
+                    letterRendering: true, 
+                    useCORS: true, 
+                    allowTaint: true, 
+                    scrollY: 0, 
+                    // Crucial for selectable text: removed explicit 'scale' and 'dpi'.
+                    // This allows html2pdf.js to defer to jsPDF's internal renderer for simpler elements (like text),
+                    // which can produce native, selectable PDF text objects.
+                    // If complex styling prevents direct rendering, it will still fall back to image.
+                },
+                jsPDF: { 
+                    unit: 'pt', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                },
+                pagebreak: { 
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    before: '.page-break-before' 
+                }
+            };
+            
+            // Trigger the PDF generation
+            html2pdf().set(pdfOptions).from(tempDiv)
+                .toPdf().get('pdf').then(function (pdf) {
+                    const pageCount = pdf.internal.getNumberOfPages();
+                    const chatTitle = currentSession.title;
+                    const exportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const exportTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                    for (let i = 1; i <= pageCount; i++) {
+                        pdf.setPage(i);
+
+                        // Branding: Header
+                        pdf.setFontSize(10);
+                        pdf.setTextColor(50, 50, 50); // Dark grey for text (ensures visibility on various themes)
+                        
+                        // Left-aligned app name and chat title
+                        pdf.text(`${appName} - ${chatTitle}`, 15, 25); 
+                        
+                        // Right-aligned export date and time
+                        pdf.text(`Exported: ${exportDate} ${exportTime}`, pdf.internal.pageSize.getWidth() - 15, 25, { align: 'right' });
+                        
+                        // Branding: Footer - Page numbers
+                        pdf.setFontSize(8);
+                        pdf.text(`Page ${i} of ${pageCount}`, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - 15, { align: 'center' });
+                    }
+                }).save()
+                .then(() => {
+                    showCopyMessage('PDF file downloaded!', 'var(--accent-success)');
+                    closeMarkdownModal();
+                })
+                .catch(error => {
+                    console.error('Error generating PDF:', error);
+                    showError('Failed to generate PDF. Check console for details.');
+                });
         }
 
         // --- Final Initializations & Event Hooks ---

@@ -17,6 +17,8 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Highlight.js for Code Syntax Highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- NEW: html2pdf.js CDN for client-side PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- KaTeX for Math Rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -85,7 +87,7 @@
         body {
             min-height: 100vh; /* Ensure full viewport height */
             font-family: var(--font-body);
-            font-size: 16px;
+            font-size: 16px; /* Default for larger screens */
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -93,6 +95,90 @@
             display: flex; 
             color: var(--text-primary); 
             width: 100%; /* Ensure body stretches full width */
+        }
+
+        /* --- Responsive Adjustments for Smaller Devices --- */
+        @media (max-width: 380px) {
+            html {
+                font-size: 14px; /* Reduce base font size for very small devices */
+            }
+
+            /* Adjust header title size */
+            #main-chat-window .text-xl {
+                font-size: 1.25rem; /* ~18px from 20px */
+            }
+
+            /* Further adjust conversation status text (already has a 480px rule) */
+            .conversation-status-text {
+                font-size: 1.4rem; /* Even smaller for extreme narrowness */
+            }
+
+            /* Reduce padding for chat messages to save space */
+            .chat-message {
+                padding: var(--space-lg); /* 1.5rem (21px) from 2rem (28px) */
+                margin-bottom: var(--space-xl); /* 2rem (28px) from 3rem (42px) */
+            }
+            
+            /* Reduce padding for modals */
+            #custom-prompt-modal > div,
+            #prompt-templates-modal > div,
+            #auth-modal > div,
+            #markdown-export-modal > div,
+            #documentation-modal > div,
+            #attachment-editor-modal > div,
+            #rename-chat-modal > div,
+            #developer-console-modal > div,
+            #api-key-management-modal > div {
+                padding: 1.5rem; /* Reduce padding from 2rem (32px) to 1.5rem (21px) */
+            }
+
+            /* Markdown Export Modal Specific Adjustments for very small screens */
+            @media (max-width: 380px) {
+                #markdown-export-modal > div { /* Target the inner div's padding directly */
+                    padding: 1rem !important; /* Make it even smaller for the inner content */
+                }
+                #markdown-export-modal h3 {
+                    font-size: 1.2rem; /* Slightly smaller for h3 */
+                }
+                #markdown-export-modal button {
+                    padding: 0.6rem 0.8rem; /* Smaller button padding */
+                    font-size: 0.85rem; /* Smaller font size for buttons */
+                }
+                #markdown-export-modal .flex.justify-end.gap-3.mt-4 { /* Footer actions container */
+                    flex-direction: column; /* Stack buttons vertically */
+                    align-items: stretch; /* Stretch to full width */
+                    gap: 0.5rem; /* Reduced gap for stacking */
+                }
+                #markdown-export-modal #download-options-btn {
+                    width: 100%; /* Make download button full width */
+                    min-width: unset; /* Remove min-width restriction */
+                    justify-content: center; /* Center content when full width */
+                }
+                #download-format-dropdown { /* Dropdown menu itself */
+                    width: 100%; /* Make dropdown menu full width */
+                    right: 0; /* Align right */
+                    left: 0; /* And left to stretch */
+                }
+            }
+
+            /* Adjust markdown header sizes for small screens */
+            .markdown-content h1 {
+                font-size: 2rem; /* From 2.5rem */
+            }
+            .markdown-content h2 {
+                font-size: 1.5rem; /* From 2rem */
+            }
+            .markdown-content h3 {
+                font-size: 1.25rem; /* From 1.6rem */
+            }
+            .markdown-content h4 {
+                font-size: 1.1rem; /* From 1.3rem */
+            }
+
+            /* Reduce font size for markdown inline code */
+            .chat-message.ai .message-content code:not(pre > code) {
+                font-size: 0.8em; /* From 0.9em */
+            }
         }
 
         /* --- Theme Definitions --- */
@@ -217,7 +303,7 @@
         body[data-theme="celestial-horizon-dark"] {
             --bg-primary: #0D1117;
             --bg-secondary: #161B22;
-            --text-primary: #58A6FF; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #8B949E;
             --border-color: #30363D;
             --card-bg: #1F2633;
@@ -229,17 +315,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #253B64;
-            --user-bubble-text: #58A6FF; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #1F2633;
-            --ai-bubble-text: #58A6FF; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #161B22;
             --sidebar-border: #30363D;
             --sidebar-item-hover: #1F2633;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(22, 27, 34, 0.9);
             --conversation-bg: rgba(22, 27, 34, 0.95);
-            --conversation-text: #58A6FF; /* Changed to accent */
-            --conversation-indicator: #58A6FF;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #1F2633;
             --code-block-header-bg: #161B22;
             --code-block-border: #30363D;
@@ -251,7 +337,7 @@
         body[data-theme="celestial-horizon-light"] {
             --bg-primary: #F0F4F8;
             --bg-secondary: #FFFFFF;
-            --text-primary: #3B82F6; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #718096;
             --border-color: #E2E8F0;
             --card-bg: #FFFFFF;
@@ -263,17 +349,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #DBEAFE;
-            --user-bubble-text: #3B82F6; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #EBF4FF;
-            --ai-bubble-text: #3B82F6; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #E2E8F0;
             --sidebar-item-hover: #F0F4F8;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #3B82F6; /* Changed to accent */
-            --conversation-indicator: #3B82F6;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #EBF4FF;
             --code-block-header-bg: #EDF2F7;
             --code-block-border: #E2E8F0;
@@ -285,7 +371,7 @@
         body[data-theme="verdant-calm-dark"] {
             --bg-primary: #1a2a22;
             --bg-secondary: #21362d;
-            --text-primary: #3cb878; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #99bbaa;
             --border-color: #3f544c;
             --card-bg: #294237;
@@ -297,17 +383,17 @@
             --accent-error: #f87171;
             --accent-success: #4ade80;
             --user-bubble-bg: #1e8449;
-            --user-bubble-text: #3cb878; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #34495e;
-            --ai-bubble-text: #3cb878; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #21362d;
             --sidebar-border: #3f544c;
             --sidebar-item-hover: #2c493c;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(33, 54, 45, 0.9);
             --conversation-bg: rgba(33, 54, 45, 0.95);
-            --conversation-text: #3cb878; /* Changed to accent */
-            --conversation-indicator: #3cb878;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #34495e;
             --code-block-header-bg: #2c493c;
             --code-block-border: #3f544c;
@@ -319,7 +405,7 @@
         body[data-theme="verdant-calm-light"] {
             --bg-primary: #edf9f5;
             --bg-secondary: #ffffff;
-            --text-primary: #3cb878; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #5e7d6b;
             --border-color: #dbeae5;
             --card-bg: #ffffff;
@@ -331,17 +417,17 @@
             --accent-error: #ef4444;
             --accent-success: #22c55e;
             --user-bubble-bg: #c8e6c9;
-            --user-bubble-text: #3cb878; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #e8f5e9;
-            --ai-bubble-text: #3cb878; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #ffffff;
             --sidebar-border: #dbeae5;
             --sidebar-item-hover: #edf9f5;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #3cb878; /* Changed to accent */
-            --conversation-indicator: #3cb878;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #e8f5e9;
             --code-block-header-bg: #f5fcf9;
             --code-block-border: #dbeae5;
@@ -353,7 +439,7 @@
         body[data-theme="cybernetic-pulse-dark"] {
             --bg-primary: #0a0e1a;
             --bg-secondary: #161c28;
-            --text-primary: #0ea5e9; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #94a3b8;
             --border-color: #2f3e52;
             --card-bg: #1f2a3a;
@@ -365,17 +451,17 @@
             --accent-error: #f87171;
             --accent-success: #4ade80;
             --user-bubble-bg: #0c4a6e;
-            --user-bubble-text: #0ea5e9; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #2d3748;
-            --ai-bubble-text: #0ea5e9; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #161c28;
             --sidebar-border: #2f3e52;
             --sidebar-item-hover: #1f2a3a;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(22, 28, 40, 0.9);
             --conversation-bg: rgba(22, 28, 40, 0.95);
-            --conversation-text: #0ea5e9; /* Changed to accent */
-            --conversation-indicator: #0ea5e9;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #2d3748;
             --code-block-header-bg: #1f2a3a;
             --code-block-border: #2f3e52;
@@ -387,7 +473,7 @@
         body[data-theme="cybernetic-pulse-light"] {
             --bg-primary: #f8fafc;
             --bg-secondary: #ffffff;
-            --text-primary: #0ea5e9; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #475569;
             --border-color: #e0e7f2;
             --card-bg: #ffffff;
@@ -399,17 +485,17 @@
             --accent-error: #ef4444;
             --accent-success: #22c55e;
             --user-bubble-bg: #bfdbfe;
-            --user-bubble-text: #0ea5e9; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #e0f2fe;
-            --ai-bubble-text: #0ea5e9; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #ffffff;
             --sidebar-border: #e0e7f2;
             --sidebar-item-hover: #f1f5f9;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #0ea5e9; /* Changed to accent */
-            --conversation-indicator: #0ea5e9;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #e0f2fe;
             --code-block-header-bg: #f1f5f9;
             --code-block-border: #e0e7f2;
@@ -421,7 +507,7 @@
         body[data-theme="urban-pulse-dark"] {
             --bg-primary: #1A1A1D;
             --bg-secondary: #242426;
-            --text-primary: #00BFFF; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #A0A0A0;
             --border-color: #38383B;
             --card-bg: #242426;
@@ -433,17 +519,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #0F4C81;
-            --user-bubble-text: #00BFFF; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #36454F;
-            --ai-bubble-text: #00BFFF; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #1A1A1D;
             --sidebar-border: #38383B;
             --sidebar-item-hover: #242426;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(36, 36, 38, 0.9);
             --conversation-bg: rgba(36, 36, 38, 0.95);
-            --conversation-text: #00BFFF; /* Changed to accent */
-            --conversation-indicator: #00BFFF;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #36454F;
             --code-block-header-bg: #1A1A1D;
             --code-block-border: #38383B;
@@ -455,7 +541,7 @@
         body[data-theme="urban-pulse-light"] {
             --bg-primary: #F2F4F8;
             --bg-secondary: #FFFFFF;
-            --text-primary: #1E90FF; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #777777;
             --border-color: #DDE2E8;
             --card-bg: #FFFFFF;
@@ -467,17 +553,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #CCE5FF;
-            --user-bubble-text: #1E90FF; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #E8F0F5;
-            --ai-bubble-text: #1E90FF; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #DDE2E8;
             --sidebar-item-hover: #E8F0F5;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #1E90FF; /* Changed to accent */
-            --conversation-indicator: #1E90FF;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #E8F0F5;
             --code-block-header-bg: #E8ECF2;
             --code-block-border: #DDE2E8;
@@ -489,7 +575,7 @@
         body[data-theme="rustic-ember-dark"] {
             --bg-primary: #3E2723;
             --bg-secondary: #4E342E;
-            --text-primary: #D84315; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #BCAAA4;
             --border-color: #5D4037;
             --card-bg: #4E342E;
@@ -501,17 +587,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #8D6E63;
-            --user-bubble-text: #D84315; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #5D4037;
-            --ai-bubble-text: #D84315; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #3E2723;
             --sidebar-border: #5D4037;
             --sidebar-item-hover: #4E342E;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(78, 52, 46, 0.9);
             --conversation-bg: rgba(78, 52, 46, 0.95);
-            --conversation-text: #D84315; /* Changed to accent */
-            --conversation-indicator: #D84315;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #5D4037;
             --code-block-header-bg: #3E2723;
             --code-block-border: #5D4037;
@@ -523,7 +609,7 @@
         body[data-theme="rustic-ember-light"] {
             --bg-primary: #F5E8DC;
             --bg-secondary: #FFFFFF;
-            --text-primary: #E65100; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #8D6E63;
             --border-color: #E6DCCD;
             --card-bg: #FFFFFF;
@@ -535,17 +621,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #FFCCBC;
-            --user-bubble-text: #E65100; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #FBE9E7;
-            --ai-bubble-text: #E65100; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #E6DCCD;
             --sidebar-item-hover: #F8EFE5;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #E65100; /* Changed to accent */
-            --conversation-indicator: #E65100;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #FBE9E7;
             --code-block-header-bg: #F8EFE5;
             --code-block-border: #E6DCCD;
@@ -557,7 +643,7 @@
         body[data-theme="neon-mirage-dark"] {
             --bg-primary: #05001C;
             --bg-secondary: #120033;
-            --text-primary: #FF1493; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #8A2BE2;
             --border-color: #2F004F;
             --card-bg: #1A0040;
@@ -569,17 +655,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #4B0082;
-            --user-bubble-text: #FF1493; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #2E0854;
-            --ai-bubble-text: #FF1493; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #120033;
             --sidebar-border: #2F004F;
             --sidebar-item-hover: #1A0040;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(26, 0, 64, 0.9);
             --conversation-bg: rgba(26, 0, 64, 0.95);
-            --conversation-text: #FF1493; /* Changed to accent */
-            --conversation-indicator: #FF1493;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #2E0854;
             --code-block-header-bg: #120033;
             --code-block-border: #2F004F;
@@ -591,7 +677,7 @@
         body[data-theme="neon-mirage-light"] {
             --bg-primary: #F8F0FF;
             --bg-secondary: #FFFFFF;
-            --text-primary: #FF69B4; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #663399;
             --border-color: #EBD9FC;
             --card-bg: #FFFFFF;
@@ -603,17 +689,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #FCE4EC;
-            --user-bubble-text: #FF69B4; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #F3E5F5;
-            --ai-bubble-text: #FF69B4; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #EBD9FC;
             --sidebar-item-hover: #F2E0FF;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #FF69B4; /* Changed to accent */
-            --conversation-indicator: #FF69B4;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #F3E5F5;
             --code-block-header-bg: #F2E0FF;
             --code-block-border: #EBD9FC;
@@ -625,7 +711,7 @@
         body[data-theme="ivory-bloom-dark"] {
             --bg-primary: #2B2D42;
             --bg-secondary: #4A4E69;
-            --text-primary: #9B59B6; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #A0A4B8;
             --border-color: #5D607E;
             --card-bg: #4A4E69;
@@ -637,17 +723,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #7C4F9B;
-            --user-bubble-text: #9B59B6; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #5D607E;
-            --ai-bubble-text: #9B59B6; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #2B2D42;
             --sidebar-border: #5D607E;
             --sidebar-item-hover: #373A50;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(74, 78, 105, 0.9);
             --conversation-bg: rgba(74, 78, 105, 0.95);
-            --conversation-text: #9B59B6; /* Changed to accent */
-            --conversation-indicator: #9B59B6;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #5D607E;
             --code-block-header-bg: #373A50;
             --code-block-border: #5D607E;
@@ -659,7 +745,7 @@
         body[data-theme="ivory-bloom-light"] {
             --bg-primary: #FDFDFD;
             --bg-secondary: #FFFFFF;
-            --text-primary: #8E44AD; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #777777;
             --border-color: #EAEAEA;
             --card-bg: #FFFFFF;
@@ -671,17 +757,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #F2E6F7;
-            --user-bubble-text: #8E44AD; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #EAE0F0;
-            --ai-bubble-text: #8E44AD; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #EAEAEA;
             --sidebar-item-hover: #F5F5F5;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #8E44AD; /* Changed to accent */
-            --conversation-indicator: #8E44AD;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #EAE0F0;
             --code-block-header-bg: #F5F5F5;
             --code-block-border: #EAEAEA;
@@ -693,7 +779,7 @@
         body[data-theme="obsidian-night-dark"] {
             --bg-primary: #121212;
             --bg-secondary: #1E1E1E;
-            --text-primary: #BB86FC; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #A0A0A0;
             --border-color: #333333;
             --card-bg: #1E1E1E;
@@ -705,17 +791,17 @@
             --accent-error: #CF6679;
             --accent-success: #03DAC6;
             --user-bubble-bg: #3700B3;
-            --user-bubble-text: #BB86FC; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #2C2C2C;
-            --ai-bubble-text: #BB86FC; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #121212;
             --sidebar-border: #333333;
             --sidebar-item-hover: #1E1E1E;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(30, 30, 30, 0.9);
             --conversation-bg: rgba(30, 30, 30, 0.95);
-            --conversation-text: #BB86FC; /* Changed to accent */
-            --conversation-indicator: #BB86FC;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #2C2C2C;
             --code-block-header-bg: #121212;
             --code-block-border: #333333;
@@ -727,7 +813,7 @@
         body[data-theme="obsidian-night-light"] {
             --bg-primary: #E0E0E0;
             --bg-secondary: #FFFFFF;
-            --text-primary: #6200EE; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #6B6B6B;
             --border-color: #C0C0C0;
             --card-bg: #FFFFFF;
@@ -739,17 +825,17 @@
             --accent-error: #B00020;
             --accent-success: #018786;
             --user-bubble-bg: #BBDEFB;
-            --user-bubble-text: #6200EE; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #E0E0E0;
-            --ai-bubble-text: #6200EE; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #C0C0C0;
             --sidebar-item-hover: #D0D0D0;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #6200EE; /* Changed to accent */
-            --conversation-indicator: #6200EE;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #E0E0E0;
             --code-block-header-bg: #D0D0D0;
             --code-block-border: #C0C0C0;
@@ -761,7 +847,7 @@
         body[data-theme="solar-dawn-dark"] {
             --bg-primary: #1A0E2A;
             --bg-secondary: #2C1840;
-            --text-primary: #FF5722; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #D8BFD8;
             --border-color: #40265B;
             --card-bg: #2C1840;
@@ -773,17 +859,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #7C4F9B;
-            --user-bubble-text: #FF5722; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #40265B;
-            --ai-bubble-text: #FF5722; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #1A0E2A;
             --sidebar-border: #40265B;
             --sidebar-item-hover: #2C1840;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(44, 24, 64, 0.9);
             --conversation-bg: rgba(44, 24, 64, 0.95);
-            --conversation-text: #FF5722; /* Changed to accent */
-            --conversation-indicator: #FF5722;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #40265B;
             --code-block-header-bg: #1A0E2A;
             --code-block-border: #40265B;
@@ -795,7 +881,7 @@
         body[data-theme="solar-dawn-light"] {
             --bg-primary: #FFFBEA;
             --bg-secondary: #FFFFFF;
-            --text-primary: #FF8F00; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #8D6E63;
             --border-color: #FFE0B2;
             --card-bg: #FFFFFF;
@@ -807,17 +893,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #FFE0B2;
-            --user-bubble-text: #FF8F00; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #FFF3E0;
-            --ai-bubble-text: #FF8F00; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #FFE0B2;
             --sidebar-item-hover: #FFF3E0;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #FF8F00; /* Changed to accent */
-            --conversation-indicator: #FF8F00;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #FFF3E0;
             --code-block-header-bg: #FFFBEA;
             --code-block-border: #FFE0B2;
@@ -829,7 +915,7 @@
         body[data-theme="aurora-drift-dark"] {
             --bg-primary: #0A192F;
             --bg-secondary: #172A45;
-            --text-primary: #66CCCC; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #A0B3D6;
             --border-color: #2F476D;
             --card-bg: #172A45;
@@ -841,17 +927,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #336699;
-            --user-bubble-text: #66CCCC; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #2F476D;
-            --ai-bubble-text: #66CCCC; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #0A192F;
             --sidebar-border: #2F476D;
             --sidebar-item-hover: #172A45;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(23, 42, 69, 0.9);
             --conversation-bg: rgba(23, 42, 69, 0.95);
-            --conversation-text: #66CCCC; /* Changed to accent */
-            --conversation-indicator: #66CCCC;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #2F476D;
             --code-block-header-bg: #0A192F;
             --code-block-border: #2F476D;
@@ -863,7 +949,7 @@
         body[data-theme="aurora-drift-light"] {
             --bg-primary: #E0F2F7;
             --bg-secondary: #FFFFFF;
-            --text-primary: #00BCD4; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #5E7A8A;
             --border-color: #B2EBF2;
             --card-bg: #FFFFFF;
@@ -875,17 +961,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #B2EBF2;
-            --user-bubble-text: #00BCD4; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #CCEEF0;
-            --ai-bubble-text: #00BCD4; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #B2EBF2;
             --sidebar-item-hover: #CCEEF0;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #00BCD4; /* Changed to accent */
-            --conversation-indicator: #00BCD4;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #CCEEF0;
             --code-block-header-bg: #E0F2F7;
             --code-block-border: #B2EBF2;
@@ -898,7 +984,7 @@
         body[data-theme="timeless-echo-dark"] {
             --bg-primary: #2C2C2C;
             --bg-secondary: #3D3D3D;
-            --text-primary: #A57C52; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #B0B0B0;
             --border-color: #555555;
             --card-bg: #3D3D3D;
@@ -910,17 +996,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #785A3D;
-            --user-bubble-text: #A57C52; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #555555;
-            --ai-bubble-text: #A57C52; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #2C2C2C;
             --sidebar-border: #555555;
             --sidebar-item-hover: #3D3D3D;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(61, 61, 61, 0.9);
             --conversation-bg: rgba(61, 61, 61, 0.95);
-            --conversation-text: #A57C52; /* Changed to accent */
-            --conversation-indicator: #A57C52;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #555555;
             --code-block-header-bg: #2C2C2C;
             --code-block-border: #555555;
@@ -932,7 +1018,7 @@
         body[data-theme="timeless-echo-light"] {
             --bg-primary: #FDF7E5;
             --bg-secondary: #FFFFFF;
-            --text-primary: #8D6E63; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #808080;
             --border-color: #E6E0D3;
             --card-bg: #FFFFFF;
@@ -944,17 +1030,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #D7CCC8;
-            --user-bubble-text: #8D6E63; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #EFEBE9;
-            --ai-bubble-text: #8D6E63; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #E6E0D3;
             --sidebar-item-hover: #F5EFEB;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #8D6E63; /* Changed to accent */
-            --conversation-indicator: #8D6E63;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #EFEBE9;
             --code-block-header-bg: #F5EFEB;
             --code-block-border: #E6E0D3;
@@ -966,7 +1052,7 @@
         body[data-theme="mystic-void-dark"] {
             --bg-primary: #110B1D;
             --bg-secondary: #1F1731;
-            --text-primary: #9400D3; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #B29BCE;
             --border-color: #372A4F;
             --card-bg: #1F1731;
@@ -978,17 +1064,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #5B2C7B;
-            --user-bubble-text: #9400D3; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #372A4F;
-            --ai-bubble-text: #9400D3; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #110B1D;
             --sidebar-border: #372A4F;
             --sidebar-item-hover: #1F1731;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(31, 23, 49, 0.9);
             --conversation-bg: rgba(31, 23, 49, 0.95);
-            --conversation-text: #9400D3; /* Changed to accent */
-            --conversation-indicator: #9400D3;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #372A4F;
             --code-block-header-bg: #110B1D;
             --code-block-border: #372A4F;
@@ -1000,7 +1086,7 @@
         body[data-theme="mystic-void-light"] {
             --bg-primary: #F7EDFF;
             --bg-secondary: #FFFFFF;
-            --text-primary: #8A2BE2; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #663399;
             --border-color: #EBD9FC;
             --card-bg: #FFFFFF;
@@ -1012,17 +1098,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #E6D2F2;
-            --user-bubble-text: #8A2BE2; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #F0E6F8;
-            --ai-bubble-text: #8A2BE2; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #EBD9FC;
             --sidebar-item-hover: #F2E0FF;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #8A2BE2; /* Changed to accent */
-            --conversation-indicator: #8A2BE2;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #F0E6F8;
             --code-block-header-bg: #F2E0FF;
             --code-block-border: #EBD9FC;
@@ -1034,7 +1120,7 @@
         body[data-theme="darkest-bw-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #111111;
-            --text-primary: #E0E0E0; /* Changed to accent */
+            --text-primary: #E0E0E0; /* Neutral light text for dark background */
             --text-secondary: #AAAAAA;
             --border-color: #333333;
             --card-bg: #111111;
@@ -1046,17 +1132,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #222222;
-            --user-bubble-text: #E0E0E0; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #333333;
-            --ai-bubble-text: #E0E0E0; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #333333;
             --sidebar-item-hover: #111111;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: #000000;
             --conversation-bg: #000000;
-            --conversation-text: #E0E0E0; /* Changed to accent */
-            --conversation-indicator: #FFFFFF;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #333333;
             --code-block-header-bg: #0A0A0A;
             --code-block-border: #333333;
@@ -1069,7 +1155,7 @@
         body[data-theme="darkest-bw-light"] {
             --bg-primary: #FFFFFF;
             --bg-secondary: #F0F0F0;
-            --text-primary: #333333; /* Changed to accent */
+            --text-primary: #333333; /* Neutral dark text for light background */
             --text-secondary: #555555;
             --border-color: #DDDDDD;
             --card-bg: #F0F0F0;
@@ -1081,17 +1167,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #EEEEEE;
-            --user-bubble-text: #333333; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #DDDDDD;
-            --ai-bubble-text: #333333; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #DDDDDD;
             --sidebar-item-hover: #F0F0F0;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: #F0F0F0;
             --conversation-bg: #FFFFFF;
-            --conversation-text: #333333; /* Changed to accent */
-            --conversation-indicator: #000000;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #DDDDDD;
             --code-block-header-bg: #F5F5F5;
             --code-block-border: #DDDDDD;
@@ -1104,7 +1190,7 @@
         body[data-theme="coder-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #0A0A0A;
-            --text-primary: #00BCD4; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #8B949E;
             --border-color: #30363D;
             --card-bg: #0A0A0A;
@@ -1116,17 +1202,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #2C3E50;
-            --user-bubble-text: #00BCD4; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #1A1A1A;
-            --ai-bubble-text: #00BCD4; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #30363D;
             --sidebar-item-hover: #0A0A0A;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(0, 0, 0, 0.9);
             --conversation-bg: rgba(0, 0, 0, 0.95);
-            --conversation-text: #00BCD4; /* Changed to accent */
-            --conversation-indicator: #00BCD4;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #1A1A1A;
             --code-block-header-bg: #27272A;
             --code-block-border: #3F3F46;
@@ -1138,7 +1224,7 @@
         body[data-theme="coder-light"] {
             --bg-primary: #F0F2F5;
             --bg-secondary: #FFFFFF;
-            --text-primary: #008C9D; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #718096;
             --border-color: #DDE2E8;
             --card-bg: #FFFFFF;
@@ -1150,17 +1236,17 @@
             --accent-error: #D32F2F;
             --accent-success: #388E3C;
             --user-bubble-bg: #E0F7FA;
-            --user-bubble-text: #008C9D; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #F0F4F8;
-            --ai-bubble-text: #008C9D; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #DDE2E8;
             --sidebar-item-hover: #F0F2F5;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #008C9D; /* Changed to accent */
-            --conversation-indicator: #008C9D;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #F5F5F5;
             --code-block-header-bg: #ECEFF1;
             --code-block-border: #CFD8DC;
@@ -1172,7 +1258,7 @@
         body[data-theme="cyberpunk-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #1A0F24;
-            --text-primary: #00FFFF; /* Changed to accent */
+            --text-primary: #F1F5F9; /* Neutral light text for dark background */
             --text-secondary: #A08AB2;
             --border-color: #3A1D4D;
             --card-bg: #1A0F24;
@@ -1184,17 +1270,17 @@
             --accent-error: #FF4500;
             --accent-success: #32CD32;
             --user-bubble-bg: #3A204D;
-            --user-bubble-text: #00FFFF; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #100814;
-            --ai-bubble-text: #00FFFF; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #3A1D4D;
             --sidebar-item-hover: #1A0F24;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(10, 5, 15, 0.9);
             --conversation-bg: rgba(10, 5, 15, 0.95);
-            --conversation-text: #00FFFF; /* Changed to accent */
-            --conversation-indicator: #00FFFF;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #100814;
             --code-block-header-bg: #20102A;
             --code-block-border: #3A1D4D;
@@ -1204,7 +1290,7 @@
         body[data-theme="cyberpunk-light"] {
             --bg-primary: #F0F8FF;
             --bg-secondary: #FFFFFF;
-            --text-primary: #00CED1; /* Changed to accent */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #6A5ACD;
             --border-color: #ADD8E6;
             --card-bg: #FFFFFF;
@@ -1216,17 +1302,17 @@
             --accent-error: #DC143C;
             --accent-success: #3CB371;
             --user-bubble-bg: #E0FFFF;
-            --user-bubble-text: #00CED1; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #F0F8FF;
-            --ai-bubble-text: #00CED1; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #ADD8E6;
             --sidebar-item-hover: #E0F2F7;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #00CED1; /* Changed to accent */
-            --conversation-indicator: #00CED1;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #E0FFFF;
             --code-block-header-bg: #ADD8E6;
             --code-block-border: #87CEEB;
@@ -1238,7 +1324,7 @@
         body[data-theme="matrix-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #0A0A0A;
-            --text-primary: #00FF00;
+            --text-primary: #00FF00; /* Intentional primary text color */
             --text-secondary: #008000;
             --border-color: #004000;
             --card-bg: #0A0A0A;
@@ -1250,17 +1336,17 @@
             --accent-error: #FF0000;
             --accent-success: #00FF00;
             --user-bubble-bg: #001A00;
-            --user-bubble-text: #00FF00;
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #000500;
-            --ai-bubble-text: #00FF00;
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #004000;
             --sidebar-item-hover: #001500;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(0, 0, 0, 0.9);
             --conversation-bg: rgba(0, 0, 0, 0.95);
-            --conversation-text: #00FF00;
-            --conversation-indicator: #00FF00;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #000A00;
             --code-block-header-bg: #001000;
             --code-block-border: #002000;
@@ -1270,7 +1356,7 @@
         body[data-theme="matrix-light"] {
             --bg-primary: #FFFFFF;
             --bg-secondary: #F0F0F0;
-            --text-primary: #008000; /* Already uses accent color */
+            --text-primary: #0F172A; /* Neutral dark text for light background */
             --text-secondary: #404040;
             --border-color: #D0D0D0;
             --card-bg: #F0F0F0;
@@ -1282,17 +1368,17 @@
             --accent-error: #CC0000;
             --accent-success: #00AA00;
             --user-bubble-bg: #E0FFE0;
-            --user-bubble-text: #008000; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #F0FFF0;
-            --ai-bubble-text: #008000; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #D0D0D0;
             --sidebar-item-hover: #E0E0E0;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #008000; /* Changed to accent */
-            --conversation-indicator: #008000;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #F5FFF5;
             --code-block-header-bg: #E0FFE0;
             --code-block-border: #C0D0C0;
@@ -1304,7 +1390,7 @@
         body[data-theme="solarized-light"] {
             --bg-primary: #FDF6E3;
             --bg-secondary: #EEE8D5;
-            --text-primary: #2AA198; /* Changed to accent */
+            --text-primary: #657B83; /* Standard Solarized base00 for text */
             --text-secondary: #657B83;
             --border-color: #93A1A1;
             --card-bg: #EEE8D5;
@@ -1316,17 +1402,17 @@
             --accent-error: #DC322F;
             --accent-success: #859900;
             --user-bubble-bg: #839496;
-            --user-bubble-text: #2AA198; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #E0E0D0;
-            --ai-bubble-text: #2AA198; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FDF6E3;
             --sidebar-border: #93A1A1;
             --sidebar-item-hover: #EEE8D5;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #2AA198; /* Changed to accent */
-            --conversation-indicator: #2AA198;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #EEE8D5;
             --code-block-header-bg: #FDF6E3;
             --code-block-border: #D0D0C0;
@@ -1336,7 +1422,7 @@
         body[data-theme="solarized-dark"] {
             --bg-primary: #002B36;
             --bg-secondary: #073642;
-            --text-primary: #2AA198; /* Changed to accent */
+            --text-primary: #839496; /* Standard Solarized base0 for text */
             --text-secondary: #839496;
             --border-color: #586E75;
             --card-bg: #073642;
@@ -1348,17 +1434,17 @@
             --accent-error: #DC322F;
             --accent-success: #859900;
             --user-bubble-bg: #586E75;
-            --user-bubble-text: #2AA198; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #073642;
-            --ai-bubble-text: #2AA198; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #002B36;
             --sidebar-border: #586E75;
             --sidebar-item-hover: #073642;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(0, 43, 54, 0.9);
             --conversation-bg: rgba(0, 43, 54, 0.95);
-            --conversation-text: #2AA198; /* Changed to accent */
-            --conversation-indicator: #2AA198;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #073642;
             --code-block-header-bg: #002B36;
             --code-block-border: #586E75;
@@ -1370,7 +1456,7 @@
         body[data-theme="dracula-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #282A36;
-            --text-primary: #BD93F9; /* Changed to accent */
+            --text-primary: #F8F8F2; /* Neutral light text for dark background */
             --text-secondary: #6272A4;
             --border-color: #44475A;
             --card-bg: #282A36;
@@ -1382,17 +1468,17 @@
             --accent-error: #FF5555;
             --accent-success: #50FA7B;
             --user-bubble-bg: #44475A;
-            --user-bubble-text: #BD93F9; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #1A1C25;
-            --ai-bubble-text: #BD93F9; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #44475A;
             --sidebar-item-hover: #282A36;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(0, 0, 0, 0.9);
             --conversation-bg: rgba(0, 0, 0, 0.95);
-            --conversation-text: #BD93F9; /* Changed to accent */
-            --conversation-indicator: #BD93F9;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #1A1C25;
             --code-block-header-bg: #2F313E;
             --code-block-border: #44475A;
@@ -1402,7 +1488,7 @@
         body[data-theme="dracula-light"] {
             --bg-primary: #F8F8F2;
             --bg-secondary: #F0F0E0;
-            --text-primary: #FF79C6; /* Changed to accent */
+            --text-primary: #282A36; /* Neutral dark text for light background */
             --text-secondary: #6272A4;
             --border-color: #CCDEF2;
             --card-bg: #F0F0E0;
@@ -1414,17 +1500,17 @@
             --accent-error: #FF5555;
             --accent-success: #50FA7B;
             --user-bubble-bg: #CCDEF2;
-            --user-bubble-text: #FF79C6; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #E8E8E0;
-            --ai-bubble-text: #FF79C6; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #F8F8F2;
             --sidebar-border: #CCDEF2;
             --sidebar-item-hover: #F0F0E0;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #FF79C6; /* Changed to accent */
-            --conversation-indicator: #FF79C6;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #E8E8E0;
             --code-block-header-bg: #D8D8D0;
             --code-block-border: #C2C2C0;
@@ -1436,7 +1522,7 @@
         body[data-theme="monokai-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #2D2A2E;
-            --text-primary: #A6E22E; /* Changed to accent */
+            --text-primary: #F8F8F2; /* Neutral light text for dark background */
             --text-secondary: #75715E;
             --border-color: #49483E;
             --card-bg: #2D2A2E;
@@ -1448,17 +1534,17 @@
             --accent-error: #F92672;
             --accent-success: #A6E22E;
             --user-bubble-bg: #49483E;
-            --user-bubble-text: #A6E22E; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #1A1A1A;
-            --ai-bubble-text: #A6E22E; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #49483E;
             --sidebar-item-hover: #2D2A2E;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(0, 0, 0, 0.9);
             --conversation-bg: rgba(0, 0, 0, 0.95);
-            --conversation-text: #A6E22E; /* Changed to accent */
-            --conversation-indicator: #A6E22E;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #1A1A1A;
             --code-block-header-bg: #27252A;
             --code-block-border: #3F3C38;
@@ -1468,7 +1554,7 @@
         body[data-theme="monokai-light"] {
             --bg-primary: #FCFCFA;
             --bg-secondary: #F5F5F0;
-            --text-primary: #F92672; /* Changed to accent */
+            --text-primary: #2D2A2E; /* Neutral dark text for light background */
             --text-secondary: #75715E;
             --border-color: #D0D0CB;
             --card-bg: #F5F5F0;
@@ -1480,17 +1566,17 @@
             --accent-error: #CC3333;
             --accent-success: #A6E22E;
             --user-bubble-bg: #E0E0D8;
-            --user-bubble-text: #F92672; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #EEEEEC;
-            --ai-bubble-text: #F92672; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FCFCFA;
             --sidebar-border: #D0D0CB;
             --sidebar-item-hover: #F5F5F0;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #F92672; /* Changed to accent */
-            --conversation-indicator: #F92672;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #EEEEEC;
             --code-block-header-bg: #E0E0D8;
             --code-block-border: #C0C0B8;
@@ -1502,7 +1588,7 @@
         body[data-theme="nord-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #2E3440;
-            --text-primary: #88C0D0; /* Changed to accent */
+            --text-primary: #ECEFF4; /* Neutral light text for dark background */
             --text-secondary: #ECEFF4;
             --border-color: #4C566A;
             --card-bg: #2E3440;
@@ -1514,17 +1600,17 @@
             --accent-error: #BF616A;
             --accent-success: #A3BE8C;
             --user-bubble-bg: #4C566A;
-            --user-bubble-text: #88C0D0; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #1A1D23;
-            --ai-bubble-text: #88C0D0; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #4C566A;
             --sidebar-item-hover: #2E3440;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(0, 0, 0, 0.9);
             --conversation-bg: rgba(0, 0, 0, 0.95);
-            --conversation-text: #88C0D0; /* Changed to accent */
-            --conversation-indicator: #88C0D0;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #1A1D23;
             --code-block-header-bg: #242933;
             --code-block-border: #4C566A;
@@ -1534,7 +1620,7 @@
         body[data-theme="nord-light"] {
             --bg-primary: #ECEFF4;
             --bg-secondary: #D8DEE9;
-            --text-primary: #5E81AC; /* Changed to accent */
+            --text-primary: #2E3440; /* Neutral dark text for light background */
             --text-secondary: #4C566A;
             --border-color: #B4BFCD;
             --card-bg: #D8DEE9;
@@ -1546,17 +1632,17 @@
             --accent-error: #BF616A;
             --accent-success: #A3BE8C;
             --user-bubble-bg: #AABECF;
-            --user-bubble-text: #5E81AC; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #DEE3EB;
-            --ai-bubble-text: #5E81AC; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #ECEFF4;
             --sidebar-border: #B4BFCD;
             --sidebar-item-hover: #D8DEE9;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #5E81AC; /* Changed to accent */
-            --conversation-indicator: #5E81AC;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #DEE3EB;
             --code-block-header-bg: #C0C7D1;
             --code-block-border: #B4BFCD;
@@ -1568,7 +1654,7 @@
         body[data-theme="gruvbox-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #282828;
-            --text-primary: #83A598; /* Changed to accent */
+            --text-primary: #EBDBB2; /* Neutral light text for dark background */
             --text-secondary: #A89984;
             --border-color: #504945;
             --card-bg: #282828;
@@ -1580,17 +1666,17 @@
             --accent-error: #FB4934;
             --accent-success: #B8BB26;
             --user-bubble-bg: #504945;
-            --user-bubble-text: #83A598; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #1D2021;
-            --ai-bubble-text: #83A598; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #504945;
             --sidebar-item-hover: #282828;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(0, 0, 0, 0.9);
             --conversation-bg: rgba(0, 0, 0, 0.95);
-            --conversation-text: #83A598; /* Changed to accent */
-            --conversation-indicator: #83A598;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #1D2021;
             --code-block-header-bg: #32302F;
             --code-block-border: #504945;
@@ -1600,7 +1686,7 @@
         body[data-theme="gruvbox-light"] {
             --bg-primary: #FBF1C7;
             --bg-secondary: #FEF6E4;
-            --text-primary: #427B58; /* Changed to accent */
+            --text-primary: #282828; /* Neutral dark text for light background */
             --text-secondary: #7C6F64;
             --border-color: #BDAEAA;
             --card-bg: #FEF6E4;
@@ -1612,17 +1698,17 @@
             --accent-error: #CC241D;
             --accent-success: #8EC07C;
             --user-bubble-bg: #D5C4A1;
-            --user-bubble-text: #427B58; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #EBDBB2;
-            --ai-bubble-text: #427B58; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FBF1C7;
             --sidebar-border: #BDAEAA;
             --sidebar-item-hover: #EBDBB2;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #427B58; /* Changed to accent */
-            --conversation-indicator: #427B58;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #EBDBB2;
             --code-block-header-bg: #D5C4A1;
             --code-block-border: #BDAEAA;
@@ -1634,7 +1720,7 @@
         body[data-theme="catppuccin-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #24273A;
-            --text-primary: #8BD5CA; /* Changed to accent */
+            --text-primary: #CAD3F5; /* Neutral light text for dark background */
             --text-secondary: #A5ADCE;
             --border-color: #494D64;
             --card-bg: #24273A;
@@ -1646,17 +1732,17 @@
             --accent-error: #ED8796;
             --accent-success: #A6DA95;
             --user-bubble-bg: #494D64;
-            --user-bubble-text: #8BD5CA; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #1A1D2A;
-            --ai-bubble-text: #8BD5CA; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #494D64;
             --sidebar-item-hover: #24273A;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(0, 0, 0, 0.9);
             --conversation-bg: rgba(0, 0, 0, 0.95);
-            --conversation-text: #8BD5CA; /* Changed to accent */
-            --conversation-indicator: #8BD5CA;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #1A1D2A;
             --code-block-header-bg: #2E3243;
             --code-block-border: #494D64;
@@ -1666,7 +1752,7 @@
         body[data-theme="catppuccin-light"] {
             --bg-primary: #EFF1F5;
             --bg-secondary: #E6E9EF;
-            --text-primary: #179299; /* Changed to accent */
+            --text-primary: #4C4F69; /* Neutral dark text for light background */
             --text-secondary: #5C5F77;
             --border-color: #CBD0E1;
             --card-bg: #E6E9EF;
@@ -1678,17 +1764,17 @@
             --accent-error: #E64553;
             --accent-success: #40A02B;
             --user-bubble-bg: #CBD0E1;
-            --user-bubble-text: #179299; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #EAECEF;
-            --ai-bubble-text: #179299; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #EFF1F5;
             --sidebar-border: #CBD0E1;
             --sidebar-item-hover: #E6E9EF;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.8);
             --conversation-bg: rgba(255, 255, 255, 0.95);
-            --conversation-text: #179299; /* Changed to accent */
-            --conversation-indicator: #179299;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #EAECEF;
             --code-block-header-bg: #D4D7E2;
             --code-block-border: #C8CDDD;
@@ -1702,7 +1788,7 @@
         body[data-theme="cosmic-nexus-dark"] {
             --bg-primary: #05050A;
             --bg-secondary: #101018;
-            --text-primary: #00F5FF; /* Changed to accent */
+            --text-primary: #E0E0E0; /* Neutral light text for dark background */
             --text-secondary: #94A3B8;
             --border-color: #2A2A3A;
             --card-bg: #101018;
@@ -1714,17 +1800,17 @@
             --accent-error: #FF4500;
             --accent-success: #0AFF9D;
             --user-bubble-bg: #003344;
-            --user-bubble-text: #00F5FF; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #18052A;
-            --ai-bubble-text: #00F5FF; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #101018;
             --sidebar-border: #2A2A3A;
             --sidebar-item-hover: #1A1A22;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(16, 16, 24, 0.9);
             --conversation-bg: rgba(5, 5, 10, 0.95);
-            --conversation-text: #00F5FF; /* Changed to accent */
-            --conversation-indicator: #00F5FF;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #18052A;
             --code-block-header-bg: #0A0A10;
             --code-block-border: #2A2A3A;
@@ -1741,7 +1827,7 @@
         body[data-theme="cosmic-nexus-light"] {
             --bg-primary: #F0F8FF;
             --bg-secondary: #FFFFFF;
-            --text-primary: #00CED1; /* Changed to accent */
+            --text-primary: #202020; /* Neutral dark text for light background */
             --text-secondary: #4B5563;
             --border-color: #E5E7EB;
             --card-bg: #FFFFFF;
@@ -1753,17 +1839,17 @@
             --accent-error: #FF4500;
             --accent-success: #0AFF9D;
             --user-bubble-bg: #E0FFFF;
-            --user-bubble-text: #00CED1; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #F3F8FF;
-            --ai-bubble-text: #00CED1; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #E5E7EB;
             --sidebar-item-hover: #EAF0F8;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.85);
             --conversation-bg: rgba(255, 255, 255, 0.9);
-            --conversation-text: #00CED1; /* Changed to accent */
-            --conversation-indicator: #00CED1;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #F3F8FF;
             --code-block-header-bg: #EAF0F8;
             --code-block-border: #E5E7EB;
@@ -1775,7 +1861,7 @@
         body[data-theme="starship-minimal-dark"] {
             --bg-primary: #0D1117;
             --bg-secondary: #161B22;
-            --text-primary: #2F81F7; /* Changed to accent */
+            --text-primary: #E0E0E0; /* Neutral light text for dark background */
             --text-secondary: #8B949E;
             --border-color: #30363D;
             --card-bg: #161B22;
@@ -1787,17 +1873,17 @@
             --accent-error: #F87171;
             --accent-success: #4ADE80;
             --user-bubble-bg: #1F385B;
-            --user-bubble-text: #2F81F7; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #21262D;
-            --ai-bubble-text: #2F81F7; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #161B22;
             --sidebar-border: #30363D;
             --sidebar-item-hover: #21262D;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(13, 17, 23, 0.9);
             --conversation-bg: rgba(13, 17, 23, 0.95);
-            --conversation-text: #2F81F7; /* Changed to accent */
-            --conversation-indicator: #2F81F7;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #21262D;
             --code-block-header-bg: #161B22;
             --code-block-border: #30363D;
@@ -1812,7 +1898,7 @@
         body[data-theme="starship-minimal-light"] {
             --bg-primary: #F0F4F8;
             --bg-secondary: #FFFFFF;
-            --text-primary: #1E90FF; /* Changed to accent */
+            --text-primary: #202020; /* Neutral dark text for light background */
             --text-secondary: #718096;
             --border-color: #E2E8F0;
             --card-bg: #FFFFFF;
@@ -1824,17 +1910,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #DBEAFE;
-            --user-bubble-text: #1E90FF; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #F3F8FF;
-            --ai-bubble-text: #1E90FF; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #E2E8F0;
             --sidebar-item-hover: #F0F4F8;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.85);
             --conversation-bg: rgba(255, 255, 255, 0.9);
-            --conversation-text: #1E90FF; /* Changed to accent */
-            --conversation-indicator: #1E90FF;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #F3F8FF;
             --code-block-header-bg: #EDF2F7;
             --code-block-border: #E2E8F0;
@@ -1846,7 +1932,7 @@
         body[data-theme="offbeat-cosmic-dark"] {
             --bg-primary: #0C0F16;
             --bg-secondary: #1A1E2B;
-            --text-primary: #5CE1E6; /* Changed to accent */
+            --text-primary: #E0E0E0; /* Neutral light text for dark background */
             --text-secondary: #A0A5B5;
             --border-color: #30354F;
             --card-bg: #1A1E2B;
@@ -1858,17 +1944,17 @@
             --accent-error: #FF6347;
             --accent-success: #7FFF00;
             --user-bubble-bg: #3A2B5B;
-            --user-bubble-text: #5CE1E6; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #2B1E40;
-            --ai-bubble-text: #5CE1E6; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #1A1E2B;
             --sidebar-border: #30354F;
             --sidebar-item-hover: #212535;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(12, 15, 22, 0.9);
             --conversation-bg: rgba(12, 15, 22, 0.95);
-            --conversation-text: #5CE1E6; /* Changed to accent */
-            --conversation-indicator: #5CE1E6;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #2B1E40;
             --code-block-header-bg: #1A1E2B;
             --code-block-border: #30354F;
@@ -1891,7 +1977,7 @@
         body[data-theme="offbeat-cosmic-light"] {
             --bg-primary: #F9FDFD;
             --bg-secondary: #FFFFFF;
-            --text-primary: #00BCD4; /* Changed to accent */
+            --text-primary: #202020; /* Neutral dark text for light background */
             --text-secondary: #718096;
             --border-color: #E2E8F0;
             --card-bg: #FFFFFF;
@@ -1903,17 +1989,17 @@
             --accent-error: #EF4444;
             --accent-success: #22C55E;
             --user-bubble-bg: #DBFEFF;
-            --user-bubble-text: #00BCD4; /* Changed to accent */
+            --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #E0FFFF;
-            --ai-bubble-text: #00BCD4; /* Changed to accent */
+            --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #FFFFFF;
             --sidebar-border: #E2E8F0;
             --sidebar-item-hover: #EEF8F8;
             --loader-dot-color: var(--accent-primary);
             --main-chat-window-bg: rgba(255, 255, 255, 0.85);
             --conversation-bg: rgba(255, 255, 255, 0.9);
-            --conversation-text: #00BCD4; /* Changed to accent */
-            --conversation-indicator: #00BCD4;
+            --conversation-text: var(--text-primary);
+            --conversation-indicator: var(--accent-primary);
             --code-block-bg: #E0FFFF;
             --code-block-header-bg: #EEF8F8;
             --code-block-border: #E2E8F0;
@@ -2169,15 +2255,18 @@
             display: block; 
         }
         .markdown-content table th, .markdown-content table td { 
-            border: 1px solid var(--border-color); 
+            border: 1px solid var(--text-secondary); /* Changed border color for better visibility */
             padding: 10px 12px; 
             text-align: left;
             word-break: normal; 
-            
-            /* FIX 1: Allow content to wrap normally within cells */
             white-space: normal; 
         }
         
+        /* Explicitly set background for td to ensure consistency across themes */
+        .markdown-content table td {
+            background-color: var(--bg-secondary);
+        }
+
         /* FIX 2: Specific styling for links inside table cells to allow break on the slash/hyphen */
         .markdown-content table td a,
         .markdown-content table td code {
@@ -2246,6 +2335,13 @@
         #chat-input {
             -ms-overflow-style: none;
             scrollbar-width: none;
+            min-height: 56px; /* Default min-height for larger screens */
+        }
+        
+        @media (max-width: 767px) { /* Target screens smaller than 'md' breakpoint (768px) */
+            #chat-input {
+                min-height: 40px; /* Match the h-10 (40px) of buttons on small screens */
+            }
         }
         
         /* Styles for #chat-history, #sidebar, and #previous-chats-section scrollbars */
@@ -3056,6 +3152,12 @@
             text-shadow: 0 0 10px color-mix(in srgb, var(--conversation-indicator) 50%, transparent);
             transition: color 0.3s ease, text-shadow 0.3s ease;
         }
+        @media (max-width: 480px) {
+            .conversation-status-text {
+                font-size: 1.6rem; /* Smaller font size for mobile */
+                min-height: 2em;
+            }
+        }
         .conversation-status-text.listening-state { color: var(--accent-secondary); text-shadow: 0 0 15px var(--accent-secondary); }
         .conversation-status-text.speaking-state { color: var(--accent-primary); text-shadow: 0 0 15px var(--accent-primary); }
         .conversation-status-text.error-state { color: var(--accent-error); text-shadow: 0 0 15px var(--accent-error); }
@@ -3137,10 +3239,11 @@
         .template-item-name {
             font-weight: 600;
             color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal; /* Allow text wrapping for better mobile display */
+            word-break: break-word; /* Ensure long words break on small screens */
+            /* Removed overflow: hidden; and text-overflow: ellipsis; as they conflict with normal white-space */
             flex-grow: 1;
+            min-width: 0; /* Allows flex item to shrink within flex container */
         }
         .template-item-content {
             font-size: 0.875rem;
@@ -3153,9 +3256,21 @@
         }
         .template-item-actions {
             display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
             gap: 0.5rem;
-            justify-content: flex-end;
+            justify-content: flex-end; /* Align to the end by default */
             margin-top: 0.5rem;
+        }
+        /* Specific responsiveness for template item actions on very small screens */
+        @media (max-width: 380px) {
+            .template-item-actions {
+                justify-content: space-between; /* Distribute buttons across the width when wrapped */
+                gap: 0.25rem; /* Reduce gap between buttons */
+            }
+            .template-item-actions button {
+                padding: 0.3rem 0.6rem; /* Reduce button padding */
+                font-size: 0.75rem; /* Reduce font size */
+            }
         }
         .template-item-actions button {
             padding: 0.4rem 0.8rem;
@@ -3361,7 +3476,13 @@
                 font-size: 0.8rem;
             }
         }
-
+        /* --- Responsive Adjustments for Smaller Devices --- */
+        @media (max-width: 380px) {
+            #chat-input-area-container {
+                padding-left: var(--space-sm); /* Reduce padding from 1rem (16px) to 0.5rem (8px) */
+                padding-right: var(--space-sm);
+            }
+        }
     </style>
 </head>
 <body class="antialiased" data-theme="default-dark">
@@ -3584,8 +3705,7 @@
         <!-- Header for the chat (Revised for Mobile Dropdown) -->
         <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]" style="background-color: var(--header-bg);">
             <!-- Left side (Hamburger + Title) -->
-            <!-- FIX: Increased max-width on mobile to prevent icon overlap, ensuring title visibility -->
-            <div class="flex items-center min-w-0 max-w-[65%] sm:max-w-none">
+            <div class="flex items-center min-w-0 flex-grow sm:max-w-none">
                 <button id="hamburger-menu-button" aria-label="Open Sidebar Menu" title="Open Menu" style="background-color: var(--header-bg); border-color: var(--border-color); color: var(--text-primary);">
                     <span data-lucide="menu" class="w-6 h-6"></span>
                 </button>
@@ -3639,8 +3759,8 @@
                         <button id="summarize-context-btn-mobile" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[var(--sidebar-item-hover)]" title="Summarize Chat Context for Prompt">
                             <span data-lucide="file-text" class="w-4 h-4" style="color: var(--text-secondary);"></span> Summarize Context
                         </button>
-                        <button id="export-markdown-btn-mobile" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[var(--sidebar-item-hover)]" title="Export Chat to Markdown">
-                            <span data-lucide="download" class="w-4 h-4" style="color: var(--text-secondary);"></span> Export Chat (.md)
+                        <button id="export-markdown-btn-mobile" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[var(--sidebar-item-hover)]" title="Export Chat">
+                            <span data-lucide="download" class="w-4 h-4" style="color: var(--text-secondary);"></span> Export Chat
                         </button>
                     </div>
                 </div>
@@ -3653,7 +3773,7 @@
                 <button id="summarize-context-btn" aria-label="Summarize Chat Context" title="Summarize Chat Context for Prompt" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="file-text" class="w-5 h-5"></span>
                 </button>
-                <button id="export-markdown-btn" aria-label="Export Chat to Markdown" title="Export Chat to Markdown" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                <button id="export-markdown-btn" aria-label="Export Chat" title="Export Chat" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="download" class="w-5 h-5"></span>
                 </button>
                 
@@ -3731,7 +3851,7 @@
                 </label>
                 <input type="file" id="chat-file-upload" accept="image/*, .txt, .pdf, .csv, .json, .xml, .md" class="hidden" multiple>
 
-                <textarea id="chat-input" data-help-content="Supports rich text input. Use slash commands like /new or /export for quick actions." class="flex-1 p-3.5 rounded-xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[200px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary); min-height: 56px;"></textarea>
+                <textarea id="chat-input" data-help-content="Supports rich text input. Use slash commands like /new or /export for quick actions." class="flex-1 p-3.5 rounded-xl border focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition-colors shadow-sm min-w-0 resize-none max-h-[200px] overflow-y-auto" placeholder="Type your message or ask a question..." rows="1" style="background-color: var(--card-bg); border-color: var(--border-color); color: var(--text-primary);"></textarea>
                 
                 <!-- Send Button (Smaller on Mobile, md:w-14) -->
                 <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: var(--bg-primary);">
@@ -3767,7 +3887,7 @@
     </div>
 
     <!-- NEW: Prompt Templates Modal/Overlay -->
-    <div id="prompt-templates-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-4">
+    <div id="prompt-templates-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[110] hidden p-2 sm:p-4">
         <div class="p-6 rounded-xl shadow-2xl w-full max-w-2xl transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary);">
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
                 <span data-lucide="layout-template" class="w-6 h-6" style="color: var(--accent-primary);"></span> Manage Prompt Templates
@@ -3842,9 +3962,10 @@
 
     <!-- NEW: Markdown Export Modal/Overlay -->
     <div id="markdown-export-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[110] hidden p-4 backdrop-blur-sm">
-        <div class="p-8 rounded-2xl shadow-xl w-full max-w-5xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
+        <!-- MODIFIED: Reduced inner div padding for small screens -->
+        <div class="p-8 sm:p-8 rounded-2xl shadow-xl w-full max-w-5xl h-5/6 flex flex-col transition-all duration-300" style="background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b pb-2" style="color: var(--accent-primary); border-color: var(--border-color);">
-                <span data-lucide="file-text" class="w-6 h-6" style="color: var(--accent-primary);"></span> Export Chat to Markdown
+                <span data-lucide="file-text" class="w-6 h-6" style="color: var(--accent-primary);"></span> Export Chat
             </h3>
             
             <!-- Tab Navigation -->
@@ -3866,16 +3987,35 @@
             </div>
 
             <!-- Footer Actions -->
-            <div class="flex justify-end gap-3 mt-4">
+            <!-- MODIFIED: Added flex-wrap for responsiveness on small screens -->
+            <div class="flex flex-wrap justify-end gap-3 mt-4"> 
                 <button id="copy-markdown-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
                     <span data-lucide="clipboard-copy" class="w-5 h-5 mr-2"></span> Copy Markdown
                 </button>
                 <button id="close-markdown-modal-btn" class="px-4 py-2 rounded-lg font-semibold flex items-center" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">
                     <span data-lucide="x" class="w-5 h-5 mr-2"></span> Close
                 </button>
-                <button id="download-markdown-btn" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center" style="background-color: var(--accent-primary); color: black;">
-                    <span data-lucide="download" class="w-5 h-5 mr-2"></span> Download .md
-                </button>
+                <!-- NEW: Dropdown for Download Formats -->
+                <div class="relative inline-block text-left">
+                    <button id="download-options-btn" type="button" class="px-4 py-2 rounded-lg font-semibold glow-button flex items-center justify-center" style="background-color: var(--accent-primary); color: black; min-width: 140px;" aria-expanded="false" aria-haspopup="true">
+                        <span data-lucide="download" class="w-5 h-5 mr-2"></span> Download
+                        <span data-lucide="chevron-down" class="w-4 h-4 ml-1"></span>
+                    </button>
+                    
+                    <div id="download-format-dropdown" class="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg hidden z-50" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="download-options-btn">
+                            <button id="download-pdf-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
+                                <span data-lucide="file-text" class="w-4 h-4"></span> .pdf (Best)
+                            </button>
+                            <button id="download-md-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
+                                <span data-lucide="file-code" class="w-4 h-4"></span> .md (Markdown)
+                            </button>
+                            <button id="download-txt-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
+                                <span data-lucide="file" class="w-4 h-4"></span> .txt (Plain Text)
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -4461,7 +4601,7 @@ ${commandTable}
 
         const COMMANDS = [
             { cmd: 'clear', title: 'Clear Input', desc: 'Clear the chat input and attachments', sample:'/clear' },
-            { cmd: 'export', title: 'Export Chat', desc: 'Open Markdown Export modal for current chat', sample:'/export', options: ['md','pdf','html','json'] },
+            { cmd: 'export', title: 'Export Chat', desc: 'Open chat export modal for current chat', sample:'/export', options: ['md','pdf','html','json'] },
             { cmd: 'new', title: 'New Chat', desc: 'Start a new conversation session', sample:'/new' },
             { cmd: 'help', title: 'Quick Start Guide', desc: 'Open the quick start guide modal', sample:'/help' },
             { cmd: 'guide', title: 'Quick Start Guide (alias)', desc: 'Alias for /help', sample:'/guide' },
@@ -4477,7 +4617,7 @@ ${commandTable}
             { cmd: 'light', title: 'Light Mode', desc: 'Switch to light mode', sample:'/light' },
             { cmd: 'voice', title: 'Voice Input', desc: 'Start/stop voice input (speech-to-text)', sample:'/voice start', options: ['start','stop','toggle'] },
             { cmd: 'attach', title: 'Attach Files', desc: 'Open the file picker to attach files', sample:'/attach', options: ['file','url'] },
-            { cmd: 'download', title: 'Download Markdown', desc: 'Download the current chat as Markdown', sample:'/download', options: ['md','pdf'] },
+            { cmd: 'download', title: 'Download chat', desc: 'Download the current chat as a file', sample:'/download', options: ['md','pdf'] },
             { cmd: 'signin', title: 'Sign in', desc: 'Open sign-in flow (Google)', sample:'/signin', options: ['google'] },
             { cmd: 'signout', title: 'Sign out', desc: 'Sign out of the current session', sample:'/signout' },
             { cmd: 'console', title: 'Developer Console', desc: 'Open the developer console to view logs', sample:'/console' },
@@ -4936,11 +5076,18 @@ ${commandTable}
         const markdownExportModal = document.getElementById('markdown-export-modal');
         const markdownExportInput = document.getElementById('markdown-export-input');
         const markdownExportPreview = document.getElementById('markdown-export-preview');
-        const downloadMarkdownBtn = document.getElementById('download-markdown-btn');
+        // MODIFIED: This is now the specific .md download button, not the primary "Download" button
+        const downloadMarkdownBtn = document.getElementById('download-md-btn'); 
         const closeMarkdownModalBtn = document.getElementById('close-markdown-modal-btn');
         const markdownTabEdit = document.getElementById('markdown-tab-edit');
         const markdownTabPreview = document.getElementById('markdown-tab-preview');
         const copyMarkdownBtn = document.getElementById('copy-markdown-btn'); 
+
+        // NEW: Download format dropdown elements
+        const downloadOptionsBtn = document.getElementById('download-options-btn');
+        const downloadFormatDropdown = document.getElementById('download-format-dropdown');
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
+        const downloadTxtBtn = document.getElementById('download-txt-btn'); 
 
         // ADDED: Scroll & Search Elements
         const jumpToTopBtn = document.getElementById('jump-to-top-btn');
@@ -5052,6 +5199,7 @@ ${commandTable}
 
         // --- Global State and Constants ---
         
+        const appName = "Small AI v2"; // Define app name for use in PDF export and other places
         const DEFAULT_THEME_NAME = 'default';
         const DEFAULT_MODE = 'dark';
         const CONVERSATION_VOICE_KEY = 'conversationVoice'; 
@@ -5069,72 +5217,30 @@ ${commandTable}
 
         // NEW: Model Definitions
         const availableModels = [
-            // --- Latest Aliases (Recommended for stability) ---
-            "gemini-2.5-flash-latest",
-            "gemini-2.5-pro-latest",
-            "gemini-pro-latest",
-            "gemini-flash-latest",
-
-            // --- Gemini 3 (Previews) ---
-            "gemini-3-pro-preview",
-            "gemini-3-pro-image-preview",
-            "gemini-3-flash-preview",
-
-            // --- Gemini 2.5 (All versions/flavors) ---
             "gemini-2.5-flash",
-            "gemini-2.5-flash-preview-09-2025",
-            "gemini-2.5-flash-image",
-            "gemini-2.5-flash-image-preview",
-            "gemini-2.5-flash-native-audio-preview-12-2025",
-            "gemini-2.5-flash-native-audio-preview-09-2025",
-            "gemini-2.5-flash-preview-tts",
-            "gemini-2.5-flash-lite",
-            "gemini-2.5-flash-lite-preview-09-2025",
             "gemini-2.5-pro",
-            "gemini-2.5-pro-preview-tts",
-            "gemini-2.5-computer-use-preview-10-2025", // NEW
-
-            // --- Gemini 2.0 (All versions/flavors) ---
             "gemini-2.0-flash",
             "gemini-2.0-flash-001",
-            "gemini-2.0-flash-exp",
-            "gemini-2.0-flash-preview-image-generation",
-            "gemini-2.0-flash-lite",
+            "gemini-2.0-flash-exp-image-generation",
             "gemini-2.0-flash-lite-001",
-            "gemini-2.0-pro",
-
-            // --- Gemini Experimental / Legacy / Other (NEW) ---
-            "gemini-exp-1206",
+            "gemini-2.0-flash-lite",
+            "gemini-flash-latest",
             "gemini-flash-lite-latest",
+            "gemini-pro-latest",
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-flash-image",
+            "gemini-2.5-flash-lite-preview-09-2025",
+            "gemini-3-pro-preview",
+            "gemini-3-flash-preview",
+            "gemini-3.1-pro-preview",
+            "gemini-3.1-pro-preview-customtools",
+            "gemini-3.1-flash-lite-preview",
+            "gemini-3-pro-image-preview",
+            "gemini-3.1-flash-image-preview",
             "gemini-robotics-er-1.5-preview",
-            "gemini-embedding-001", // Embedding model
-
-            // --- Imagen Models (NEW) ---
-            "imagen-4.0-generate-preview-06-06",
-            "imagen-4.0-ultra-generate-preview-06-06",
-            "imagen-4.0-generate-001",
-            "imagen-4.0-ultra-generate-001",
-            "imagen-4.0-fast-generate-001",
-
-            // --- Gemma Models (NEW) ---
-            "gemma-3-1b-it",
-            "gemma-3-4b-it",
-            "gemma-3-12b-it",
-            "gemma-3-27b-it",
-            "gemma-3n-e4b-it",
-            "gemma-3n-e2b-it",
-
-            // --- Other Experimental Models (NEW) ---
-            "nano-banana-pro-preview",
-            "deep-research-pro-preview-12-2025",
-            "aqa",
-            "veo-2.0-generate-001",
-            "veo-3.0-generate-001",
-            "veo-3.0-fast-generate-001",
-            "veo-3.1-generate-preview",
-            "veo-3.1-fast-generate-preview"
+            "gemini-2.5-computer-use-preview-10-2025"
         ];
-        const DEFAULT_MODEL = "gemini-2.5-flash-preview-09-2025";
+        const DEFAULT_MODEL = "gemini-3-flash-preview";
         let selectedModel = DEFAULT_MODEL;
 
         // Available theme names (both dark and light variants) — used for inline slash suggestions
@@ -6750,8 +6856,20 @@ ${commandTable}
 
         // Adjust chat input textarea height dynamically (Updated for minimum height)
         function adjustChatInputHeight() {
-            chatInput.style.height = '56px'; // Reset to minimum height (h-14 = 56px)
-            const newHeight = Math.min(chatInput.scrollHeight, 200); // Max height defined by CSS
+            // Temporarily set height to 'auto' to correctly calculate scrollHeight
+            // without being constrained by previous explicit height setting.
+            chatInput.style.height = 'auto'; 
+            
+            // Get the computed min-height from CSS, which will be responsive
+            const computedMinHeight = parseFloat(getComputedStyle(chatInput).minHeight);
+            
+            // Calculate the new height, ensuring it's at least the computedMinHeight
+            let newHeight = Math.max(computedMinHeight, chatInput.scrollHeight);
+            
+            // Clamp the height to the max-height (200px from max-h-[200px] utility class)
+            const computedMaxHeight = parseFloat(getComputedStyle(chatInput).maxHeight); // Should be 200px
+            newHeight = Math.min(newHeight, computedMaxHeight);
+            
             chatInput.style.height = newHeight + 'px';
         }
         // Utility for Prompt Tool visibility (Request 4)
@@ -8901,11 +9019,22 @@ Criteria:
             switchMarkdownTab('edit');
         }
 
-        function closeMarkdownExportModal() {
+        /**
+         * Closes the Markdown/Export modal and resets UI state.
+         */
+        function closeMarkdownModal() {
             markdownExportModal.classList.add('hidden');
             document.body.style.overflow = '';
+            // Reset dropdown state
+            if (downloadFormatDropdown) {
+                downloadFormatDropdown.classList.add('hidden');
+                downloadOptionsBtn.setAttribute('aria-expanded', 'false');
+            }
         }
 
+        /**
+         * Downloads the current chat content as a Markdown (.md) file.
+         */
         function downloadMarkdownFile() {
             const content = markdownExportInput.value;
             const currentSession = allChatSessions[currentSessionId];
@@ -8923,7 +9052,146 @@ Criteria:
             URL.revokeObjectURL(url);
             
             showCopyMessage('Markdown file downloaded!', 'var(--accent-success)');
-            closeMarkdownExportModal();
+            closeMarkdownModal(); // Close after download
+        }
+
+        /**
+         * Converts the current chat markdown content to plain text and downloads it.
+         * Simple markdown stripping, not exhaustive.
+         */
+        function downloadPlaintextFile() {
+            const markdownContent = markdownExportInput.value;
+            const currentSession = allChatSessions[currentSessionId];
+            const filename = `${currentSession.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.txt`;
+
+            // Basic markdown stripping for plain text
+            let plainText = markdownContent
+                .replace(/^#+\s/gm, '') // Remove headers
+                .replace(/(\*\*|__)(.*?)\1/g, '$2') // Remove bold
+                .replace(/(\*|_)(.*?)\1/g, '$2') // Remove italics
+                .replace(/`{1,3}([^`]+)`{1,3}/g, '$1') // Remove inline code and code blocks
+                .replace(/!\[.*?\]\((.*?)\)/g, '') // Remove images
+                .replace(/\[.*?\]\((.*?)\)/g, '$1') // Replace links with their URLs
+                .replace(/^>\s/gm, '') // Remove blockquotes
+                .replace(/^-(\s)/gm, '\u2022$1') // Replace list hyphens with bullet points
+                .replace(/\n\s*\n/g, '\n\n') // Normalize multiple newlines
+                .trim();
+
+            const blob = new Blob([plainText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showCopyMessage('Plain text file downloaded!', 'var(--accent-success)');
+            closeMarkdownModal(); // Close after download
+        }
+
+        /**
+         * Generates a PDF from the rendered HTML preview of the chat.
+         * Optimized for selectable text, accurate styling, and branding.
+         */
+        async function exportChatToPdf() {
+            if (!currentUser || !currentSessionId || !allChatSessions[currentSessionId]) {
+                showError("No active chat session found to export. Start a chat first.");
+                return;
+            }
+
+            // Ensure the preview tab is active and rendered correctly for html2pdf.
+            switchMarkdownTab('preview'); 
+            
+            // Wait for rendering to complete before creating the PDF (critical for images/math)
+            await new Promise(resolve => setTimeout(resolve, 500)); 
+
+            const currentSession = allChatSessions[currentSessionId];
+            const filename = `${currentSession.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.pdf`;
+
+            // Create a temporary container to clone the preview content and remove unnecessary elements
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = markdownExportPreview.innerHTML; // Clone the rendered content
+
+            // Remove interactive elements from the cloned content that shouldn't appear in PDF
+            tempDiv.querySelectorAll('.message-actions').forEach(el => el.remove());
+            tempDiv.querySelectorAll('.code-block-copy-button').forEach(el => el.remove());
+            
+            // Apply current theme styles directly to the cloned content for accurate rendering
+            // This is crucial because html2pdf takes a snapshot, so styles need to be explicit
+            tempDiv.style.fontFamily = getComputedStyle(document.body).getPropertyValue('--font-body');
+            tempDiv.style.color = getComputedStyle(document.body).getPropertyValue('--text-primary');
+            tempDiv.style.backgroundColor = getComputedStyle(document.body).getPropertyValue('--bg-secondary');
+            
+            // It is also helpful to explicitly set basic block styles to ensure predictability
+            tempDiv.style.padding = '10pt'; // Ensure some internal padding for content
+
+            // Options for html2pdf
+            // Optimized for selectable text by removing explicit scale/dpi
+            const pdfOptions = {
+                // Set margins for content to avoid overlapping header/footer
+                // [top, left, bottom, right] in points (1 inch = 72pt)
+                margin: [40, 15, 30, 15], 
+                filename: filename,
+                enableLinks: true, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { 
+                    letterRendering: true, 
+                    useCORS: true, 
+                    allowTaint: true, 
+                    scrollY: 0, 
+                    // Crucial for selectable text: removed explicit 'scale' and 'dpi'.
+                    // This allows html2pdf.js to defer to jsPDF's internal renderer for simpler elements (like text),
+                    // which can produce native, selectable PDF text objects.
+                    // If complex styling prevents direct rendering, it will still fall back to image.
+                },
+                jsPDF: { 
+                    unit: 'pt', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                },
+                pagebreak: { 
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    before: '.page-break-before' 
+                }
+            };
+            
+            // Trigger the PDF generation
+            html2pdf().set(pdfOptions).from(tempDiv)
+                .toPdf().get('pdf').then(function (pdf) {
+                    const pageCount = pdf.internal.getNumberOfPages();
+                    const chatTitle = currentSession.title;
+                    const exportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const exportTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                    for (let i = 1; i <= pageCount; i++) {
+                        pdf.setPage(i);
+
+                        // Branding: Header
+                        pdf.setFontSize(10);
+                        pdf.setTextColor(50, 50, 50); // Dark grey for text (ensures visibility on various themes)
+                        
+                        // Left-aligned app name and chat title
+                        pdf.text(`${appName} - ${chatTitle}`, 15, 25); 
+                        
+                        // Right-aligned export date and time
+                        pdf.text(`Exported: ${exportDate} ${exportTime}`, pdf.internal.pageSize.getWidth() - 15, 25, { align: 'right' });
+                        
+                        // Branding: Footer - Page numbers
+                        pdf.setFontSize(8);
+                        pdf.text(`Page ${i} of ${pageCount}`, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - 15, { align: 'center' });
+                    }
+                }).save()
+                .then(() => {
+                    showCopyMessage('PDF file downloaded!', 'var(--accent-success)');
+                    closeMarkdownModal();
+                })
+                .catch(error => {
+                    console.error('Error generating PDF:', error);
+                    showError('Failed to generate PDF. Check console for details.');
+                });
         }
 
         // --- NEW: Attachment Editor Logic ---
@@ -9114,8 +9382,31 @@ Criteria:
         
         // NEW: Markdown Export Event Listeners
         if (exportMarkdownBtn) exportMarkdownBtn.addEventListener('click', openMarkdownExportModal);
-        if (closeMarkdownModalBtn) closeMarkdownModalBtn.addEventListener('click', closeMarkdownExportModal);
-        if (downloadMarkdownBtn) downloadMarkdownBtn.addEventListener('click', downloadMarkdownFile);
+        if (closeMarkdownModalBtn) closeMarkdownModalBtn.addEventListener('click', closeMarkdownModal);
+        // MODIFIED: downloadMarkdownBtn now triggers specific markdown download
+        if (downloadMarkdownBtn) downloadMarkdownBtn.addEventListener('click', downloadMarkdownFile); 
+        
+        // NEW: Download options dropdown event listener
+        if (downloadOptionsBtn) {
+            downloadOptionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent document click from immediately closing
+                const isExpanded = downloadFormatDropdown.classList.toggle('hidden');
+                downloadOptionsBtn.setAttribute('aria-expanded', !isExpanded);
+                createIcons(); // Re-render icons for chevron change
+            });
+            // Close dropdown if clicking outside
+            document.addEventListener('click', (e) => {
+                if (!downloadOptionsBtn.contains(e.target) && !downloadFormatDropdown.contains(e.target)) {
+                    downloadFormatDropdown.classList.add('hidden');
+                    downloadOptionsBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+        // NEW: Specific format download buttons
+        if (downloadPdfBtn) downloadPdfBtn.addEventListener('click', exportChatToPdf);
+        if (downloadTxtBtn) downloadTxtBtn.addEventListener('click', downloadPlaintextFile);
+
+
         // NEW: Documentation Modal Event Listener
         if (closeDocumentationModalBtn) closeDocumentationModalBtn.addEventListener('click', () => {
             documentationModal.classList.add('hidden');
@@ -9125,9 +9416,9 @@ Criteria:
         if (markdownTabPreview) markdownTabPreview.addEventListener('click', () => switchMarkdownTab('preview'));
         if (copyMarkdownBtn) copyMarkdownBtn.addEventListener('click', () => {
             copyToClipboard(markdownExportInput.value);
-            closeMarkdownExportModal();
+            closeMarkdownModal(); // Changed to new generic close function
             showCopyMessage('Full chat Markdown copied to clipboard!', 'var(--accent-primary)');
-        }); // <<< NEW LINE
+        });
 
         // --- Scroll Jump Button Logic ---
         if (jumpToTopBtn && jumpToBottomBtn) {
