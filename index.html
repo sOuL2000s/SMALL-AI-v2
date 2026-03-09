@@ -179,7 +179,108 @@
             .chat-message.ai .message-content code:not(pre > code) {
                 font-size: 0.8em; /* From 0.9em */
             }
+
+            /* NEW: Adjustments for chat-input-area-container and its elements */
+            #chat-input-area-container {
+                padding: 0.5rem; /* Reduce overall padding from 1rem (16px) to 0.5rem (8px) */
+            }
+            #chat-input-area-container .flex.gap-2.items-end { /* Targeting the inner flex container */
+                gap: 0.25rem; /* Reduce gap between input elements from 8px to 4px */
+            }
+            #chat-input-area-container #voice-input-btn,
+            #chat-input-area-container label[for="chat-file-upload"],
+            #chat-input-area-container #send-chat-btn {
+                width: 36px; /* Smaller button width */
+                height: 36px; /* Smaller button height */
+                border-radius: 0.75rem; /* Adjust border-radius to match smaller size */
+            }
+            #chat-input-area-container #voice-input-btn .lucide,
+            #chat-input-area-container label[for="chat-file-upload"] .lucide,
+            #chat-input-area-container #send-chat-btn .lucide {
+                width: 1rem; /* Smaller icons inside buttons */
+                height: 1rem;
+            }
+            #chat-input {
+                padding: 0.6rem 0.75rem; /* Slightly reduced padding for the textarea itself */
+                min-height: 36px; /* Match new button height */
+                border-radius: 0.75rem; /* Match new button border radius */
+            }
+
+            /* NEW: Adjustments for chat search input container on 300px */
+            #chat-search-input-container {
+                padding: 0.25rem 0.5rem; /* Even smaller padding (4px horizontal) */
+            }
+            #chat-search-input-container .flex.items-center.gap-2 { /* The inner flex container */
+                gap: 0.25rem; /* Reduced gap */
+            }
+            #chat-search-input {
+                padding: 0.4rem 0.5rem; /* Smaller padding */
+                font-size: 0.8rem; /* Smaller font size */
+                border-radius: 0.5rem; /* Smaller radius */
+            }
+            #chat-search-prev-btn,
+            #chat-search-next-btn,
+            #chat-search-close-btn {
+                padding: 0.3rem; /* Smaller buttons */
+                border-radius: 0.5rem; /* Smaller radius */
+            }
+            #chat-search-prev-btn .lucide,
+            #chat-search-next-btn .lucide,
+            #chat-search-close-btn .lucide {
+                width: 0.85rem; /* Even smaller icons */
+                height: 0.85rem;
+            }
+            #chat-search-count {
+                font-size: 0.7rem; /* Smaller font for count */
+                width: 8ch; /* Even smaller char width for count */
+            }
+
+            /* NEW: Adjust header padding and font sizes for extremely small screens */
+            .flex.justify-between.items-center.p-4.border-b { /* Target the header bar */
+                padding: 0.5rem; /* Reduce header padding to 8px */
+            }
+            #main-chat-window h1 { /* Current Chat title */
+                font-size: 1rem; /* Reduce to 16px from 20px */
+            }
+            #main-chat-window h1 .lucide { /* Sparkles icon in header */
+                width: 1.25rem; /* Reduce from 24px to 20px */
+                height: 1.25rem;
+            }
+            #hamburger-menu-button { /* Hamburger button */
+                width: 2rem; /* Reduce from 40px to 32px */
+                height: 2rem;
+            }
+            #hamburger-menu-button .lucide {
+                width: 1rem; /* Reduce icon inside from 24px to 16px */
+                height: 1rem;
+            }
+            #find-chat-btn,
+            #mobile-more-actions-btn { /* Header right-side buttons */
+                width: 2rem; 
+                height: 2rem;
+                padding: 0.25rem; /* Reduce padding from p-2 (0.5rem) to p-1 (0.25rem) */
+            }
+            #find-chat-btn .lucide,
+            #mobile-more-actions-btn .lucide {
+                width: 1rem; /* Reduce icon inside from 20px to 16px */
+                height: 1rem;
+            }
+            /* Ensure dropdown menu for mobile actions is responsive */
+            #mobile-action-dropdown-menu {
+                width: 180px; /* Constrain width if it becomes too wide */
+                right: 0.5rem; /* Align to the new reduced padding */
+            }
+            #mobile-action-dropdown-menu .px-3.py-2 {
+                padding: 0.4rem 0.6rem; /* Adjust dropdown item padding */
+                font-size: 0.8rem; /* Adjust font size */
+            }
+            #mobile-action-dropdown-menu .switch {
+                transform: scale(0.8); /* Scale down the dark mode switch */
+                transform-origin: right;
+            }
         }
+
+
 
         /* --- Theme Definitions --- */
         
@@ -644,17 +745,17 @@
             --bg-primary: #05001C;
             --bg-secondary: #120033;
             --text-primary: #F1F5F9; /* Neutral light text for dark background */
-            --text-secondary: #8A2BE2;
+            --text-secondary: #C0A4E8; /* Brighter purple for better contrast */
             --border-color: #2F004F;
             --card-bg: #1A0040;
             --card-border: #2F004F;
             --header-bg: #120033;
             --accent-primary: #FF1493;
-            --accent-primary-hover: #C7007C;
+            --accent-primary-hover: #E6007A; /* Stronger hover */
             --accent-secondary: #00BFFF;
-            --accent-error: #F87171;
-            --accent-success: #4ADE80;
-            --user-bubble-bg: #4B0082;
+            --accent-error: #FF6666; /* Softer red */
+            --accent-success: #6AFF9C; /* Brighter green */
+            --user-bubble-bg: #3A0066; /* Slightly darker, more distinct user bubble */
             --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #2E0854;
             --ai-bubble-text: var(--text-primary);
@@ -848,17 +949,17 @@
             --bg-primary: #1A0E2A;
             --bg-secondary: #2C1840;
             --text-primary: #F1F5F9; /* Neutral light text for dark background */
-            --text-secondary: #D8BFD8;
+            --text-secondary: #EEDDFF; /* Brighter, more vibrant secondary text */
             --border-color: #40265B;
             --card-bg: #2C1840;
             --card-border: #40265B;
             --header-bg: #1A0E2A;
-            --accent-primary: #FF5722;
-            --accent-primary-hover: #E64A19;
-            --accent-secondary: #FFCC80;
-            --accent-error: #F87171;
-            --accent-success: #4ADE80;
-            --user-bubble-bg: #7C4F9B;
+            --accent-primary: #FF8C00; /* More vibrant orange */
+            --accent-primary-hover: #E67A00;
+            --accent-secondary: #FFD700; /* Gold for secondary accent */
+            --accent-error: #FF6666; /* Softer red */
+            --accent-success: #6AFF9C; /* Brighter green */
+            --user-bubble-bg: #5E3B81; /* More distinct purple */
             --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #40265B;
             --ai-bubble-text: var(--text-primary);
@@ -980,22 +1081,204 @@
         }
         /* Removed @keyframes aurora-move */
 
+        /* --- Welcome Screen Styling (Awesome Edition) --- */
+        #initial-welcome-screen {
+            /* NEW: Reset default margins, use margin:auto for flex centering within #chat-history */
+            margin: auto; 
+            padding: 0; /* Let inner container handle padding */
+            
+            /* Remove min-height, let content dictate height */
+            min-height: unset; 
+            
+            display: block; /* Ensure it acts as a block */
+            height: fit-content; /* Only take the height needed by its content */
+            width: 100%; /* Take full width of parent */
+            max-width: 6xl; /* Limit max width on very large screens */
+
+            /* All visual effects (background, shadow, border-radius) are now on #welcome-screen-container */
+            /* so this element is just a structural container for centering */
+        }
+
+        /* Keyframe animation is now for #welcome-screen-container */
+        /* @keyframes background-pan {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        } */
+
+        /* Entry Animations */
+        .welcome-fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .welcome-fade-in-up.delay-1 { animation-delay: 0.1s; }
+        .welcome-fade-in-up.delay-2 { animation-delay: 0.2s; }
+        .welcome-fade-in-up.delay-3 { animation-delay: 0.3s; }
+        .welcome-fade-in-up.delay-4 { animation-delay: 0.4s; }
+        .welcome-fade-in-up.delay-5 { animation-delay: 0.5s; }
+        .welcome-fade-in-up.delay-6 { animation-delay: 0.6s; }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .welcome-fade-in-up {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
+            #initial-welcome-screen {
+                animation: none !important;
+                background-position: center center !important;
+            }
+        }
+
+        /* Style for Quick Action Buttons */
+        .quick-action-button {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-subtle);
+            transition: var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .quick-action-button:hover {
+            background-color: var(--sidebar-item-hover);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        .quick-action-button:active {
+            transform: translateY(0);
+        }
+
+        /* --- Welcome Screen Container Styling (Awesome Edition - Integrated) --- */
+        #welcome-screen-container {
+            /* This div wraps all welcome content and is centered by #chat-history */
+            /* It gets no background, as #chat-history now provides it */
+            /* Removed the 'margin: auto;' from this container as it is now inside #initial-welcome-screen which handles it. */
+            /* #initial-welcome-screen now ensures proper top/bottom spacing via margin: auto */
+            
+            /* NEW: Moved background, animation, border-radius, box-shadow from #initial-welcome-screen to here */
+            background-color: var(--bg-primary); /* Fallback */
+            background-image: 
+                radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--accent-primary) 10%, transparent) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, color-mix(in srgb, var(--accent-secondary) 10%, transparent) 0%, transparent 40%),
+                url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="welcomeGrid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 L 0 20" fill="none" stroke="color-mix(in srgb, var(--border-color) 40%, transparent)" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(%23welcomeGrid)"/></svg>');
+            background-size: cover, cover, auto;
+            background-blend-mode: overlay, overlay, multiply;
+            animation: background-pan 30s infinite alternate ease-in-out;
+            max-width: 6xl; /* Limit max width on very large screens */
+            width: 90%; /* Default width, responsive via media queries */
+            padding: 2rem 1rem; /* Default padding for internal content */
+            color: var(--text-secondary); /* Default text color */
+            text-align: center;
+            flex-shrink: 0; /* Allow it to shrink if necessary, but try not to force scroll on small content */
+            height: fit-content; /* Only take the height needed by its content */
+            /* margin: auto;  Handled by #initial-welcome-screen's flex centering */
+            border-radius: var(--radius-xl); /* Match chat message styling */
+            box-shadow: var(--shadow-lg); /* Add a subtle shadow */
+        }
+
+        @keyframes background-pan {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* Entry Animations (keep as is) */
+        .welcome-fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .welcome-fade-in-up.delay-1 { animation-delay: 0.1s; }
+        .welcome-fade-in-up.delay-2 { animation-delay: 0.2s; }
+        .welcome-fade-in-up.delay-3 { animation-delay: 0.3s; }
+        .welcome-fade-in-up.delay-4 { animation-delay: 0.4s; }
+        .welcome-fade-in-up.delay-5 { animation-delay: 0.5s; }
+        .welcome-fade-in-up.delay-6 { animation-delay: 0.6s; }
+
+        /* Reduced motion support (update selector for #welcome-screen-container) */
+        @media (prefers-reduced-motion: reduce) {
+            .welcome-fade-in-up {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
+            #welcome-screen-container { /* Apply to the container holding the background */
+                animation: none !important;
+                background-position: center center !important;
+            }
+        }
+
+        /* Responsive content adjustments for the welcome screen text itself */
+        @media (max-width: 768px) {
+            #welcome-screen-container {
+                padding: 1.5rem 1rem;
+                width: 95%; /* Take more width on tablets */
+            }
+            #welcome-screen-container .text-4xl { font-size: 2.5rem; }
+            #welcome-screen-container .text-xl { font-size: 1.25rem; }
+            #welcome-screen-container .text-lg { font-size: 1.125rem; }
+            #welcome-screen-container .text-base { font-size: 0.95rem; }
+            #welcome-screen-container .quick-action-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+        @media (max-width: 480px) {
+            #welcome-screen-container {
+                padding: 1rem 0.5rem;
+                width: 100%; /* Take full width on small phones */
+            }
+            #welcome-screen-container .text-4xl { font-size: 2rem; }
+            #welcome-screen-container .text-xl { font-size: 1rem; }
+            #welcome-screen-container .text-lg { font-size: 1rem; }
+            #welcome-screen-container .text-base { font-size: 0.875rem; }
+            #welcome-screen-container .quick-action-button {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            #welcome-screen-container ul {
+                padding-left: 0; /* Remove default padding from Tailwind/browser */
+                list-style-position: outside; /* Ensure bullets show */
+                text-align: left; /* Keep list left aligned */
+                margin-left: 1.25rem; /* Add custom margin */
+            }
+        }
+
         /* Timeless Echo Theme: Dark Mode */
         body[data-theme="timeless-echo-dark"] {
             --bg-primary: #2C2C2C;
             --bg-secondary: #3D3D3D;
             --text-primary: #F1F5F9; /* Neutral light text for dark background */
-            --text-secondary: #B0B0B0;
+            --text-secondary: #D0D0D0; /* Brighter secondary text */
             --border-color: #555555;
             --card-bg: #3D3D3D;
             --card-border: #555555;
             --header-bg: #2C2C2C;
-            --accent-primary: #A57C52;
-            --accent-primary-hover: #8B653D;
-            --accent-secondary: #C8A87C;
-            --accent-error: #F87171;
-            --accent-success: #4ADE80;
-            --user-bubble-bg: #785A3D;
+            --accent-primary: #E0B080; /* Brighter gold/orange */
+            --accent-primary-hover: #C9966C;
+            --accent-secondary: #FFD2A8; /* Lighter accent secondary */
+            --accent-error: #FF8888; /* Softer red */
+            --accent-success: #8CD9A3; /* Lighter green */
+            --user-bubble-bg: #6B4E33; /* More distinct brown */
             --user-bubble-text: var(--text-primary);
             --ai-bubble-bg: #555555;
             --ai-bubble-text: var(--text-primary);
@@ -1214,7 +1497,7 @@
             --conversation-text: var(--text-primary);
             --conversation-indicator: var(--accent-primary);
             --code-block-bg: #1A1A1A;
-            --code-block-header-bg: #27272A;
+            --code-block-header-bg: #0A0A0A; /* Made darker to match bg-secondary for better contrast */
             --code-block-border: #3F3F46;
 
             background-color: var(--bg-primary);
@@ -1248,7 +1531,7 @@
             --conversation-text: var(--text-primary);
             --conversation-indicator: var(--accent-primary);
             --code-block-bg: #F5F5F5;
-            --code-block-header-bg: #ECEFF1;
+            --code-block-header-bg: #F0F2F5; /* Aligned with bg-primary for harmony */
             --code-block-border: #CFD8DC;
 
             background-color: var(--bg-primary);
@@ -1258,20 +1541,20 @@
         body[data-theme="cyberpunk-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #1A0F24;
-            --text-primary: #F1F5F9; /* Neutral light text for dark background */
-            --text-secondary: #A08AB2;
+            --text-primary: #E0E0E0; /* Slightly desaturated light text */
+            --text-secondary: #C0A8D2; /* Brighter secondary text */
             --border-color: #3A1D4D;
             --card-bg: #1A0F24;
             --card-border: #3A1D4D;
             --header-bg: #0A050F;
-            --accent-primary: #00FFFF;
-            --accent-primary-hover: #00CED1;
-            --accent-secondary: #FF1493;
-            --accent-error: #FF4500;
-            --accent-success: #32CD32;
-            --user-bubble-bg: #3A204D;
+            --accent-primary: #00FFFF; /* Electric Cyan */
+            --accent-primary-hover: #00DDE0;
+            --accent-secondary: #FF0077; /* Electric Pink */
+            --accent-error: #FF3300; /* Vibrant Orange-Red */
+            --accent-success: #00FF88; /* Vibrant Green */
+            --user-bubble-bg: #2E183E; /* Darker purple for user */
             --user-bubble-text: var(--text-primary);
-            --ai-bubble-bg: #100814;
+            --ai-bubble-bg: #0D0611; /* Very dark purple for AI */
             --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #3A1D4D;
@@ -1281,7 +1564,7 @@
             --conversation-bg: rgba(10, 5, 15, 0.95);
             --conversation-text: var(--text-primary);
             --conversation-indicator: var(--accent-primary);
-            --code-block-bg: #100814;
+            --code-block-bg: #0D0611;
             --code-block-header-bg: #20102A;
             --code-block-border: #3A1D4D;
 
@@ -1324,20 +1607,20 @@
         body[data-theme="matrix-dark"] {
             --bg-primary: #000000;
             --bg-secondary: #0A0A0A;
-            --text-primary: #00FF00; /* Intentional primary text color */
-            --text-secondary: #008000;
-            --border-color: #004000;
+            --text-primary: #00FA00; /* Slightly desaturated primary green for readability */
+            --text-secondary: #00A300; /* Darker green for secondary text */
+            --border-color: #004F00;
             --card-bg: #0A0A0A;
-            --card-border: #004000;
+            --card-border: #004F00;
             --header-bg: #000000;
             --accent-primary: #00FF00;
-            --accent-primary-hover: #00CC00;
+            --accent-primary-hover: #00D100;
             --accent-secondary: #00FFFF;
-            --accent-error: #FF0000;
-            --accent-success: #00FF00;
-            --user-bubble-bg: #001A00;
-            --user-bubble-text: var(--text-primary);
-            --ai-bubble-bg: #000500;
+            --accent-error: #FF3333; /* Softer red for errors */
+            --accent-success: #00E600; /* Softer green for success */
+            --user-bubble-bg: #002200; /* Darker, more distinct user bubble */
+            --user-bubble-text: #00FA00; /* Keep consistent with primary text */
+            --ai-bubble-bg: #000C00; /* Slightly more visible AI bubble */
             --ai-bubble-text: var(--text-primary);
             --sidebar-bg: #000000;
             --sidebar-border: #004000;
@@ -1457,7 +1740,7 @@
             --bg-primary: #000000;
             --bg-secondary: #282A36;
             --text-primary: #F8F8F2; /* Neutral light text for dark background */
-            --text-secondary: #6272A4;
+            --text-secondary: #8B94B0; /* Brighter secondary text for better contrast */
             --border-color: #44475A;
             --card-bg: #282A36;
             --card-border: #44475A;
@@ -2381,12 +2664,26 @@
         #previous-chats-section::-webkit-scrollbar-thumb:hover {
             background-color: var(--accent-primary-hover);
         }
-        #chat-history {
-            overflow-y: auto;
-            overflow-x: hidden;
 
+        /* --- Redefine #chat-history for proper welcome screen rendering --- */
+        #chat-history {
+            flex: 1; /* Takes remaining vertical space */
+            overflow-y: auto; /* Allows scrolling of content */
+            overflow-x: hidden; /* Prevents horizontal scroll */
+            display: flex; /* Flex container to layout children */
+            flex-direction: column; /* Stack children vertically */
+            align-items: center; /* Center children horizontally */
+            /* REMOVED: justify-content: center;  as this caused the welcome message to be cut off */
+            width: 100%; /* Take full width of parent */
+            background-color: var(--bg-primary); /* Fallback/base color */
+            transition: var(--transition-slow); /* For theme changes */
             scrollbar-width: thin;
             scrollbar-color: var(--accent-primary) var(--sidebar-item-hover);
+            
+            /* NEW: Add padding-top to ensure content starts below the fixed header */
+            /* These values consider the header height on different screen sizes */
+            padding-top: 4.5rem; /* Default for desktop (header ~4.5rem high) + extra spacing */
+            padding-bottom: 2rem; /* Consistent bottom padding */
         }
 
         /* Webkit (Chrome, Safari, Edge) scrollbar styles for #chat-history */
@@ -3361,6 +3658,18 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
         }
+
+        /* NEW: Responsive adjustments for chat search input container */
+        @media (max-width: 480px) {
+            #chat-search-input-container {
+                padding: 0.5rem 0.75rem; /* Reduce padding on very small screens */
+            }
+            #chat-search-count {
+                width: 14ch; /* Allow it to shrink a bit more, or use flex-none if needed */
+                min-width: unset;
+                flex-shrink: 0; /* Prevent shrinking too much */
+            }
+        }
         #chat-search-input {
             background-color: var(--card-bg);
             border-color: var(--border-color);
@@ -3445,7 +3754,33 @@
         }
         .command-palette-item .sample { font-weight: 600; }
 
+        /* Responsive adjustments for #chat-history padding-top */
+        @media (max-width: 768px) {
+            #chat-history {
+                padding-top: 4rem; /* Adjust for tablet/mobile (header ~3.5-4rem high) + extra spacing */
+                padding-bottom: 1.5rem;
+            }
+            /* NEW: Adjust padding on #welcome-screen-container for small screens (internal padding of the card) */
+            #welcome-screen-container {
+                padding: 1.5rem 1rem; /* Adjust padding on card itself */
+            }
+        }
+        @media (max-width: 480px) {
+            #chat-history {
+                padding-top: 3.5rem; /* Adjust for very small mobile (header ~3rem high) + extra spacing */
+                padding-bottom: 1rem;
+            }
+            /* NEW: Adjust padding on #welcome-screen-container for very small screens */
+            #welcome-screen-container {
+                padding: 1rem 0.5rem; /* Further reduce padding on card for very small screens */
+            }
+        }
+
         /* Floating palette button (moved left to avoid overlapping the send button) */
+        /* NEW: Ensure the mobile dropdown's parent is relative to contain the dropdown (Issue 2) */
+        #header-mobile-dropdown-container { 
+            position: relative; 
+        }
         #open-command-palette-btn {
             position: fixed;
             left: 18px; /* moved to the left to avoid send button on the right */
@@ -3806,8 +4141,11 @@
         </div>
 
         <!-- Chat history div with a minimum height and scroll -->
-        <div id="chat-history" class="p-4 overflow-y-auto flex-1 flex flex-col">
-            <!-- Initial AI message will be appended here by JS -->
+        <!-- Chat history div with a minimum height and scroll -->
+        <div id="chat-history" class="flex-1 overflow-y-auto overflow-x-hidden">
+            <div id="initial-welcome-screen" class="flex flex-col items-center justify-center text-center max-w-xl mx-auto h-full" style="color: var(--text-secondary);">
+                <!-- Initial AI message will be appended here by JS -->
+            </div>
         </div>
         
         <!-- Chat input section with attachment, voice and send button -->
@@ -5200,6 +5538,7 @@ ${commandTable}
         // --- Global State and Constants ---
         
         const appName = "Small AI v2"; // Define app name for use in PDF export and other places
+        const INITIAL_AI_MESSAGE_TEXT = "Welcome! How can I help you today?"; // NEW: Simple initial message for chat history
         const DEFAULT_THEME_NAME = 'default';
         const DEFAULT_MODE = 'dark';
         const CONVERSATION_VOICE_KEY = 'conversationVoice'; 
@@ -6097,17 +6436,75 @@ ${commandTable}
 
         // --- Core UI Rendering Helpers ---
         
-        // Helper function to render the stylized welcome screen
-        function renderWelcomeScreen(initialMessage) {
+        // Remove the old initialMessage constant if it still exists from previous turns
+        // const initialMessage = '...'; 
+
+        function renderWelcomeScreen() {
+            // Clear existing content in chatHistoryDiv
             chatHistoryDiv.innerHTML = `
-                <div id="initial-welcome-screen" class="flex-1 flex flex-col items-center justify-center text-center p-8 max-w-xl mx-auto" style="color: var(--text-secondary);">
-                    <span data-lucide="sparkles" class="w-12 h-12 mb-4" style="color: var(--accent-primary);"></span>
-                    <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Small AI v2</h2>
-                    <p class="text-lg mb-6">${initialMessage}</p>
-                    <p class="text-sm italic">You can attach files (paperclip), use voice input, or press Ctrl/Cmd+F to search the chat history.</p>
+                <div id="welcome-screen-container" class="flex flex-col items-center justify-center">
+                    <div class="welcome-fade-in-up delay-1">
+                        <span data-lucide="sparkles" class="w-16 h-16 mb-4" style="color: var(--accent-primary);"></span>
+                    </div>
+                    <h2 class="text-4xl font-black mb-4 welcome-fade-in-up delay-2" style="color: var(--text-primary);">
+                        Welcome to Small AI v2
+                    </h2>
+                    <p class="text-xl mb-6 welcome-fade-in-up delay-3" style="color: var(--text-secondary);">
+                        Your powerful multimodal AI assistant powered by Gemini.
+                    </p>
+                    
+                    <div class="w-full text-left mb-8 px-4 welcome-fade-in-up delay-4">
+                        <h3 class="text-lg font-bold mb-3" style="color: var(--accent-secondary);">Key Capabilities:</h3>
+                        <ul class="list-disc list-inside text-base space-y-2" style="color: var(--text-secondary);">
+                            <li><strong style="color: var(--text-primary);">Detailed Data Analysis:</strong> Excel at complex data interpretation.</li>
+                            <li><strong style="color: var(--text-primary);">Coding Assistance:</strong> Generate, debug, and refactor code.</li>
+                            <li><strong style="color: var(--text-primary);">Creative Tasks:</strong> Brainstorm ideas, write content, and more.</li>
+                            <li><strong style="color: var(--text-primary);">Project Planning:</strong> Structure projects, outline steps, and strategize.</li>
+                            <li><strong style="color: var(--text-primary);">Multimodal Input:</strong> Analyze images, PDFs, code, and documents (via paperclip).</li>
+                        </ul>
+                    </div>
+
+                    <div class="w-full mb-8 px-4 welcome-fade-in-up delay-5">
+                        <h3 class="text-lg font-bold mb-4" style="color: var(--accent-primary);">Quick Actions:</h3>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button id="welcome-new-chat-btn" class="quick-action-button">
+                                <span data-lucide="plus" class="w-5 h-5"></span> Start a New Chat
+                            </button>
+                            <button id="welcome-docs-btn" class="quick-action-button">
+                                <span data-lucide="book-open" class="w-5 h-5"></span> Open Documentation
+                            </button>
+                            <button id="welcome-templates-btn" class="quick-action-button">
+                                <span data-lucide="layout-template" class="w-5 h-5"></span> Manage Templates
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="text-sm italic welcome-fade-in-up delay-6" style="color: var(--text-tertiary);">
+                        You can attach files (paperclip), use voice input, or press <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>F</kbd> to search the chat history.
+                    </p>
                 </div>
             `;
-            createIcons(); 
+            createIcons();
+
+            // Attach event listeners to the new quick action buttons
+            document.getElementById('welcome-new-chat-btn')?.addEventListener('click', () => {
+                createNewChatSession();
+                // Close sidebar if open on mobile
+                sidebar.classList.add('hidden-mobile'); 
+                sidebarOverlay.classList.remove('active');
+            });
+            document.getElementById('welcome-docs-btn')?.addEventListener('click', () => {
+                openDocumentationModal();
+                // Close sidebar if open on mobile
+                sidebar.classList.add('hidden-mobile'); 
+                sidebarOverlay.classList.remove('active');
+            });
+            document.getElementById('welcome-templates-btn')?.addEventListener('click', () => {
+                if (promptTemplatesModal) promptTemplatesModal.classList.remove('hidden');
+                // Close sidebar if open on mobile
+                sidebar.classList.add('hidden-mobile'); 
+                sidebarOverlay.classList.remove('active');
+            });
         }
 
         function renderSidebarChats(query = '') {
@@ -6183,8 +6580,6 @@ ${commandTable}
                 return;
             }
 
-            const initialMessage = 'Welcome to Small AI v2, your powerful multimodal AI assistant powered by Gemini. I specialize in detailed data analysis, coding, creative tasks, and project planning. I can analyze images, PDFs, code, and documents uploaded via the paperclip icon. Whether you need strategic analysis for specific domains or technical assistance, I\'m ready. How can I help you tackle a complex problem or analyze a file today?';
-            
             // Set the base title to ensure consistency for the auto-title check later.
             const titleForNewSession = (initialTitle === 'Welcome Chat' || initialTitle === 'New Chat') 
                                     ? 'Welcome Chat' : initialTitle; 
@@ -6194,7 +6589,8 @@ ${commandTable}
             const newSession = {
                 id: newId,
                 title: titleForNewSession,
-                history: [{ role: 'model', parts: [{ text: initialMessage }] }],
+                // FIXED: Use the defined constant for the initial AI message in history
+                history: [{ role: 'model', parts: [{ text: INITIAL_AI_MESSAGE_TEXT }] }], 
                 timestamp: Date.now()
             };
             
@@ -6213,8 +6609,8 @@ ${commandTable}
             adjustChatInputHeight();
             chatInput.focus();
 
-            // Always render the custom welcome screen for a new chat
-            renderWelcomeScreen(initialMessage);
+            // FIXED: renderWelcomeScreen() no longer takes an argument
+            renderWelcomeScreen(); 
             
             renderSidebarChats();
             sidebar.classList.add('hidden-mobile'); 
@@ -6248,12 +6644,13 @@ ${commandTable}
             adjustChatInputHeight();
             chatInput.focus();
 
-            // Check if this is the initial welcome chat (only 1 AI message)
-            const initialMessageText = 'Welcome to Small AI v2, your powerful multimodal AI assistant powered by Gemini. I specialize in detailed data analysis, coding, creative tasks, and project planning. I can analyze images, PDFs, code, and documents uploaded via the paperclip icon. Whether you need strategic analysis for specific domains or technical assistance, I\'m ready. How can I help you tackle a complex problem or analyze a file today?';
-            const isWelcomeChat = session.history.length === 1 && session.history[0].role === 'model' && session.history[0].parts[0].text === initialMessageText;
+            // Check if this is the initial welcome chat (only 1 AI message matching our simple constant)
+            const isWelcomeChat = session.history.length === 1 && 
+                                  session.history[0].role === 'model' && 
+                                  session.history[0].parts[0].text === INITIAL_AI_MESSAGE_TEXT;
 
             if (isWelcomeChat) {
-                renderWelcomeScreen(initialMessageText);
+                renderWelcomeScreen(); // FIXED: Call without argument
             } else {
                 // Render full history for active chats
                 session.history.forEach(msg => {
@@ -6273,6 +6670,7 @@ ${commandTable}
                         });
                         appendChatMessage('user', userText.trim(), displayAttachments);
                     } else {
+                        // For AI messages, use the full markdown rendering
                         appendChatMessage('ai', msg.parts[0].text);
                     }
                 });
@@ -8802,7 +9200,9 @@ Criteria:
             await loadAllChatsFromDB();
             
             // 3. Force creation of a brand new session every time the app initializes/user logs in
-            await createNewChatSession('Welcome Chat'); // THIS FORCES A NEW CHAT
+            //    The welcome screen is rendered separately now.
+            await createNewChatSession('Welcome Chat'); // This creates the session but doesn't render history directly
+            renderWelcomeScreen(); // Explicitly render the awesome welcome screen
             
             // 4. Ensure voice list and personality dropdowns are updated
             updateVoiceDropdown();
