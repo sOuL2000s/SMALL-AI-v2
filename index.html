@@ -2628,31 +2628,44 @@
         }
         
         /* Styles for #chat-history, #sidebar, and #previous-chats-section scrollbars */
+        /* ADDED: #saved-templates-list, #markdown-export-input, #markdown-export-preview scrollbar styles */
         #chat-history, 
-        #sidebar, /* <-- NEW: Target main sidebar scrollbar */
-        #previous-chats-section { 
+        #sidebar, 
+        #previous-chats-section,
+        #saved-templates-list,
+        #markdown-export-input,
+        #markdown-export-preview { 
             scrollbar-width: thin;
             scrollbar-color: var(--accent-primary) var(--bg-secondary);
         }
 
         /* Webkit (Chrome, Safari, Edge) scrollbar styles */
         #chat-history::-webkit-scrollbar,
-        #sidebar::-webkit-scrollbar, /* <-- NEW: Target main sidebar scrollbar */
-        #previous-chats-section::-webkit-scrollbar {
+        #sidebar::-webkit-scrollbar, 
+        #previous-chats-section::-webkit-scrollbar,
+        #saved-templates-list::-webkit-scrollbar,
+        #markdown-export-input::-webkit-scrollbar,
+        #markdown-export-preview::-webkit-scrollbar {
             width: 8px;
         }
 
         #chat-history::-webkit-scrollbar-track,
-        #sidebar::-webkit-scrollbar-track, /* <-- NEW: Target main sidebar scrollbar */
-        #previous-chats-section::-webkit-scrollbar-track {
+        #sidebar::-webkit-scrollbar-track, 
+        #previous-chats-section::-webkit-scrollbar-track,
+        #saved-templates-list::-webkit-scrollbar-track,
+        #markdown-export-input::-webkit-scrollbar-track,
+        #markdown-export-preview::-webkit-scrollbar-track {
             /* Use secondary background or tertiary for the track to blend */
             background: var(--bg-secondary);
             border-radius: var(--radius-full);
         }
 
         #chat-history::-webkit-scrollbar-thumb,
-        #sidebar::-webkit-scrollbar-thumb, /* <-- NEW: Target main sidebar scrollbar */
-        #previous-chats-section::-webkit-scrollbar-thumb {
+        #sidebar::-webkit-scrollbar-thumb, 
+        #previous-chats-section::-webkit-scrollbar-thumb,
+        #saved-templates-list::-webkit-scrollbar-thumb,
+        #markdown-export-input::-webkit-scrollbar-thumb,
+        #markdown-export-preview::-webkit-scrollbar-thumb {
             background-color: var(--accent-primary);
             border-radius: 10px;
             /* Use secondary background for border to match track */
@@ -2660,9 +2673,26 @@
         }
 
         #chat-history::-webkit-scrollbar-thumb:hover,
-        #sidebar::-webkit-scrollbar-thumb:hover, /* <-- NEW: Target main sidebar scrollbar */
-        #previous-chats-section::-webkit-scrollbar-thumb:hover {
+        #sidebar::-webkit-scrollbar-thumb:hover, 
+        #previous-chats-section::-webkit-scrollbar-thumb:hover,
+        #saved-templates-list::-webkit-scrollbar-thumb:hover,
+        #markdown-export-input::-webkit-scrollbar-thumb:hover,
+        #markdown-export-preview::-webkit-scrollbar-thumb:hover {
             background-color: var(--accent-primary-hover);
+        }
+
+        /* NEW: Hide scrollbar for select dropdowns (AI Models, Themes, API Keys) */
+        #model-select-sidebar,
+        #app-theme-select-sidebar,
+        #api-key-select {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;     /* Firefox */
+        }
+
+        #model-select-sidebar::-webkit-scrollbar,
+        #app-theme-select-sidebar::-webkit-scrollbar,
+        #api-key-select::-webkit-scrollbar {
+            display: none;             /* Chrome, Safari, Opera */
         }
 
         /* --- Redefine #chat-history for proper welcome screen rendering --- */
@@ -3818,6 +3848,51 @@
                 padding-right: var(--space-sm);
             }
         }
+
+        /* Custom Styles for Developer Console */
+        #developer-console-content {
+            background-color: #000000;
+            color: #00FF00;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            height: 100%;
+            overflow-y: auto;
+            border: 1px solid var(--accent-primary);
+            padding: 1rem;
+            white-space: pre-wrap;
+        }
+        
+        /* NEW: Speed Controls Styling */
+        .speed-controls {
+            display: flex;
+            gap: 0.25rem;
+            margin-left: 0.5rem;
+            background-color: color-mix(in srgb, var(--bg-secondary) 80%, transparent);
+            border-radius: 0.5rem;
+            padding: 0.2rem 0.4rem;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        .speed-controls button.speed-btn {
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.3rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .speed-controls button.speed-btn:hover {
+            background-color: var(--accent-primary);
+            color: black;
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
     </style>
 </head>
 <body class="antialiased" data-theme="default-dark">
@@ -3838,6 +3913,16 @@
             <label for="personality-select">Personality:</label>
             <select id="personality-select" aria-label="Select AI Personality" class="p-2 rounded-md border text-sm">
                 <!-- Personalities will be populated dynamically -->
+            </select>
+            
+            <!-- NEW: Speech Rate Selector -->
+            <label for="speech-rate-select">Speed:</label>
+            <select id="speech-rate-select" aria-label="Select Speech Rate" class="p-2 rounded-md border text-sm">
+                <option value="1.0">Normal</option>
+                <option value="1.5">1.5x</option>
+                <option value="2.0">2.0x</option>
+                <option value="3.0">3.0x</option>
+                <option value="4.0">4.0x</option>
             </select>
         </div>
 
@@ -4831,6 +4916,7 @@
         const conversationModeCloseBtn = document.getElementById('conversation-mode-close-btn');
         const voiceSelect = document.getElementById('voice-select');
         const personalitySelect = document.getElementById('personality-select');
+        const speechRateSelect = document.getElementById('speech-rate-select'); // NEW: Speech Rate Selector
         const soundBlob = document.getElementById('sound-blob');
         const conversationStatusText = document.getElementById('conversation-status-text');
         const conversationHistoryDisplay = document.getElementById('conversation-history-display');
@@ -5543,6 +5629,7 @@ ${commandTable}
         const DEFAULT_MODE = 'dark';
         const CONVERSATION_VOICE_KEY = 'conversationVoice'; 
         const CONVERSATION_PERSONALITY_KEY = 'conversationPersonality'; 
+        const CONVERSATION_SPEECH_RATE_KEY = 'conversationSpeechRate'; // NEW: Speech Rate Key
         const CUSTOM_PROMPT_TEXT_KEY = 'customPromptText';
         const CUSTOM_PROMPT_ACTIVE_KEY = 'isCustomPromptActive';
         const PROMPT_TEMPLATES_KEY = 'templates'; 
@@ -5649,6 +5736,7 @@ ${commandTable}
         let availableVoices = [];
         let selectedVoice = null;
         let selectedPersonality = 'Standard'; 
+        let speechRate = 1.0; // NEW: Global variable for speech rate
 
         let customPromptText = '';
         let isCustomPromptActive = false;
@@ -5744,8 +5832,10 @@ ${commandTable}
                 // 4. Conversation Settings
                 selectedVoice = settings[CONVERSATION_VOICE_KEY] || null;
                 selectedPersonality = settings[CONVERSATION_PERSONALITY_KEY] || 'Standard';
+                speechRate = settings[CONVERSATION_SPEECH_RATE_KEY] || 1.0; // NEW: Load speech rate
                 if (voiceSelect) voiceSelect.value = selectedVoice || '';
                 if (personalitySelect) personalitySelect.value = selectedPersonality;
+                if (speechRateSelect) speechRateSelect.value = speechRate.toString(); // NEW: Set dropdown value
                     
                 // 5. Custom Prompt
                 customPromptText = settings[CUSTOM_PROMPT_TEXT_KEY] || '';
@@ -5762,6 +5852,7 @@ ${commandTable}
                     await saveUserSetting('themeMode', currentMode);
                     await saveUserSetting(MODEL_KEY, selectedModel);
                     await saveUserSetting(CONVERSATION_PERSONALITY_KEY, selectedPersonality);
+                    await saveUserSetting(CONVERSATION_SPEECH_RATE_KEY, speechRate); // NEW: Save default speech rate
                     await saveUserSetting(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive);
                 }
                 return settings;
@@ -6167,7 +6258,7 @@ ${commandTable}
         // Initialize SpeechRecognition for general chat if available
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
-            recognition.continuous = true;
+            recognition.continuous = false;
             recognition.interimResults = true;
             recognition.lang = 'en-US';
 
@@ -6825,7 +6916,7 @@ ${commandTable}
                 };
                 
                 // Use a fast, low-cost model for title generation
-                const title = await callGeminiAPI(payload, null, 'gemini-2.5-flash-lite-preview-09-2025', systemInstruction);
+                const title = await callGeminiAPI(payload, null, selectedModel, systemInstruction);
                 const cleanTitle = title.replace(/["'“”\.]/g, '').trim();
 
                 if (cleanTitle && cleanTitle.length > 0) {
@@ -7019,7 +7110,7 @@ ${commandTable}
             let rawMessageContentForCache = '';
 
             if (role === 'user') {
-                rawMessageContentForCache = `You: ${text}`;
+                rawMessageContentForCache = text; // Removed "You: " prefix for clean copy
                 contentHTML += `<span class="font-bold">You:</span> ${text}`;
                 if (attachments.length > 0) {
                     contentHTML += `<div class="mt-2 flex flex-wrap gap-2">`;
@@ -7039,7 +7130,7 @@ ${commandTable}
                     contentHTML += `</div>`;
                 }
             } else { // AI message
-                rawMessageContentForCache = `AI: ${text}`;
+                rawMessageContentForCache = text; // Removed "AI: " prefix for clean copy
                 
                 // Ensure text is a string before parsing
                 const markdownText = String(text); 
@@ -7103,6 +7194,15 @@ ${commandTable}
                     <button class="dictate-message-btn" title="Dictate message" data-message-id="${messageId}">
                         <span data-lucide="volume-2" class="w-4 h-4"></span>
                     </button>
+                    <!-- NEW: Speed controls, initially hidden -->
+                    <div class="speed-controls hidden">
+                        <button class="speed-btn" data-speed="0.5">0.5x</button>
+                        <button class="speed-btn" data-speed="1.0">1x</button>
+                        <button class="speed-btn" data-speed="1.5">1.5x</button>
+                        <button class="speed-btn" data-speed="2.0">2.0x</button>
+                        <button class="speed-btn" data-speed="3.0">3.0x</button>
+                        <button class="speed-btn" data-speed="4.0">4.0x</button>
+                    </div>
                 </div>
             `;
             
@@ -7522,10 +7622,40 @@ ${commandTable}
                 const messageId = dictateButton.dataset.messageId;
                 const messageContent = messageTextCache.get(messageId);
                 if (messageContent) {
-                    toggleSpeech(messageContent, dictateButton);
+                    toggleSpeech(messageContent, dictateButton, messageId); // Pass messageId to toggleSpeech
                 } else {
                     showError('Message content not found for dictation.');
                 }
+                return;
+            }
+
+            // NEW: Event listener for speed buttons (MODIFIED)
+            const speedButton = event.target.closest('.speed-btn');
+            if (speedButton) {
+                const newRate = parseFloat(speedButton.dataset.speed);
+                
+                // 1. Always update the global speechRate variable
+                speechRate = newRate; 
+                if (currentUser) {
+                    saveUserSetting(CONVERSATION_SPEECH_RATE_KEY, speechRate);
+                }
+                showCopyMessage(`Speech rate set to ${newRate}x`, 'var(--accent-secondary)');
+
+                // 2. If a message dictation is currently active (from a dictate button),
+                //    we need to restart it with the new rate.
+                if (activeMessageIdForDictation && activeDictateButton) {
+                    const messageContent = messageTextCache.get(activeMessageIdForDictation);
+                    if (messageContent) {
+                        // Cancel existing speech first (this will also reset the button icon)
+                        window.speechSynthesis.cancel();
+                        
+                        // Then, restart speech for the *same message* using the new global `speechRate`.
+                        // The `startSpeech` function will handle setting the 'pause' icon and showing speed controls again.
+                        startSpeech(messageContent, activeDictateButton, activeMessageIdForDictation);
+                    }
+                }
+                // If no dictate button speech was active, we simply updated the global rate for future dictations.
+                // This includes future conversation mode speech, as it also uses the global `speechRate`.
                 return;
             }
         });
@@ -7792,7 +7922,7 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                         }
                     }, 
                     null, 
-                    'gemini-2.5-flash-preview-09-2025', 
+                    selectedModel, 
                     systemInstruction
                 );
                 return responseText.trim();
@@ -7830,56 +7960,135 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             }
         }
 
+        // Helper function to strip Markdown from text for cleaner dictation
+        function stripMarkdown(markdownText) {
+            if (typeof markdownText !== 'string') return '';
+            let cleanedText = markdownText;
+
+            // Remove headers (#)
+            cleanedText = cleanedText.replace(/^(#+\s.*)$/gm, (match, p1) => p1.substring(p1.indexOf(' ') + 1));
+            // Remove bold/italics (**, __, *, _)
+            cleanedText = cleanedText.replace(/(\*\*|__)(.*?)\1/g, '$2'); // Bold
+            cleanedText = cleanedText.replace(/(\*|_)(.*?)\1/g, '$2');   // Italic
+            // Remove inline code (``) and code blocks (```)
+            cleanedText = cleanedText.replace(/`{1,3}([^`]+)`{1,3}/g, '$1');
+            // Remove blockquotes (> )
+            cleanedText = cleanedText.replace(/^>\s/gm, '');
+            // Remove list item markers (- , * , 1. )
+            cleanedText = cleanedText.replace(/^(\s*[-*+]|\s*\d+\.)\s/gm, '');
+            // Remove link syntax ([text](url) -> text)
+            cleanedText = cleanedText.replace(/\[(.*?)\]\(.*?\)/g, '$1');
+            // Remove image syntax (alt text)
+            cleanedText = cleanedText.replace(/!\[(.*?)\]\(.*?\)/g, '$1');
+            // Replace multiple newlines with single ones
+            cleanedText = cleanedText.replace(/\n\s*\n/g, '\n\n');
+            // Trim whitespace
+            cleanedText = cleanedText.trim();
+
+            return cleanedText;
+        }
+
         // Helper function for text-to-speech (general chat dictation)
-        function toggleSpeech(text, buttonElement) {
+        // NEW GLOBAL STATE: To track which specific dictate button (and its message) is currently active.
+        let activeDictateButton = null;
+        let activeMessageIdForDictation = null;
+        // Global variable to store a reference to the currently playing button's speed controls
+        let activeSpeedControls = null;
+
+        // --- Your existing toggleSpeech function, MODIFIED ---
+        function toggleSpeech(text, buttonElement, messageId) { // Added messageId parameter
             if (!window.speechSynthesis) {
                 showError('Speech synthesis not supported in this browser.');
                 return;
             }
 
-            if (isSpeaking && currentUtterance && currentUtterance.text === text) {
-                if (window.speechSynthesis.paused) {
-                    window.speechSynthesis.resume();
-                    updateButtonIcon(buttonElement, 'pause');
-                } else {
-                    window.speechSynthesis.pause();
-                    updateButtonIcon(buttonElement, 'volume-2');
-                }
-            } else {
-                startSpeech(text, buttonElement);
-            }
-        }
-
-        function startSpeech(text, buttonElement) {
+            // Always cancel any existing speech synthesis. There can only be one.
             if (window.speechSynthesis.speaking || window.speechSynthesis.paused) {
                 window.speechSynthesis.cancel();
+                
+                // If the cancelled speech originated from the SAME button that was just clicked,
+                // it means the user intended to STOP it. So, we clean up and exit.
+                if (activeDictateButton === buttonElement) {
+                    // Reset the button icon and hide speed controls for the now-stopped speech
+                    updateButtonIcon(activeDictateButton, 'volume-2');
+                    if (activeSpeedControls) activeSpeedControls.classList.add('hidden');
+
+                    // Clear our global state
+                    isSpeaking = false;
+                    currentUtterance = null;
+                    activeDictateButton = null;
+                    activeMessageIdForDictation = null;
+                    activeSpeedControls = null;
+                    return; // We stopped, so don't restart.
+                }
+                // If another dictate button (or conversation mode) was active, it's now cancelled,
+                // and we proceed to start the speech for the newly clicked button.
             }
 
+            // If we reach here, no speech was active from THIS button, or other speech was cancelled.
+            // So, we start new speech for the clicked button/message.
+            startSpeech(text, buttonElement, messageId); // Pass messageId to startSpeech
+        }
+
+        // --- Your existing startSpeech function, MODIFIED ---
+        function startSpeech(text, buttonElement, messageId) { // Added messageId parameter
+            // Reset ALL dictate buttons to 'volume-2' and hide their speed controls,
+            // except for the one currently starting speech.
             document.querySelectorAll('.dictate-message-btn').forEach(btn => {
-                if (btn !== buttonElement) {
-                    updateButtonIcon(btn, 'volume-2'); 
+                if (btn !== buttonElement) { // Don't reset the button that's about to be active
+                    updateButtonIcon(btn, 'volume-2');
+                    const speedControls = btn.closest('.message-actions')?.querySelector('.speed-controls');
+                    if (speedControls) speedControls.classList.add('hidden');
                 }
             });
 
-            const utterance = new SpeechSynthesisUtterance(text);
+            const cleanedText = stripMarkdown(text);
+            const utterance = new SpeechSynthesisUtterance(cleanedText);
             utterance.lang = 'en-US';
+            utterance.rate = speechRate; // Apply the current global speechRate
+
+            if (selectedVoice) {
+                const voice = availableVoices.find(v => v.name === selectedVoice.name);
+                if (voice) {
+                    utterance.voice = voice;
+                }
+            }
+            
+            // Get and show the speed controls for THIS specific message's actions
+            const speedControls = buttonElement.closest('.message-actions')?.querySelector('.speed-controls');
+            if (speedControls) {
+                activeSpeedControls = speedControls; // Store reference to currently active controls
+                activeSpeedControls.classList.remove('hidden'); // Show them when speech starts
+            }
 
             utterance.onstart = () => {
                 isSpeaking = true;
                 currentUtterance = utterance;
-                updateButtonIcon(buttonElement, 'pause');
+                activeDictateButton = buttonElement; // Mark this button as active
+                activeMessageIdForDictation = messageId; // Track the message ID being dictated
+                updateButtonIcon(buttonElement, 'pause'); // Change icon to indicate playing
             };
+
             utterance.onend = () => {
                 isSpeaking = false;
                 currentUtterance = null;
-                updateButtonIcon(buttonElement, 'volume-2');
+                updateButtonIcon(buttonElement, 'volume-2'); // Reset icon
+                if (activeSpeedControls) activeSpeedControls.classList.add('hidden');
+                activeDictateButton = null; // Clear active state on end
+                activeMessageIdForDictation = null; // Clear active message ID on end
+                activeSpeedControls = null;
             };
+
             utterance.onerror = (event) => {
                 console.error('Speech synthesis error:', event.error);
                 showError('Failed to dictate message. Check console for details.');
                 isSpeaking = false;
                 currentUtterance = null;
                 updateButtonIcon(buttonElement, 'volume-2');
+                if (activeSpeedControls) activeSpeedControls.classList.add('hidden');
+                activeDictateButton = null; // Clear active state on error
+                activeMessageIdForDictation = null; // Clear active message ID on error
+                activeSpeedControls = null;
             };
 
             window.speechSynthesis.speak(utterance);
@@ -8033,7 +8242,7 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                 };
                 
                 // Use a fast model for title generation
-                const title = await callGeminiAPI(payload, null, 'gemini-2.5-flash-lite-preview-09-2025', systemInstruction);
+                const title = await callGeminiAPI(payload, null, selectedModel, systemInstruction);
                 const cleanTitle = title.replace(/["'“”]/g, '').trim();
 
                 if (cleanTitle && cleanTitle.length > 0) {
@@ -8605,6 +8814,17 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             }
         });
 
+        // NEW: Event listener for Speech Rate selector
+        if (speechRateSelect) {
+            speechRateSelect.addEventListener('change', () => {
+                speechRate = parseFloat(speechRateSelect.value);
+                if (currentUser) {
+                    saveUserSetting(CONVERSATION_SPEECH_RATE_KEY, speechRate);
+                }
+                showCopyMessage(`Speech rate set to ${speechRate}x`, 'var(--accent-secondary)');
+            });
+        }
+
 
         function startConversationMode() {
             if (!currentUser) {
@@ -8656,6 +8876,47 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             setSoundBlobState('idle');
             updateConversationStatus('Tap the button to start conversing!');
             clearConversationDisplay();
+        }
+
+        // NEW: Function to start AI speaking in conversation mode
+        function startConversationSpeaking(aiResponseText) {
+            if (!isConversationModeActive) return;
+
+            if (window.speechSynthesis.speaking || window.speechSynthesis.paused) {
+                window.speechSynthesis.cancel();
+            }
+
+            const cleanedText = stripMarkdown(aiResponseText); // Strip Markdown here
+            const utterance = new SpeechSynthesisUtterance(cleanedText);
+            
+            // Set voice if selected
+            if (selectedVoice) {
+                const voice = availableVoices.find(v => v.name === selectedVoice.name);
+                if (voice) {
+                    utterance.voice = voice;
+                }
+            }
+            utterance.lang = 'en-US';
+            utterance.rate = speechRate; // Apply global speech rate
+
+            utterance.onstart = () => {
+                isAiSpeakingInConversation = true;
+                updateConversationStatus('Speaking...', 'speaking');
+                setSoundBlobState('speaking');
+                updateConversationDisplay(`<span class="ai-utterance">AI: ${cleanedText}</span>`);
+            };
+
+            utterance.onend = () => {
+                handleAiSpeechEnd(); // Will restart listening
+            };
+
+            utterance.onerror = (event) => {
+                console.error('AI speech synthesis error:', event.error);
+                showError('AI failed to speak. Check console for details.');
+                handleAiSpeechEnd(); // Attempt to recover and restart listening
+            };
+
+            window.speechSynthesis.speak(utterance);
         }
 
         function startConversationListening() {
@@ -8721,7 +8982,7 @@ Criteria:
                 };
                 
                 // Use a fast, low-cost model for transcription polishing
-                const polishedText = await callGeminiAPI(payload, null, 'gemini-2.5-flash-lite-preview-09-2025', systemInstruction);
+                const polishedText = await callGeminiAPI(payload, null, selectedModel, systemInstruction);
                 return polishedText.trim();
 
             } catch (error) {
@@ -8760,7 +9021,7 @@ Criteria:
                 appendChatMessage('ai', aiResponse); 
                 await updateCurrentSessionHistory();
 
-                startConversationSpeaking(aiResponse);
+                startConversationSpeaking(aiResponse); // Call the new speaking function
 
             } catch (error) {
                 console.error("Error in conversation mode API call:", error);
