@@ -2931,8 +2931,24 @@
             padding: 0.75rem 1.5rem; background-color: var(--accent-success); color: white;
             border-radius: 9999px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             opacity: 0; visibility: hidden; transition: all 0.5s ease-in-out; z-index: 100;
+            white-space: nowrap; /* Prevent text from wrapping too early on larger screens */
         }
         #copy-message.show { opacity: 1; visibility: visible; bottom: 4rem; }
+
+        /* Responsive adjustments for the copy message on small screens */
+        @media (max-width: 480px) {
+            #copy-message {
+                padding: 0.5rem 1rem; /* Reduce padding */
+                font-size: 0.85rem; /* Smaller font size */
+                width: calc(100% - 2rem); /* Take full width minus padding on very small screens */
+                max-width: 300px; /* Limit max width even with 100% width, to keep it centered */
+                bottom: 1.5rem; /* Adjust initial bottom position */
+                white-space: normal; /* Allow text to wrap on small screens */
+            }
+            #copy-message.show {
+                bottom: 3rem; /* Adjust final position when shown */
+            }
+        }
 
         /* --- New/Enhanced Styles for Chat AI Responses & Code Blocks --- */
         
@@ -4006,6 +4022,13 @@
                 <button id="toggle-custom-prompt-btn" data-help-content="Set a global System Instruction (persona) for the AI. This overrides the simpler Personality selector." class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors relative" style="background-color: var(--bg-secondary); color: var(--text-primary);">
                     <span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt
                 </button>
+
+                <!-- NEW: AI Prompt Engineer Button -->
+                <button id="ai-prompt-engineer-btn" data-help-content="Activate AI Prompt Engineer mode. The AI will respond by crafting an optimized prompt based on your input." class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors relative" style="background-color: var(--bg-secondary); color: var(--text-primary);">
+                    <span data-lucide="cpu" class="w-5 h-5 mr-2"></span> AI Prompt Engineer
+                    <!-- NEW: AI Prompt Engineer Indicator -->
+                    <div id="ai-prompt-engineer-indicator" class="w-3.5 h-3.5 rounded-full absolute top-1 right-1 hidden" title="AI Prompt Engineer is Active" style="background-color: var(--accent-secondary); z-index: 5; animation: prompt-pulse 1.5s infinite alternate;"></div>
+                </button>
                 
                 <!-- Manage Prompt Templates Button -->
                 <button id="manage-templates-btn" class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors mb-4" style="background-color: var(--bg-secondary); color: var(--text-primary);">
@@ -4284,6 +4307,10 @@
                 <!-- Send Button (Smaller on Mobile, md:w-14) -->
                 <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-button flex-shrink-0" style="background-color: var(--accent-primary); color: var(--bg-primary);">
                     <span data-lucide="send" class="w-5 h-5"></span>
+                </button>
+                <!-- Stop Generation Button (Initially Hidden) -->
+                <button id="stop-chat-btn" aria-label="Stop Generation" title="Stop AI Generation" class="hidden flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[var(--accent-error)] transition-all duration-300 glow-error-button flex-shrink-0" style="background-color: var(--accent-error); color: var(--bg-primary);">
+                    <span data-lucide="square" class="w-5 h-5"></span>
                 </button>
             </div>
         </div>
@@ -4885,7 +4912,9 @@
         const copyMessage = document.getElementById('copy-message');
         const versionSelectSidebar = document.getElementById('version-select-sidebar');
         const sidebarChatList = document.getElementById('sidebar-chat-list');
-        const chatInputAreaContainer = document.getElementById('chat-input-area-container'); 
+        const chatInputAreaContainer = document.getElementById('chat-input-area-container');
+        // NEW: Stop Chat Button DOM element
+        const stopChatBtn = document.getElementById('stop-chat-btn');
 
         // NEW: Prompt Generation Tool DOM elements (Request 4)
         const promptToolContainer = document.getElementById('prompt-tool-container');
@@ -5718,7 +5747,9 @@ ${commandTable}
 
         let allChatSessions = {}; 
         let currentSessionId = null;
-        let chatAttachments = []; 
+        let chatAttachments = [];
+        let abortController = null; // NEW: For stopping API generation
+        let isAIGenerating = false; // NEW: State to track if AI is currently generating
 
         let currentThemeName = DEFAULT_THEME_NAME;
         let currentMode = DEFAULT_MODE;
@@ -5745,13 +5776,19 @@ ${commandTable}
 
         let customPromptText = '';
         let isCustomPromptActive = false;
+        // NEW: AI Prompt Engineer State and Instruction
+        let isAIPromptEngineerActive = false;
+        const AI_PROMPT_ENGINEER_INSTRUCTION = "write a prompt for an ai to do what the user says. (only send the prompt, nothing else)";
         
         // F1: State for Multiple API Keys
         let apiKeysList = []; // Array of {id, key, label, isActive}
         let editingKeyId = null; // ID of the key currently being edited
 
         // F2: Custom Prompt Indicator DOM
-        const customPromptIndicator = document.getElementById('custom-prompt-indicator'); 
+        const customPromptIndicator = document.getElementById('custom-prompt-indicator');
+        // NEW: AI Prompt Engineer Button and Indicator
+        const aiPromptEngineerBtn = document.getElementById('ai-prompt-engineer-btn');
+        const aiPromptEngineerIndicator = document.getElementById('ai-prompt-engineer-indicator');
 
         // NEW: Chat Search State
         let searchMatches = []; 
@@ -5845,7 +5882,9 @@ ${commandTable}
                 // 5. Custom Prompt
                 customPromptText = settings[CUSTOM_PROMPT_TEXT_KEY] || '';
                 isCustomPromptActive = settings[CUSTOM_PROMPT_ACTIVE_KEY] === true;
-                updateCustomPromptButtonState();
+                // NEW: Load AI Prompt Engineer state
+                isAIPromptEngineerActive = settings['isAIPromptEngineerActive'] === true;
+                updateCustomPromptButtonState(); // This function now handles both indicators
                     
                 // 6. Templates
                 await loadPromptTemplatesFromDB();
@@ -5859,6 +5898,7 @@ ${commandTable}
                     await saveUserSetting(CONVERSATION_PERSONALITY_KEY, selectedPersonality);
                     await saveUserSetting(CONVERSATION_SPEECH_RATE_KEY, speechRate); // NEW: Save default speech rate
                     await saveUserSetting(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive);
+                    await saveUserSetting('isAIPromptEngineerActive', isAIPromptEngineerActive); // NEW: Save AI Prompt Engineer state
                 }
                 return settings;
             } catch (error) {
@@ -5992,6 +6032,44 @@ ${commandTable}
                 authError.classList.remove('hidden');
             }
         }
+
+        // NEW: Stop Generation Button Event Listener
+        stopChatBtn.addEventListener('click', () => {
+            if (abortController) {
+                abortController.abort('User stopped generation');
+                abortController = null; // Clear controller
+                showCopyMessage('AI generation stopped by user.', 'var(--accent-error)');
+                
+                // Immediately reset UI
+                sendChatBtn.classList.remove('hidden');
+                stopChatBtn.classList.add('hidden');
+                isAIGenerating = false;
+
+                // Remove loading message
+                const loadingDiv = document.getElementById('chat-loading');
+                if (loadingDiv) {
+                    const statusInterval = loadingDiv.dataset.statusInterval;
+                    if (statusInterval) clearInterval(statusInterval);
+                    loadingDiv.remove();
+                }
+
+                // Remove the last user message from history if it hasn't been processed yet
+                // (Only if history was modified by the pending generation)
+                if (currentSessionId && allChatSessions[currentSessionId] && allChatSessions[currentSessionId].history.length > 0) {
+                    const lastMessage = allChatSessions[currentSessionId].history[allChatSessions[currentSessionId].history.length - 1];
+                    if (lastMessage && lastMessage.role === 'user') {
+                        // This assumes the user message was pushed before API call.
+                        // We might want to mark it as "failed" or revert the UI completely.
+                        // For now, let's keep the user message but remove the loading.
+                        const lastUserMessageElement = chatHistoryDiv.querySelector(`.chat-message.user:last-of-type`);
+                        if (lastUserMessageElement) {
+                             updateMessageStatus(lastUserMessageElement, 'error'); // Mark as error
+                        }
+                    }
+                }
+                chatInput.focus();
+            }
+        });
 
         async function handleGoogleSignIn() {
             authError.classList.add('hidden');
@@ -7427,7 +7505,8 @@ ${commandTable}
             
             // Check if user is actively typing a draft within the preferred length range
             const isTypingDraft = text.length > PROMPT_MIN_LENGTH && text.length < PROMPT_MAX_LENGTH;
-            const isToolAvailable = currentUser && userApiKey && !sendChatBtn.disabled;
+            // MODIFIED: Also check if AI is not currently generating
+            const isToolAvailable = currentUser && userApiKey && !sendChatBtn.disabled && !isAIGenerating;
             
             if (isTypingDraft && isToolAvailable) {
                 // Show tool after a brief delay if user is still typing (1.5s delay)
@@ -8100,7 +8179,7 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
         }
 
         // Generic API call function with exponential backoff (MODIFIED for API Key)
-        async function callGeminiAPI(payload, personalityName = "Standard", targetModel = selectedModel, systemInstruction = null) {
+        async function callGeminiAPI(payload, personalityName = "Standard", targetModel = selectedModel, systemInstruction = null, signal = null) { // MODIFIED: Added signal parameter
             const fallbackApiKey = "AIzaSyCnsccknz5O5TYII723JipYSmYjj5OVdTk"; 
             const apiKey = userApiKey || fallbackApiKey;
 
@@ -8115,9 +8194,13 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             let promptPrefix = '';
 
             // 1. Determine the final system/instruction prompt text
+            // NEW: AI Prompt Engineer takes highest precedence
             if (systemInstruction) {
                 promptPrefix = systemInstruction.trim();
-            } 
+            }
+            else if (isAIPromptEngineerActive) { // NEW: If AI Prompt Engineer is active
+                promptPrefix = AI_PROMPT_ENGINEER_INSTRUCTION;
+            }
             else if (isCustomPromptActive && customPromptText.trim() !== '') {
                 promptPrefix = customPromptText.trim();
             } 
@@ -8170,7 +8253,8 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                     response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(finalPayload)
+                        body: JSON.stringify(finalPayload),
+                        signal: signal // MODIFIED: Pass the abort signal
                     });
 
                     if (response.status === 429) {
@@ -8398,6 +8482,11 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             displayChatAttachments();
             
             sendChatBtn.disabled = true;
+            sendChatBtn.classList.add('hidden'); // NEW: Hide send button
+            stopChatBtn.classList.remove('hidden'); // NEW: Show stop button
+            isAIGenerating = true; // NEW: Set AI generating state
+            
+            abortController = new AbortController(); // NEW: Initialize AbortController
             
             const loadingMessage = document.createElement('div');
             loadingMessage.id = 'chat-loading';
@@ -8434,7 +8523,8 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                     contents: currentSessionHistory, 
                 };
                 
-                const responseText = await callGeminiAPI(payload, selectedPersonality); 
+                // MODIFIED: Pass the abortController.signal
+                const responseText = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal); 
                 
                 currentSessionHistory.push({ role: 'model', parts: [{ text: responseText }] });
                 appendChatMessage('ai', responseText);
@@ -8473,8 +8563,13 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                 if (lastUserMessageOnError && lastUserMessageOnError.classList.contains('user')) {
                     updateMessageStatus(lastUserMessageOnError, 'error');
                 }
-            } finally { 
+            } finally {
                 sendChatBtn.disabled = false;
+                sendChatBtn.classList.remove('hidden'); // NEW: Show send button
+                stopChatBtn.classList.add('hidden'); // NEW: Hide stop button
+                isAIGenerating = false; // NEW: Reset AI generating state
+                abortController = null; // NEW: Clear abort controller
+                
                 const loadingDiv = document.getElementById('chat-loading');
                 if (loadingDiv) {
                     const statusInterval = loadingDiv.dataset.statusInterval;
@@ -9083,15 +9178,13 @@ Criteria:
 
         // NEW: Function to update the custom prompt button's appearance (used to refresh UI after Firebase load/save)
         function updateCustomPromptButtonState() {
+            // --- Custom Prompt Button Logic ---
             if (isCustomPromptActive && customPromptText.trim() !== '') {
-                // F2: Activate visual indicator
                 if (customPromptIndicator) {
                     customPromptIndicator.classList.remove('hidden');
-                    // Add a subtle pulsating glow effect via dynamic CSS style
                     customPromptIndicator.style.boxShadow = `0 0 5px var(--accent-primary), 0 0 10px var(--accent-primary)`;
                     customPromptIndicator.style.animation = 'prompt-pulse 1.5s infinite alternate';
                 }
-
                 toggleCustomPromptBtn.classList.remove('bg-secondary', 'text-primary');
                 toggleCustomPromptBtn.classList.add('glow-button');
                 toggleCustomPromptBtn.style.backgroundColor = 'var(--accent-primary)';
@@ -9099,20 +9192,54 @@ Criteria:
                 toggleCustomPromptBtn.innerHTML = `<span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Custom Prompt Active`;
                 customPromptStatus.textContent = "Custom prompt is active. This overrides personality settings.";
             } else {
-                // F2: Deactivate visual indicator
                 if (customPromptIndicator) {
                     customPromptIndicator.classList.add('hidden');
                     customPromptIndicator.style.boxShadow = 'none';
                     customPromptIndicator.style.animation = 'none';
                 }
-
                 toggleCustomPromptBtn.classList.remove('glow-button');
                 toggleCustomPromptBtn.classList.add('bg-secondary', 'text-primary');
                 toggleCustomPromptBtn.style.backgroundColor = 'var(--bg-secondary)';
                 toggleCustomPromptBtn.style.color = 'var(--text-primary)';
                 toggleCustomPromptBtn.innerHTML = `<span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt`;
-                customPromptStatus.textContent = "No custom prompt set or active.";
+                // Only show this status if AI Prompt Engineer is NOT active
+                if (!isAIPromptEngineerActive) {
+                    customPromptStatus.textContent = "No custom prompt set or active.";
+                } else {
+                    customPromptStatus.textContent = ""; // Clear if AI Prompt Engineer is active
+                }
             }
+
+            // --- NEW: AI Prompt Engineer Button Logic ---
+            if (isAIPromptEngineerActive) {
+                if (aiPromptEngineerIndicator) {
+                    aiPromptEngineerIndicator.classList.remove('hidden');
+                    aiPromptEngineerIndicator.style.boxShadow = `0 0 5px var(--accent-secondary), 0 0 10px var(--accent-secondary)`;
+                    aiPromptEngineerIndicator.style.animation = 'prompt-pulse 1.5s infinite alternate';
+                }
+                aiPromptEngineerBtn.classList.remove('bg-secondary', 'text-primary');
+                aiPromptEngineerBtn.classList.add('glow-button');
+                aiPromptEngineerBtn.style.backgroundColor = 'var(--accent-secondary)'; // Use accent-secondary for a different glow
+                aiPromptEngineerBtn.style.color = 'black';
+                aiPromptEngineerBtn.innerHTML = `<span data-lucide="cpu" class="w-5 h-5 mr-2"></span> AI Prompt Engineer Active`;
+                customPromptStatus.textContent = "AI Prompt Engineer is active. This overrides Custom Prompt & Personality.";
+            } else {
+                if (aiPromptEngineerIndicator) {
+                    aiPromptEngineerIndicator.classList.add('hidden');
+                    aiPromptEngineerIndicator.style.boxShadow = 'none';
+                    aiPromptEngineerIndicator.style.animation = 'none';
+                }
+                aiPromptEngineerBtn.classList.remove('glow-button');
+                aiPromptEngineerBtn.classList.add('bg-secondary', 'text-primary');
+                aiPromptEngineerBtn.style.backgroundColor = 'var(--bg-secondary)';
+                aiPromptEngineerBtn.style.color = 'var(--text-primary)';
+                aiPromptEngineerBtn.innerHTML = `<span data-lucide="cpu" class="w-5 h-5 mr-2"></span> AI Prompt Engineer`;
+                // If custom prompt is not active, set default status
+                if (!isCustomPromptActive) {
+                    customPromptStatus.textContent = "No custom prompt set or active.";
+                }
+            }
+
             createIcons(); 
             togglePersonalitySelector();
         }
@@ -9120,7 +9247,11 @@ Criteria:
         // NEW: Function to toggle personality selector's disabled state
         function togglePersonalitySelector() {
             if (personalitySelect) {
-                if (isCustomPromptActive && customPromptText.trim() !== '') {
+                // NEW: If AI Prompt Engineer is active, disable it completely
+                if (isAIPromptEngineerActive) {
+                    personalitySelect.disabled = true;
+                    personalitySelect.title = "Personality is overridden by AI Prompt Engineer mode.";
+                } else if (isCustomPromptActive && customPromptText.trim() !== '') {
                     personalitySelect.disabled = true;
                     personalitySelect.title = "Personality is overridden by custom prompt.";
                 } else {
@@ -9177,8 +9308,43 @@ Criteria:
                 showError("Please sign in to use custom prompts.");
                 return;
             }
+            // If AI Prompt Engineer is active, disable Custom Prompt
+            if (isAIPromptEngineerActive) {
+                showError("Disable AI Prompt Engineer mode to set a custom prompt.");
+                return;
+            }
             customPromptInput.value = customPromptText;
             customPromptModal.classList.remove('hidden'); 
+        });
+
+        // NEW: Event listener for AI Prompt Engineer button
+        aiPromptEngineerBtn.addEventListener('click', () => {
+            if (!currentUser) {
+                showError("Please sign in to use AI Prompt Engineer.");
+                return;
+            }
+
+            // Toggle the state
+            isAIPromptEngineerActive = !isAIPromptEngineerActive;
+            
+            // If activating AI Prompt Engineer, ensure Custom Prompt is deactivated
+            if (isAIPromptEngineerActive) {
+                if (isCustomPromptActive) {
+                    isCustomPromptActive = false;
+                    customPromptText = '';
+                    saveUserSetting(CUSTOM_PROMPT_TEXT_KEY, customPromptText);
+                    saveUserSetting(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive);
+                }
+                showCopyMessage("AI Prompt Engineer activated! AI will now generate prompts.", "var(--accent-secondary)");
+            } else {
+                showCopyMessage("AI Prompt Engineer deactivated. Returning to previous prompt mode.", "var(--accent-error)");
+            }
+
+            // Save the new state to Firebase
+            saveUserSetting('isAIPromptEngineerActive', isAIPromptEngineerActive);
+            
+            // Update UI
+            updateCustomPromptButtonState();
         });
 
 
@@ -9440,6 +9606,7 @@ Criteria:
             chatInput.placeholder = enabled ? "Type your message or ask a question..." : "Please sign in to start chatting.";
             newChatButton.disabled = !enabled;
             toggleCustomPromptBtn.disabled = !enabled;
+            aiPromptEngineerBtn.disabled = !enabled; // NEW: Disable AI Prompt Engineer button
             manageTemplatesBtn.disabled = !enabled;
             conversationModeToggleBtn.disabled = !enabled;
             exportMarkdownBtn.disabled = !enabled; // Disable export if not logged in
