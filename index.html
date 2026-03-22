@@ -3914,6 +3914,31 @@
             transform: scale(1.05);
         }
 
+        /* NEW: Styles for raw message view */
+        .message-content.raw-view-active {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            background-color: var(--code-block-bg);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-break: break-all; /* Ensure long lines break */
+            border: 1px solid var(--code-block-border);
+            overflow-x: auto; /* Allow horizontal scrolling for very long lines */
+        }
+        .message-content.raw-view-active pre {
+            margin: 0; /* Remove default pre margins */
+            padding: 0;
+            background-color: transparent; /* No extra background for pre inside raw view */
+        }
+        /* Ensure the toggle raw button icon is styled */
+        .toggle-raw-btn .lucide {
+            color: var(--text-secondary);
+        }
+        .toggle-raw-btn:hover .lucide {
+            color: var(--text-primary);
+        }
+
     </style>
 </head>
 <body class="antialiased" data-theme="default-dark">
@@ -7130,7 +7155,15 @@ ${commandTable}
             
             // Re-adding blockquote definition for consistent styling using CSS variables
             blockquote(quote) {
-                 return `<blockquote style="border-left: 5px solid var(--accent-secondary); padding: 10px 15px; margin: 15px 0; opacity: 0.9; font-style: italic; background-color: color-mix(in srgb, var(--accent-secondary) 10%, transparent); color: var(--text-primary); border-radius: 0.5rem;">${quote}</blockquote>`;
+                // RIGOROUS FIX: Check if 'quote' is the raw token object instead of the string content.
+                // This handles the scenario where marked might pass { text: '...' } or a simple string.
+                let blockquoteContent;
+                if (typeof quote === 'object' && quote !== null && typeof quote.text === 'string') {
+                    blockquoteContent = quote.text;
+                } else {
+                    blockquoteContent = String(quote);
+                }
+                return `<blockquote style="border-left: 5px solid var(--accent-secondary); padding: 10px 15px; margin: 15px 0; opacity: 0.9; font-style: italic; background-color: color-mix(in srgb, var(--accent-secondary) 10%, transparent); color: var(--text-primary); border-radius: 0.5rem;">${blockquoteContent}</blockquote>`;
             }
         };
 
@@ -7194,14 +7227,14 @@ ${commandTable}
 
             if (role === 'user') {
                 rawMessageContentForCache = text; // Removed "You: " prefix for clean copy
-                contentHTML += `<span class="font-bold">You:</span> ${text}`;
+                let userContentHtmlInner = `<span class="font-bold">You:</span> ${text}`;
                 if (attachments.length > 0) {
-                    contentHTML += `<div class="mt-2 flex flex-wrap gap-2">`;
+                    userContentHtmlInner += `<div class="mt-2 flex flex-wrap gap-2">`;
                     attachments.forEach(attachment => {
                         if (attachment.mimeType.startsWith('image/')) {
-                            contentHTML += `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name || 'User attachment'}" class="chat-image w-24 h-24 object-cover">`;
+                            userContentHtmlInner += `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name || 'User attachment'}" class="chat-image w-24 h-24 object-cover">`;
                         } else {
-                            contentHTML += `
+                            userContentHtmlInner += `
                                 <div class="flex items-center space-x-1 p-2 rounded-md text-sm" style="background-color: var(--bg-secondary); color: var(--text-primary);">
                                     <span data-lucide="${getFileIcon(attachment.mimeType)}" class="w-4 h-4 flex-shrink-0" style="color: var(--accent-secondary);"></span>
                                     <span class="truncate max-w-[120px]">${attachment.name || 'File'}</span>
@@ -7210,8 +7243,10 @@ ${commandTable}
                         }
                     });
                     rawMessageContentForCache += `\n[Attachments: ${attachments.map(a => a.name).join(', ')}]`;
-                    contentHTML += `</div>`;
+                    userContentHtmlInner += `</div>`;
                 }
+                // Wrap user content in a message-content div for consistency
+                contentHTML = `<div class="message-content">${userContentHtmlInner}</div>`;
             } else { // AI message
                 rawMessageContentForCache = text; // Removed "AI: " prefix for clean copy
                 
@@ -7271,12 +7306,15 @@ ${commandTable}
             
             const actionsHTML = `
                 <div class="message-actions">
-                    <button class="copy-message-btn" title="Copy message" data-message-id="${messageId}">
-                        <span data-lucide="clipboard" class="w-4 h-4"></span>
-                    </button>
-                    <button class="dictate-message-btn" title="Dictate message" data-message-id="${messageId}">
-                        <span data-lucide="volume-2" class="w-4 h-4"></span>
-                    </button>
+                <button class="copy-message-btn" title="Copy message" data-message-id="${messageId}">
+                    <span data-lucide="clipboard" class="w-4 h-4"></span>
+                </button>
+                <button class="dictate-message-btn" title="Dictate message" data-message-id="${messageId}">
+                    <span data-lucide="volume-2" class="w-4 h-4"></span>
+                </button>
+                <button class="toggle-raw-btn" title="Toggle raw view" data-message-id="${messageId}">
+                    <span data-lucide="eye" class="w-4 h-4"></span>
+                </button>
                     <!-- NEW: Speed controls, initially hidden -->
                     <div class="speed-controls hidden">
                         <button class="speed-btn" data-speed="0.5">0.5x</button>
@@ -7303,6 +7341,77 @@ ${commandTable}
             // ADDED: Refresh search and code blocks when a new message is appended
             refreshActiveChatSearch();
             collectCodeBlocks();
+        }
+
+        /**
+         * Toggles the view of a chat message between rendered (HTML/Markdown) and raw text.
+         * @param {string} messageId The ID of the message to toggle.
+         * @param {HTMLElement} buttonElement The button that triggered the toggle.
+         */
+        function toggleRawView(messageId, buttonElement) {
+            const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${messageId}"]`);
+            if (!messageDiv) {
+                showError("Message not found.");
+                return;
+            }
+
+            const messageContentDiv = messageDiv.querySelector('.message-content');
+            if (!messageContentDiv) {
+                showError("Message content area not found.");
+                return;
+            }
+
+            const rawTextContent = messageTextCache.get(messageId);
+            if (rawTextContent === undefined) {
+                showError("Raw message content not available.");
+                return;
+            }
+            
+            const isRawViewActive = messageContentDiv.classList.contains('raw-view-active');
+
+            if (isRawViewActive) {
+                // Switch back to rendered view
+                messageContentDiv.classList.remove('raw-view-active');
+                messageContentDiv.innerHTML = messageDiv.dataset.originalHtml; // Use the stored HTML
+                createIcons(); // Re-render any Lucide icons in the restored content
+                
+                // Re-render KaTeX for AI messages if the message contains math, as its HTML is gone
+                if (messageDiv.classList.contains('ai') && window.renderMathInElement) {
+                    renderMathInElement(messageContentDiv, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false },
+                            { left: '\\(', right: '\\)', display: false }, 
+                            { left: '\\[', right: '\\]', display: true }  
+                        ],
+                        throwOnError: false
+                    });
+                }
+                updateButtonIcon(buttonElement, 'eye', 'w-4 h-4');
+                showCopyMessage('Switched to rendered view.', 'var(--accent-secondary)');
+            } else {
+                // Store original HTML before replacing it with raw text, only if not already stored
+                if (!messageDiv.dataset.originalHtml) {
+                    messageDiv.dataset.originalHtml = messageContentDiv.innerHTML;
+                }
+                // Switch to raw view
+                messageContentDiv.classList.add('raw-view-active');
+                messageContentDiv.innerHTML = `<pre class="whitespace-pre-wrap overflow-x-auto">${escapeHtml(rawTextContent)}</pre>`;
+                updateButtonIcon(buttonElement, 'eye-off', 'w-4 h-4');
+                showCopyMessage('Switched to raw view.', 'var(--accent-primary)');
+            }
+        }
+        
+        // Helper function to escape HTML for displaying raw text
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
         
         // Global helper function for updating message status (Suggestion 6)
@@ -7710,6 +7819,13 @@ ${commandTable}
                 } else {
                     showError('Message content not found for dictation.');
                 }
+                return;
+            }
+
+            const toggleRawButton = event.target.closest('.toggle-raw-btn');
+            if (toggleRawButton) {
+                const messageId = toggleRawButton.dataset.messageId;
+                toggleRawView(messageId, toggleRawButton);
                 return;
             }
 
