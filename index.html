@@ -3970,6 +3970,73 @@
             color: var(--text-primary);
         }
 
+        /* NEW: Image Zoom Overlay Styles */
+        #image-zoom-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            cursor: zoom-out;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #image-zoom-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        #zoomed-image {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #image-zoom-overlay.active #zoomed-image {
+            transform: scale(1);
+        }
+        .zoom-close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .zoom-close-btn:hover { background: rgba(255,255,255,0.2); }
+
+        /* NEW: Enhanced Attachment Item Styles */
+        .attachment-details {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            overflow: hidden;
+        }
+        .attachment-snippet {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+        .attachment-size {
+            font-size: 0.65rem;
+            font-weight: bold;
+            opacity: 0.6;
+        }
+
     </style>
 </head>
 <body class="antialiased" data-theme="default-dark">
@@ -6928,7 +6995,7 @@ ${commandTable}
                         appendChatMessage('user', userText.trim(), displayAttachments);
                     } else {
                         // For AI messages, use the full markdown rendering
-                        appendChatMessage('ai', msg.parts[0].text);
+                        appendChatMessage('ai', msg.parts[0].text, [], null, msg.feedback);
                     }
                 });
             }
@@ -7136,7 +7203,9 @@ ${commandTable}
                     file: virtualFile, 
                     mimeType, 
                     data, 
-                    name: filename 
+                    name: filename,
+                    size: virtualFile.size,
+                    snippet: text.substring(0, 50).trim() + '...'
                 });
                 
                 // Update UI
@@ -7149,13 +7218,26 @@ ${commandTable}
         }
 
 
-        // Function to get Lucide icon name based on MIME type
-        function getFileIcon(mimeType) {
-            if (mimeType.startsWith('image/')) return 'image';
-            if (mimeType === 'application/pdf') return 'file-text';
-            if (mimeType.includes('text/')) return 'file-text';
-            if (mimeType.includes('csv') || mimeType.includes('excel')) return 'file-spreadsheet';
-            if (mimeType.includes('json') || mimeType.includes('xml') || mimeType.includes('code') || mimeType.includes('markdown')) return 'file-code';
+        // Function to get Lucide icon name based on MIME type and filename
+        function getFileIcon(mimeType, filename = '') {
+            const lowerMime = mimeType.toLowerCase();
+            const lowerName = filename.toLowerCase();
+
+            if (lowerMime.startsWith('image/')) return 'image';
+            if (lowerMime.startsWith('audio/')) return 'mic';
+            if (lowerMime.startsWith('video/')) return 'video';
+            if (lowerMime === 'application/pdf') return 'file-text';
+            
+            // Programming Languages / Code
+            if (lowerName.endsWith('.py')) return 'terminal'; // Python
+            if (lowerName.endsWith('.js') || lowerName.endsWith('.ts') || lowerName.endsWith('.jsx')) return 'file-code'; // JS/TS
+            if (lowerName.endsWith('.html') || lowerName.endsWith('.css')) return 'layout'; // Web
+            if (lowerName.endsWith('.java') || lowerName.endsWith('.cpp') || lowerName.endsWith('.c') || lowerName.endsWith('.cs')) return 'cpu'; // Compiled
+            
+            if (lowerMime.includes('text/')) return 'file-text';
+            if (lowerMime.includes('csv') || lowerMime.includes('excel') || lowerMime.includes('sheet')) return 'file-spreadsheet';
+            if (lowerMime.includes('json') || lowerMime.includes('xml') || lowerMime.includes('code') || lowerMime.includes('markdown') || lowerName.endsWith('.md')) return 'file-code';
+            
             return 'file';
         }
         
@@ -7337,8 +7419,36 @@ ${commandTable}
             }
         }
 
+        // NEW: Image Zoom Functionality
+        const imageZoomOverlay = document.getElementById('image-zoom-overlay');
+        const zoomedImage = document.getElementById('zoomed-image');
+        const closeZoomBtn = document.getElementById('close-zoom-btn');
+
+        function openImageZoom(src) {
+            if (!imageZoomOverlay || !zoomedImage) return;
+            zoomedImage.src = src;
+            imageZoomOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageZoom() {
+            if (!imageZoomOverlay) return;
+            imageZoomOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (imageZoomOverlay) {
+            imageZoomOverlay.addEventListener('click', (e) => {
+                if (e.target !== zoomedImage) closeImageZoom();
+            });
+        }
+        if (closeZoomBtn) closeZoomBtn.addEventListener('click', closeImageZoom);
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeImageZoom();
+        });
+
         // Function to append a message to the chat history
-        function appendChatMessage(role, text, attachments = [], providedId = null) {
+        function appendChatMessage(role, text, attachments = [], providedId = null, feedback = null) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('chat-message', role);
             
@@ -7355,12 +7465,15 @@ ${commandTable}
                     userContentHtmlInner += `<div class="mt-2 flex flex-wrap gap-2">`;
                     attachments.forEach(attachment => {
                         if (attachment.mimeType.startsWith('image/')) {
-                            userContentHtmlInner += `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name || 'User attachment'}" class="chat-image w-24 h-24 object-cover">`;
+                            userContentHtmlInner += `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name || 'User attachment'}" class="chat-image w-24 h-24 object-cover cursor-pointer zoomable-image">`;
                         } else {
                             userContentHtmlInner += `
                                 <div class="flex items-center space-x-1 p-2 rounded-md text-sm" style="background-color: var(--bg-secondary); color: var(--text-primary);">
-                                    <span data-lucide="${getFileIcon(attachment.mimeType)}" class="w-4 h-4 flex-shrink-0" style="color: var(--accent-secondary);"></span>
-                                    <span class="truncate max-w-[120px]">${attachment.name || 'File'}</span>
+                                    <span data-lucide="${getFileIcon(attachment.mimeType, attachment.name)}" class="w-4 h-4 flex-shrink-0" style="color: var(--accent-secondary);"></span>
+                                    <div class="flex flex-col">
+                                        <span class="truncate max-w-[120px] font-semibold text-xs">${attachment.name || 'File'}</span>
+                                        <span class="text-[10px] opacity-60">${formatBytes(attachment.size || 0)}</span>
+                                    </div>
                                 </div>
                             `;
                         }
@@ -7444,6 +7557,17 @@ ${commandTable}
                 <button class="toggle-raw-btn" title="Toggle raw view" data-message-id="${messageId}">
                     <span data-lucide="eye" class="w-4 h-4"></span>
                 </button>
+                ${role === 'ai' ? `
+                <button class="regenerate-message-btn" title="Regenerate response" data-message-id="${messageId}">
+                    <span data-lucide="refresh-cw" class="w-4 h-4"></span>
+                </button>
+                <button class="feedback-btn feedback-positive" title="Thumbs Up" data-message-id="${messageId}">
+                    <span data-lucide="thumbs-up" class="w-4 h-4"></span>
+                </button>
+                <button class="feedback-btn feedback-negative" title="Thumbs Down" data-message-id="${messageId}">
+                    <span data-lucide="thumbs-down" class="w-4 h-4"></span>
+                </button>
+                ` : ''}
                     <!-- NEW: Speed controls, initially hidden -->
                     <div class="speed-controls hidden">
                         <button class="speed-btn" data-speed="0.5">0.5x</button>
@@ -7457,6 +7581,18 @@ ${commandTable}
             `;
             
             messageDiv.innerHTML = contentHTML + metadataHTML + actionsHTML;
+            
+            // Apply initial feedback UI state if provided
+            if (feedback && role === 'ai') {
+                const posBtn = messageDiv.querySelector('.feedback-positive');
+                const negBtn = messageDiv.querySelector('.feedback-negative');
+                if (feedback === 'positive' && posBtn) {
+                    posBtn.querySelector('.lucide').style.color = 'var(--accent-success)';
+                } else if (feedback === 'negative' && negBtn) {
+                    negBtn.querySelector('.lucide').style.color = 'var(--accent-error)';
+                }
+            }
+
             chatHistoryDiv.appendChild(messageDiv);
             
             setTimeout(() => {
@@ -7532,6 +7668,54 @@ ${commandTable}
         }
 
         /**
+         * Captures and saves user feedback (thumbs up/down) for AI responses.
+         */
+        async function handleMessageFeedback(messageId, feedbackType, buttonElement) {
+            if (!currentSessionId || !allChatSessions[currentSessionId]) return;
+
+            const session = allChatSessions[currentSessionId];
+            const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${messageId}"]`);
+            if (!messageDiv) return;
+
+            const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
+            const index = messagesInDom.indexOf(messageDiv);
+
+            if (index !== -1 && session.history[index]) {
+                const messageObj = session.history[index];
+                
+                // Toggle logic: if clicking the same feedback type, remove it.
+                const newFeedback = messageObj.feedback === feedbackType ? null : feedbackType;
+                messageObj.feedback = newFeedback;
+
+                // Visual Updates
+                const actionsContainer = buttonElement.closest('.message-actions');
+                const posBtn = actionsContainer.querySelector('.feedback-positive');
+                const negBtn = actionsContainer.querySelector('.feedback-negative');
+                
+                const posIcon = posBtn ? posBtn.querySelector('.lucide') : null;
+                const negIcon = negBtn ? negBtn.querySelector('.lucide') : null;
+
+                // Reset both colors
+                if (posIcon) posIcon.style.color = '';
+                if (negIcon) negIcon.style.color = '';
+
+                if (newFeedback === 'positive' && posIcon) {
+                    posIcon.style.color = 'var(--accent-success)';
+                } else if (newFeedback === 'negative' && negIcon) {
+                    negIcon.style.color = 'var(--accent-error)';
+                }
+
+                await updateCurrentSessionHistory();
+                
+                if (newFeedback) {
+                    showCopyMessage(`Feedback saved: ${newFeedback}`, newFeedback === 'positive' ? 'var(--accent-success)' : 'var(--accent-error)');
+                } else {
+                    showCopyMessage('Feedback removed.', 'var(--text-secondary)');
+                }
+            }
+        }
+
+        /**
          * Populates the chat input with existing message content for editing.
          */
         function handleEditMessage(messageId) {
@@ -7590,6 +7774,127 @@ ${commandTable}
                 
                 collectCodeBlocks();
                 refreshActiveChatSearch();
+            }
+        }
+
+        /**
+         * Regenerates an AI response by removing the current AI response and re-sending the last user message.
+         */
+        async function handleRegenerateResponse(messageId) {
+            if (!currentSessionId || !allChatSessions[currentSessionId] || isAIGenerating) return;
+
+            const session = allChatSessions[currentSessionId];
+            const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${messageId}"]`);
+            if (!messageDiv || !messageDiv.classList.contains('ai')) return;
+
+            // 1. Identify index of this AI message in history
+            const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
+            const index = messagesInDom.indexOf(messageDiv);
+
+            if (index !== -1 && session.history[index] && session.history[index].role === 'model') {
+                // To regenerate, we need a user message before this AI message
+                const userMessageIndex = index - 1;
+                if (userMessageIndex >= 0 && session.history[userMessageIndex].role === 'user') {
+                    // Remove the current AI message from history, DOM and cache
+                    session.history.splice(index, 1);
+                    messageTextCache.delete(messageId);
+                    messageDiv.remove();
+
+                    showCopyMessage("Regenerating response...", "var(--accent-secondary)");
+                    
+                    // Trigger the loading state and API call using currentSessionHistory
+                    sendChatBtn.disabled = true;
+                    sendChatBtn.classList.add('hidden');
+                    stopChatBtn.classList.remove('hidden');
+                    isAIGenerating = true;
+                    
+                    abortController = new AbortController();
+                    
+                    const loadingMessage = document.createElement('div');
+                    loadingMessage.id = 'chat-loading';
+                    loadingMessage.classList.add('chat-message', 'ai', 'p-4', 'text-sm', 'max-w-xs', 'mx-auto');
+                    loadingMessage.innerHTML = `
+                        <div class="loader-container h-8">
+                            <div class="loader-typing-bar"></div>
+                            <div class="loader-typing-bar"></div>
+                            <div class="loader-typing-bar"></div>
+                        </div>
+                        <div id="loading-status" class="mt-2 block font-medium text-center" style="color: var(--accent-secondary);">Regenerating...</div>
+                    `;
+                    chatHistoryDiv.appendChild(loadingMessage);
+                    chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+                    
+                    const statusMessages = isStreamingEnabled 
+                        ? ["Initiating stream...", "Connecting...", "AI is typing..."]
+                        : ["AI is thinking...", "Processing request...", "Crafting response...", "Analyzing data...", "Consulting the nexus..."];
+                    let statusIndex = 0;
+                    const statusInterval = setInterval(() => {
+                        const statusElement = document.getElementById('loading-status');
+                        if (statusElement) {
+                            statusElement.textContent = statusMessages[statusIndex];
+                            statusIndex = (statusIndex + 1) % statusMessages.length;
+                        }
+                    }, 2000);
+                    loadingMessage.dataset.statusInterval = statusInterval;
+
+                    try {
+                        const payload = { contents: session.history };
+                        let responseText = "";
+
+                        if (isStreamingEnabled) {
+                            const response = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal, true);
+                            const aiMsgId = `msg-${Date.now()}-regen`;
+                            appendChatMessage('ai', '...', [], aiMsgId); 
+                            
+                            clearInterval(statusInterval);
+                            loadingMessage.remove();
+
+                            responseText = await processStreamingResponse(response, aiMsgId);
+                            messageTextCache.set(aiMsgId, responseText);
+                            
+                            const aiMessageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${aiMsgId}"]`);
+                            if (aiMessageDiv) {
+                                const aiContentDiv = aiMessageDiv.querySelector('.message-content');
+                                aiContentDiv.innerHTML = marked.parse(responseText);
+                                if (window.renderMathInElement) {
+                                    renderMathInElement(aiContentDiv, {
+                                        delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
+                                        throwOnError: false
+                                    });
+                                }
+                                updateMessageStatus(aiMessageDiv, 'processed');
+                            }
+                            session.history.push({ role: 'model', parts: [{ text: responseText }] });
+                        } else {
+                            responseText = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal, false); 
+                            session.history.push({ role: 'model', parts: [{ text: responseText }] });
+                            appendChatMessage('ai', responseText);
+                            const lastAiMessage = chatHistoryDiv.lastChild;
+                            if (lastAiMessage) updateMessageStatus(lastAiMessage, 'processed');
+                        }
+                        
+                        await updateCurrentSessionHistory(); 
+                    } catch (error) {
+                        console.error('Regeneration API call failed:', error);
+                        showError(`Regeneration error: ${error.message}`);
+                    } finally {
+                        sendChatBtn.disabled = false;
+                        sendChatBtn.classList.remove('hidden');
+                        stopChatBtn.classList.add('hidden');
+                        isAIGenerating = false;
+                        abortController = null;
+                        const loadingDiv = document.getElementById('chat-loading');
+                        if (loadingDiv) {
+                            clearInterval(loadingDiv.dataset.statusInterval);
+                            loadingDiv.remove();
+                        }
+                        chatInput.focus();
+                        collectCodeBlocks();
+                        refreshActiveChatSearch();
+                    }
+                } else {
+                    showError("No preceding user message found to regenerate from.");
+                }
             }
         }
         
@@ -7659,26 +7964,60 @@ ${commandTable}
         // Helper function to process files from various sources (drag/drop, paste, file input)
         async function processFiles(files) {
             for (const file of files) {
+                // Extended allowed types for more versatile processing
                 const allowedTypes = [
-                    'image/', 'text/', 'application/pdf',
+                    'image/', 'text/', 'application/pdf', 'audio/', 'video/',
                     'application/json', 'text/csv', 'application/xml', 'text/markdown'
                 ];
-                const isAllowed = allowedTypes.some(type => file.type.startsWith(type)) || file.name.endsWith('.md');
+                const extensionAllowed = [
+                    '.md', '.py', '.js', '.ts', '.html', '.css', '.java', '.cpp', '.c', '.cs', '.json', '.xml', '.csv'
+                ].some(ext => file.name.toLowerCase().endsWith(ext));
 
-                if (isAllowed) {
+                if (allowedTypes.some(type => file.type.startsWith(type)) || extensionAllowed) {
                     try {
                         const { mimeType, data, name } = await fileToBase64(file);
-                        chatAttachments.push({ file, mimeType, data, name: name || file.name });
+                        
+                        // Gather extra info for non-image previews
+                        let snippet = '';
+                        if (!mimeType.startsWith('image/') && !mimeType.startsWith('audio/') && !mimeType.startsWith('video/')) {
+                            // Only try to read snippet for text-like files
+                            if (mimeType.includes('text') || mimeType.includes('json') || extensionAllowed) {
+                                snippet = await new Promise((resolve) => {
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => resolve(e.target.result.substring(0, 50).trim() + '...');
+                                    reader.readAsText(file.slice(0, 100)); // Read first 100 chars
+                                });
+                            }
+                        }
+
+                        chatAttachments.push({ 
+                            file, 
+                            mimeType, 
+                            data, 
+                            name: name || file.name,
+                            size: file.size,
+                            snippet: snippet
+                        });
                     } catch (error) {
                         showError(`Failed to read chat file ${file.name}.`);
                         console.error('Chat file read error:', error);
                     }
                 } else {
-                    showError(`File type not supported for chat: ${file.name} (${file.type}).`);
+                    showError(`File type not supported: ${file.name}`);
                 }
             }
             displayChatAttachments();
             adjustChatInputHeight();
+        }
+
+        // Helper to format file size
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         }
 
         // Function to display chat attachments
@@ -7688,30 +8027,38 @@ ${commandTable}
                 chatAttachmentsPreviewContainer.classList.remove('hidden');
                 chatAttachments.forEach((attachment, index) => {
                     const attachmentDiv = document.createElement('div');
-                    attachmentDiv.classList.add('chat-attachment-preview-item');
+                    attachmentDiv.classList.add('chat-attachment-preview-item', 'items-center');
                     attachmentDiv.dataset.index = index;
 
                     let previewContent = '';
                     if (attachment.mimeType.startsWith('image/')) {
-                        previewContent = `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name || 'User attachment'}" class="w-8 h-8 object-cover rounded-md">`;
+                        previewContent = `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name || 'User attachment'}" class="w-10 h-10 object-cover rounded-md cursor-pointer zoomable-image">`;
                     } else {
-                        previewContent = `<span data-lucide="${getFileIcon(attachment.mimeType)}" class="w-5 h-5 flex-shrink-0"></span>`;
+                        previewContent = `<span data-lucide="${getFileIcon(attachment.mimeType, attachment.name)}" class="w-6 h-6 flex-shrink-0"></span>`;
                     }
+
+                    const detailsHtml = `
+                        <div class="attachment-details flex-1 ml-1">
+                            <span class="truncate max-w-[120px] font-semibold text-xs">${attachment.name}</span>
+                            <span class="attachment-size">${formatBytes(attachment.size || 0)}</span>
+                            ${attachment.snippet ? `<span class="attachment-snippet">${attachment.snippet}</span>` : ''}
+                        </div>
+                    `;
 
                     attachmentDiv.innerHTML = `
                         ${previewContent}
-                        <span class="truncate max-w-[100px]">${attachment.name}</span>
+                        ${detailsHtml}
                         
-                        <!-- NEW: Edit Button (Only show for text files that can be edited) -->
-                        ${attachment.mimeType.startsWith('text/') || attachment.name.endsWith('.md') || attachment.name.endsWith('.json') || attachment.name.endsWith('.csv') ? 
-                            `<button class="edit-attachment-btn" title="Edit attachment content" data-index="${index}">
-                                <span data-lucide="edit" class="w-4 h-4"></span>
-                            </button>` 
-                            : ''}
-
-                        <button class="remove-attachment-btn">
-                            <span data-lucide="x" class="w-4 h-4"></span>
-                        </button>
+                        <div class="flex flex-col gap-1 ml-2">
+                            ${attachment.mimeType.startsWith('text/') || attachment.name.endsWith('.md') || attachment.name.endsWith('.json') || attachment.name.endsWith('.csv') ? 
+                                `<button class="edit-attachment-btn" title="Edit" data-index="${index}">
+                                    <span data-lucide="edit-3" class="w-3.5 h-3.5"></span>
+                                </button>` 
+                                : ''}
+                            <button class="remove-attachment-btn" title="Remove">
+                                <span data-lucide="x" class="w-3.5 h-3.5"></span>
+                            </button>
+                        </div>
                     `;
                     chatAttachmentsPreviewContainer.appendChild(attachmentDiv);
                 });
@@ -7970,6 +8317,12 @@ ${commandTable}
 
         // Event delegation for copy code buttons within chat history
         chatHistoryDiv.addEventListener('click', (event) => {
+            // NEW: Image Zoom Trigger
+            const clickedImg = event.target.closest('.zoomable-image');
+            if (clickedImg) {
+                openImageZoom(clickedImg.src);
+                return;
+            }
             const codeCopyButton = event.target.closest('.code-block-copy-button');
             if (codeCopyButton) {
                 const targetId = codeCopyButton.dataset.copyTarget;
@@ -8013,6 +8366,14 @@ ${commandTable}
                 return;
             }
 
+            const feedbackBtn = event.target.closest('.feedback-btn');
+            if (feedbackBtn) {
+                const messageId = feedbackBtn.dataset.messageId;
+                const isPositive = feedbackBtn.classList.contains('feedback-positive');
+                handleMessageFeedback(messageId, isPositive ? 'positive' : 'negative', feedbackBtn);
+                return;
+            }
+
             const toggleRawButton = event.target.closest('.toggle-raw-btn');
             if (toggleRawButton) {
                 const messageId = toggleRawButton.dataset.messageId;
@@ -8031,6 +8392,13 @@ ${commandTable}
             if (deleteMessageBtn) {
                 const messageId = deleteMessageBtn.dataset.messageId;
                 handleDeleteMessage(messageId);
+                return;
+            }
+
+            const regenerateMessageBtn = event.target.closest('.regenerate-message-btn');
+            if (regenerateMessageBtn) {
+                const messageId = regenerateMessageBtn.dataset.messageId;
+                handleRegenerateResponse(messageId);
                 return;
             }
 
@@ -8512,7 +8880,16 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             const endpoint = isStreaming ? 'streamGenerateContent' : 'generateContent';
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:${endpoint}?key=${apiKey}${isStreaming ? '&alt=sse' : ''}`;
 
-            const contentsToSend = JSON.parse(JSON.stringify(payload.contents));
+            // Create a clean copy of contents to remove non-standard API fields (like 'feedback')
+            const contentsToSend = payload.contents.map(msg => ({
+                role: msg.role,
+                parts: msg.parts.map(part => {
+                    const cleanPart = {};
+                    if (part.text) cleanPart.text = part.text;
+                    if (part.inlineData) cleanPart.inlineData = part.inlineData;
+                    return cleanPart;
+                })
+            }));
             
             let promptPrefix = '';
 
@@ -10592,6 +10969,13 @@ Criteria:
 
         // --- Event Delegation for Edit Button ---
         chatAttachmentsPreviewContainer.addEventListener('click', (event) => {
+            // NEW: Image Zoom Trigger for preview
+            const clickedImg = event.target.closest('.zoomable-image');
+            if (clickedImg) {
+                openImageZoom(clickedImg.src);
+                return;
+            }
+
             const editBtn = event.target.closest('.edit-attachment-btn');
             if (editBtn) {
                 event.stopPropagation();
@@ -11000,6 +11384,14 @@ Criteria:
 
 
     </script>
+
+    <!-- NEW: Image Zoom Overlay -->
+    <div id="image-zoom-overlay" aria-label="Image Zoom View">
+        <div class="zoom-close-btn" id="close-zoom-btn">
+            <span data-lucide="x" class="w-8 h-8"></span>
+        </div>
+        <img id="zoomed-image" src="" alt="Zoomed View">
+    </div>
 
     <!-- GLOBAL TOOLTIP CONTAINER -->
     <div id="global-tooltip" role="status" aria-live="polite" aria-hidden="true" class="fixed p-2 rounded-lg text-xs shadow-xl pointer-events-none opacity-0 transition-opacity duration-150" 
