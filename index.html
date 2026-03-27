@@ -4113,6 +4113,18 @@
                     </select>
                 </div>
 
+                <!-- NEW: Streaming Response Toggle -->
+                <div class="flex items-center justify-between pt-2">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-semibold uppercase" style="color: var(--text-secondary);">Streaming Mode</span>
+                        <p class="text-[10px]" style="color: var(--text-tertiary);">AI types in real-time</p>
+                    </div>
+                    <label class="switch relative inline-block w-14 h-8">
+                        <input type="checkbox" id="streaming-mode-toggle" class="opacity-0 w-0 h-0" checked>
+                        <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full before:absolute before:content-[''] before:h-6 before:w-6 before:left-1 before:bottom-1 before:rounded-full"></span>
+                    </label>
+                </div>
+
                 <!-- Theme Selector (Dropdown for different themes) -->
                 <div>
                     <div class="flex items-center justify-between mb-2">
@@ -5724,6 +5736,7 @@ ${commandTable}
         const CONVERSATION_SPEECH_RATE_KEY = 'conversationSpeechRate'; // NEW: Speech Rate Key
         const CUSTOM_PROMPT_TEXT_KEY = 'customPromptText';
         const CUSTOM_PROMPT_ACTIVE_KEY = 'isCustomPromptActive';
+        const STREAMING_ENABLED_KEY = 'isStreamingEnabled'; // NEW
         const PROMPT_TEMPLATES_KEY = 'templates'; 
         const API_KEY_KEY = 'apiKey';
         const API_KEYS_LIST_KEY = 'apiKeysList'; // NEW F1
@@ -5797,6 +5810,7 @@ ${commandTable}
         let allChatSessions = {}; 
         let currentSessionId = null;
         let chatAttachments = [];
+        let editingMessageId = null; // NEW: Track if we are editing an existing message
         let abortController = null; // NEW: For stopping API generation
         let isAIGenerating = false; // NEW: State to track if AI is currently generating
 
@@ -5825,6 +5839,7 @@ ${commandTable}
 
         let customPromptText = '';
         let isCustomPromptActive = false;
+        let isStreamingEnabled = true; // NEW
         // NEW: Intelligent AI Mode State and Prompt
         let isIntelligentAIModeActive = false;
         const INTELLIGENT_AI_MODE_PROMPT = "you are a very intelligent ai. you answer short and to the point in the most effective way.";
@@ -5840,6 +5855,7 @@ ${commandTable}
         // NEW: Intelligent AI Mode Button and Indicator
         const intelligentAIModeBtn = document.getElementById('intelligent-ai-mode-btn');
         const intelligentAIModeIndicator = document.getElementById('intelligent-ai-mode-indicator');
+        const streamingModeToggle = document.getElementById('streaming-mode-toggle'); // NEW
 
         // NEW: Chat Search State
         let searchMatches = []; 
@@ -5935,6 +5951,12 @@ ${commandTable}
                 isCustomPromptActive = settings[CUSTOM_PROMPT_ACTIVE_KEY] === true;
                 // NEW: Load Intelligent AI Mode state
                 isIntelligentAIModeActive = settings['isIntelligentAIModeActive'] === true;
+
+                // NEW: Streaming Preference
+                isStreamingEnabled = settings[STREAMING_ENABLED_KEY] !== false; // Default true
+                const streamingToggle = document.getElementById('streaming-mode-toggle');
+                if (streamingToggle) streamingToggle.checked = isStreamingEnabled;
+
                 updateCustomPromptButtonState(); // This function now handles both indicators
                     
                 // 6. Templates
@@ -6805,6 +6827,11 @@ ${commandTable}
                 return;
             }
 
+            // Reset editing state
+            editingMessageId = null;
+            updateButtonIcon(sendChatBtn, 'send', 'w-5 h-5');
+            sendChatBtn.title = "Send Message";
+
             // Set the base title to ensure consistency for the auto-title check later.
             const titleForNewSession = (initialTitle === 'Welcome Chat' || initialTitle === 'New Chat') 
                                     ? 'Welcome Chat' : initialTitle; 
@@ -6847,6 +6874,11 @@ ${commandTable}
 
         function loadChatSession(sessionId) {
             if (!currentUser) return;
+
+            // Reset editing state on switch
+            editingMessageId = null;
+            updateButtonIcon(sendChatBtn, 'send', 'w-5 h-5');
+            sendChatBtn.title = "Send Message";
 
             if (currentSessionId === sessionId) return; 
             
@@ -7213,6 +7245,71 @@ ${commandTable}
             createIcons();
         }
         
+        // NEW: Function to process streaming response (Helper for Request)
+        async function processStreamingResponse(response, messageId) {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullText = "";
+            let buffer = "";
+            
+            const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${messageId}"]`);
+            if (!messageDiv) return "";
+            const contentDiv = messageDiv.querySelector('.message-content');
+
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    
+                    // Split buffer into lines and process complete "data: " lines
+                    let lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep the last (possibly incomplete) line in buffer
+
+                    for (const line of lines) {
+                        const trimmedLine = line.trim();
+                        if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue;
+                        
+                        try {
+                            const jsonStr = trimmedLine.replace('data: ', '').trim();
+                            const data = JSON.parse(jsonStr);
+                            
+                            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+                                const textChunk = data.candidates[0].content.parts[0].text;
+                                fullText += textChunk;
+                                
+                                // Incremental UI Update
+                                contentDiv.innerHTML = marked.parse(fullText);
+                                
+                                // Auto-scroll during streaming
+                                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+                            }
+                        } catch (e) {
+                            // Log but continue - likely incomplete JSON across chunks
+                            console.debug("Partial chunk parsing skipped:", trimmedLine);
+                        }
+                    }
+                }
+                
+                // Final render to ensure icons, math, and code highlighting are perfect
+                contentDiv.innerHTML = marked.parse(fullText);
+                createIcons();
+                collectCodeBlocks();
+                
+                return fullText;
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Streaming generation aborted.');
+                    contentDiv.innerHTML = marked.parse(fullText + "\n\n*[Generation Interrupted]*");
+                    return fullText; 
+                }
+                throw error;
+            } finally {
+                reader.releaseLock();
+            }
+        }
+
         // ADDED: Real-time search refresh function
         function refreshActiveChatSearch() {
             const query = chatSearchInput.value.trim();
@@ -7241,11 +7338,11 @@ ${commandTable}
         }
 
         // Function to append a message to the chat history
-        function appendChatMessage(role, text, attachments = []) {
+        function appendChatMessage(role, text, attachments = [], providedId = null) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('chat-message', role);
             
-            const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const messageId = providedId || `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             messageDiv.dataset.messageId = messageId;
             
             let contentHTML = '';
@@ -7332,6 +7429,12 @@ ${commandTable}
             
             const actionsHTML = `
                 <div class="message-actions">
+                <button class="edit-message-btn" title="Edit message" data-message-id="${messageId}">
+                    <span data-lucide="edit-3" class="w-4 h-4"></span>
+                </button>
+                <button class="delete-message-btn" title="Delete message" data-message-id="${messageId}">
+                    <span data-lucide="trash-2" class="w-4 h-4"></span>
+                </button>
                 <button class="copy-message-btn" title="Copy message" data-message-id="${messageId}">
                     <span data-lucide="clipboard" class="w-4 h-4"></span>
                 </button>
@@ -7425,6 +7528,68 @@ ${commandTable}
                 messageContentDiv.innerHTML = `<pre class="whitespace-pre-wrap overflow-x-auto">${escapeHtml(rawTextContent)}</pre>`;
                 updateButtonIcon(buttonElement, 'eye-off', 'w-4 h-4');
                 showCopyMessage('Switched to raw view.', 'var(--accent-primary)');
+            }
+        }
+
+        /**
+         * Populates the chat input with existing message content for editing.
+         */
+        function handleEditMessage(messageId) {
+            const content = messageTextCache.get(messageId);
+            if (content === undefined) {
+                showError("Message content not found.");
+                return;
+            }
+
+            editingMessageId = messageId;
+            chatInput.value = content;
+            adjustChatInputHeight();
+            chatInput.focus();
+
+            // Visual feedback on send button
+            updateButtonIcon(sendChatBtn, 'save', 'w-5 h-5');
+            sendChatBtn.title = "Save Edited Message";
+            showCopyMessage("Editing message...", "var(--accent-secondary)");
+        }
+
+        /**
+         * Deletes a message from the DOM, local state, and Firebase.
+         */
+        async function handleDeleteMessage(messageId) {
+            if (!currentSessionId || !allChatSessions[currentSessionId]) return;
+
+            if (!confirm("Are you sure you want to delete this individual message? This cannot be undone.")) {
+                return;
+            }
+
+            const session = allChatSessions[currentSessionId];
+            const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${messageId}"]`);
+            
+            if (!messageDiv) return;
+
+            // Identify index in history relative to the DOM order
+            const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
+            const index = messagesInDom.indexOf(messageDiv);
+
+            if (index !== -1) {
+                // Remove from local session history and cache
+                session.history.splice(index, 1);
+                messageTextCache.delete(messageId);
+                
+                // Remove from DOM
+                messageDiv.remove();
+
+                // Sync to Firebase
+                await updateCurrentSessionHistory();
+                
+                showCopyMessage("Message deleted.", "var(--accent-error)");
+                
+                if (session.history.length === 0) {
+                    renderWelcomeScreen();
+                }
+                
+                collectCodeBlocks();
+                refreshActiveChatSearch();
             }
         }
         
@@ -7852,6 +8017,20 @@ ${commandTable}
             if (toggleRawButton) {
                 const messageId = toggleRawButton.dataset.messageId;
                 toggleRawView(messageId, toggleRawButton);
+                return;
+            }
+
+            const editMessageBtn = event.target.closest('.edit-message-btn');
+            if (editMessageBtn) {
+                const messageId = editMessageBtn.dataset.messageId;
+                handleEditMessage(messageId);
+                return;
+            }
+
+            const deleteMessageBtn = event.target.closest('.delete-message-btn');
+            if (deleteMessageBtn) {
+                const messageId = deleteMessageBtn.dataset.messageId;
+                handleDeleteMessage(messageId);
                 return;
             }
 
@@ -8321,7 +8500,7 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
         }
 
         // Generic API call function with exponential backoff (MODIFIED for API Key)
-        async function callGeminiAPI(payload, personalityName = "Standard", targetModel = selectedModel, systemInstruction = null, signal = null) { // MODIFIED: Added signal parameter
+        async function callGeminiAPI(payload, personalityName = "Standard", targetModel = selectedModel, systemInstruction = null, signal = null, isStreaming = false) { // MODIFIED: Added signal and isStreaming parameter
             const fallbackApiKey = "AIzaSyCnsccknz5O5TYII723JipYSmYjj5OVdTk"; 
             const apiKey = userApiKey || fallbackApiKey;
 
@@ -8329,7 +8508,9 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                 throw new Error("API Key is not set. Please enter your custom key or ensure the fallback key is correct.");
             }
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+            // MODIFIED: Use streamGenerateContent for streaming mode
+            const endpoint = isStreaming ? 'streamGenerateContent' : 'generateContent';
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:${endpoint}?key=${apiKey}${isStreaming ? '&alt=sse' : ''}`;
 
             const contentsToSend = JSON.parse(JSON.stringify(payload.contents));
             
@@ -8411,6 +8592,9 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                         const errorData = await response.json();
                         throw new Error(`API error: ${response.status} ${response.statusText} - ${errorData.error?.message || 'Unknown error'}`);
                     } else {
+                        // NEW: If streaming, return the response object immediately
+                        if (isStreaming) return response;
+
                         result = await response.json();
                         success = true;
                     }
@@ -8578,6 +8762,52 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             }
 
             const userMessage = chatInput.value.trim();
+
+            // Handle Message Editing
+            if (editingMessageId) {
+                const session = allChatSessions[currentSessionId];
+                const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
+                const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${editingMessageId}"]`);
+                const index = messagesInDom.indexOf(messageDiv);
+
+                if (index !== -1 && session.history[index]) {
+                    // Update History and Cache
+                    session.history[index].parts = [{ text: userMessage }];
+                    messageTextCache.set(editingMessageId, userMessage);
+
+                    // Update DOM
+                    const contentDiv = messageDiv.querySelector('.message-content');
+                    if (session.history[index].role === 'user') {
+                        contentDiv.innerHTML = `<span class="font-bold">You:</span> ${userMessage}`;
+                    } else {
+                        contentDiv.innerHTML = marked.parse(userMessage);
+                        if (window.renderMathInElement) {
+                            renderMathInElement(contentDiv, {
+                                delimiters: [
+                                    { left: '$$', right: '$$', display: true },
+                                    { left: '$', right: '$', display: false },
+                                    { left: '\\(', right: '\\)', display: false }, 
+                                    { left: '\\[', right: '\\]', display: true }  
+                                ],
+                                throwOnError: false
+                            });
+                        }
+                    }
+
+                    // Reset state
+                    editingMessageId = null;
+                    chatInput.value = '';
+                    adjustChatInputHeight();
+                    updateButtonIcon(sendChatBtn, 'send', 'w-5 h-5');
+                    sendChatBtn.title = "Send Message";
+                    
+                    await updateCurrentSessionHistory();
+                    showCopyMessage("Message updated!", "var(--accent-success)");
+                    createIcons();
+                    return;
+                }
+            }
+
             if (!userMessage && chatAttachments.length === 0) {
                 return;
             }
@@ -8646,7 +8876,9 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
             
             // R6: Simulate rotating loading messages 
-            const statusMessages = ["AI is thinking...", "Processing request...", "Crafting response...", "Analyzing data...", "Consulting the nexus..."];
+            const statusMessages = isStreamingEnabled 
+                ? ["Initiating stream...", "Connecting...", "AI is typing..."]
+                : ["AI is thinking...", "Processing request...", "Crafting response...", "Analyzing data...", "Consulting the nexus..."];
             let statusIndex = 0;
             const statusElement = document.getElementById('loading-status');
             const updateStatus = () => {
@@ -8664,15 +8896,57 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                     contents: currentSessionHistory, 
                 };
                 
-                // MODIFIED: Pass the abortController.signal
-                const responseText = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal); 
-                
-                currentSessionHistory.push({ role: 'model', parts: [{ text: responseText }] });
-                appendChatMessage('ai', responseText);
+                let responseText = "";
+
+                if (isStreamingEnabled) {
+                    // 1. Start call with streaming enabled
+                    const response = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal, true);
+                    
+                    // 2. Prepare the AI message bubble immediately
+                    const aiMessageId = `msg-${Date.now()}-streaming`;
+                    appendChatMessage('ai', '...', [], aiMessageId); 
+                    
+                    // 3. Clear loading spinner
+                    clearInterval(statusInterval);
+                    loadingMessage.remove();
+
+                    // 4. Process the stream and update bubble in real-time
+                    responseText = await processStreamingResponse(response, aiMessageId);
+                    
+                    // 5. Finalize the message text in cache
+                    messageTextCache.set(aiMessageId, responseText);
+                    
+                    // Final re-render for clean markdown and code blocks
+                    const aiMessageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${aiMessageId}"]`);
+                    if (aiMessageDiv) {
+                        const aiContentDiv = aiMessageDiv.querySelector('.message-content');
+                        aiContentDiv.innerHTML = marked.parse(responseText);
+                        
+                        if (window.renderMathInElement) {
+                            renderMathInElement(aiContentDiv, {
+                                delimiters: [
+                                    { left: '$$', right: '$$', display: true },
+                                    { left: '$', right: '$', display: false },
+                                    { left: '\\(', right: '\\)', display: false }, 
+                                    { left: '\\[', right: '\\]', display: true }  
+                                ],
+                                throwOnError: false
+                            });
+                        }
+                    }
+                    
+                    currentSessionHistory.push({ role: 'model', parts: [{ text: responseText }] });
+                } else {
+                    // Standard non-streaming logic
+                    responseText = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal, false); 
+                    
+                    currentSessionHistory.push({ role: 'model', parts: [{ text: responseText }] });
+                    appendChatMessage('ai', responseText);
+                }
                 
                 await updateCurrentSessionHistory(); 
 
-                // Update statuses: mark AI and user messages as processed (Suggestion 6)
+                // Update statuses: mark AI and user messages as processed
                 const lastAiMessage = chatHistoryDiv.lastChild;
                 if (lastAiMessage) {
                     updateMessageStatus(lastAiMessage, 'processed');
@@ -9478,7 +9752,18 @@ Criteria:
             customPromptModal.classList.remove('hidden'); 
         });
 
-        // NEW: Event listener for Intelligent AI Mode button
+        // NEW: Streaming Mode Toggle Listener
+        if (streamingModeToggle) {
+            streamingModeToggle.addEventListener('change', (e) => {
+                isStreamingEnabled = e.target.checked;
+                if (currentUser) {
+                    saveUserSetting(STREAMING_ENABLED_KEY, isStreamingEnabled);
+                }
+                showCopyMessage(`Streaming ${isStreamingEnabled ? 'enabled' : 'disabled'}.`, 'var(--accent-primary)');
+            });
+        }
+
+        // NEW: Intelligent AI Mode button
         intelligentAIModeBtn.addEventListener('click', () => {
             if (!currentUser) {
                 showError("Please sign in to use Intelligent AI Mode.");
