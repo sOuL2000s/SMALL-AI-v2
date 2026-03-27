@@ -3543,7 +3543,7 @@
 
 
         .conversation-history-display {
-            max-width: 700px; /* Slightly wider */
+            max-width: min(90vw, 700px); /* Adjust max-width for better responsiveness */
             width: 90%;
             height: 140px; /* Slightly taller */
             overflow-y: auto;
@@ -4079,11 +4079,11 @@
                     <span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt
                 </button>
 
-                <!-- NEW: AI Prompt Engineer Button -->
-                <button id="ai-prompt-engineer-btn" data-help-content="Activate AI Prompt Engineer mode. The AI will respond by crafting an optimized prompt based on your input." class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors relative" style="background-color: var(--bg-secondary); color: var(--text-primary);">
-                    <span data-lucide="cpu" class="w-5 h-5 mr-2"></span> AI Prompt Engineer
-                    <!-- NEW: AI Prompt Engineer Indicator -->
-                    <div id="ai-prompt-engineer-indicator" class="w-3.5 h-3.5 rounded-full absolute top-1 right-1 hidden" title="AI Prompt Engineer is Active" style="background-color: var(--accent-secondary); z-index: 5; animation: prompt-pulse 1.5s infinite alternate;"></div>
+                <!-- NEW: Intelligent AI Mode Button -->
+                <button id="intelligent-ai-mode-btn" data-help-content="Activate Intelligent AI Mode. The AI will provide short, to-the-point, and effective answers." class="w-full flex items-center justify-center p-3 rounded-xl font-semibold shadow-lg transition-colors relative" style="background-color: var(--bg-secondary); color: var(--text-primary);">
+                    <span data-lucide="brain" class="w-5 h-5 mr-2"></span> Intelligent AI Mode
+                    <!-- NEW: Intelligent AI Mode Indicator -->
+                    <div id="intelligent-ai-mode-indicator" class="w-3.5 h-3.5 rounded-full absolute top-1 right-1 hidden" title="Intelligent AI Mode is Active" style="background-color: var(--accent-secondary); z-index: 5; animation: prompt-pulse 1.5s infinite alternate;"></div>
                 </button>
                 
                 <!-- Manage Prompt Templates Button -->
@@ -4232,6 +4232,8 @@
                 <button id="conversation-mode-toggle-btn" data-help-content="Start a hands-free, voice-only conversation with the AI. Requires microphone permission." aria-label="Conversation Mode" title="Start Voice Conversation" class="hidden sm:flex items-center justify-center p-2 rounded-full shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                     <span data-lucide="messages-square" class="w-5 h-5"></span>
                 </button>
+
+
 
                 <!-- 3. MORE ACTIONS DROPDOWN (Mobile Only) -->
                 <div id="header-mobile-dropdown-container" class="sm:hidden">
@@ -4460,7 +4462,7 @@
 
             <!-- Google Sign In -->
             <button id="google-sign-in-btn" class="w-full flex items-center justify-center p-3 rounded-lg font-semibold border transition-colors mb-4" style="background-color: var(--bg-secondary); color: var(--text-primary); border-color: var(--border-color);">
-                <span data-lucide="chrome" class="w-5 h-5 mr-2"></span> Sign In with Google
+                <span data-lucide="mail" class="w-5 h-5 mr-2"></span> Sign In with Google
             </button>
 
             <!-- Toggle between Sign In / Sign Up -->
@@ -5140,7 +5142,7 @@ ${commandTable}
             { cmd: 'rename', title: 'Rename Chat', desc: 'Rename the active chat: /rename New Title', sample:'/rename Project Plan' },
             { cmd: 'save-prompt', title: 'Save Custom Prompt', desc: 'Save current Custom Prompt as active', sample:'/save-prompt' },
             { cmd: 'manage-templates', title: 'Manage Templates', desc: 'Open prompt templates manager', sample:'/manage-templates' },
-            { cmd: 'prompt-tool', title: 'Prompt Enhancement Tool', desc: 'Open prompt enhancement tool', sample:'/prompt-tool' },
+            { cmd: 'intelligent-ai', title: 'Intelligent AI Mode', desc: 'Toggle Intelligent AI Mode for concise answers', sample:'/intelligent-ai' },
             { cmd: 'random-theme', title: 'Random Theme', desc: 'Pick a random theme and mode', sample:'/random-theme' }
         ];
 
@@ -5733,30 +5735,21 @@ ${commandTable}
 
         // NEW: Model Definitions
         const availableModels = [
-            "gemini-2.5-flash",
-            "gemini-2.5-pro",
-            "gemini-2.0-flash",
-            "gemini-2.0-flash-001",
-            "gemini-2.0-flash-exp-image-generation",
-            "gemini-2.0-flash-lite-001",
-            "gemini-2.0-flash-lite",
-            "gemini-flash-latest",
-            "gemini-flash-lite-latest",
-            "gemini-pro-latest",
-            "gemini-2.5-flash-lite",
-            "gemini-2.5-flash-image",
-            "gemini-2.5-flash-lite-preview-09-2025",
-            "gemini-3-pro-preview",
-            "gemini-3-flash-preview",
             "gemini-3.1-pro-preview",
-            "gemini-3.1-pro-preview-customtools",
+            "gemini-3-flash-preview",
             "gemini-3.1-flash-lite-preview",
-            "gemini-3-pro-image-preview",
             "gemini-3.1-flash-image-preview",
-            "gemini-robotics-er-1.5-preview",
-            "gemini-2.5-computer-use-preview-10-2025"
+            "gemini-3-pro-image-preview",
+            "gemini-3.1-flash-live-preview",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-image",
+            "gemini-2.5-flash-native-audio-preview-12-2025",
+            "gemini-2.5-flash-preview-tts",
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-pro",
+            "gemini-2.5-pro-preview-tts"
         ];
-        const DEFAULT_MODEL = "gemini-3-flash-preview";
+        const DEFAULT_MODEL = "gemini-2.5-flash";
         let selectedModel = DEFAULT_MODEL;
 
         // Available theme names (both dark and light variants) — used for inline slash suggestions
@@ -5832,19 +5825,21 @@ ${commandTable}
 
         let customPromptText = '';
         let isCustomPromptActive = false;
-        // NEW: AI Prompt Engineer State and Instruction
-        let isAIPromptEngineerActive = false;
-        const AI_PROMPT_ENGINEER_INSTRUCTION = "write a prompt for an ai to do what the user says. (only send the prompt, nothing else)";
+        // NEW: Intelligent AI Mode State and Prompt
+        let isIntelligentAIModeActive = false;
+        const INTELLIGENT_AI_MODE_PROMPT = "you are a very intelligent ai. you answer short and to the point in the most effective way.";
         
+
+
         // F1: State for Multiple API Keys
         let apiKeysList = []; // Array of {id, key, label, isActive}
         let editingKeyId = null; // ID of the key currently being edited
 
         // F2: Custom Prompt Indicator DOM
         const customPromptIndicator = document.getElementById('custom-prompt-indicator');
-        // NEW: AI Prompt Engineer Button and Indicator
-        const aiPromptEngineerBtn = document.getElementById('ai-prompt-engineer-btn');
-        const aiPromptEngineerIndicator = document.getElementById('ai-prompt-engineer-indicator');
+        // NEW: Intelligent AI Mode Button and Indicator
+        const intelligentAIModeBtn = document.getElementById('intelligent-ai-mode-btn');
+        const intelligentAIModeIndicator = document.getElementById('intelligent-ai-mode-indicator');
 
         // NEW: Chat Search State
         let searchMatches = []; 
@@ -5952,9 +5947,9 @@ ${commandTable}
                     await saveUserSetting('themeMode', currentMode);
                     await saveUserSetting(MODEL_KEY, selectedModel);
                     await saveUserSetting(CONVERSATION_PERSONALITY_KEY, selectedPersonality);
-                    await saveUserSetting(CONVERSATION_SPEECH_RATE_KEY, speechRate); // NEW: Save default speech rate
-                    await saveUserSetting(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive);
-                    await saveUserSetting('isAIPromptEngineerActive', isAIPromptEngineerActive); // NEW: Save AI Prompt Engineer state
+                    await saveUserSetting(CONVERSATION_SPEECH_RATE_KEY, speechRate);
+                    await saveUserSetting(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive); // Keep custom prompt active state
+                    await saveUserSetting('isIntelligentAIModeActive', isIntelligentAIModeActive); // NEW: Save Intelligent AI Mode state
                 }
                 return settings;
             } catch (error) {
@@ -8345,9 +8340,8 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             if (systemInstruction) {
                 promptPrefix = systemInstruction.trim();
             }
-            else if (isAIPromptEngineerActive) { // NEW: If AI Prompt Engineer is active
-                promptPrefix = AI_PROMPT_ENGINEER_INSTRUCTION;
-            }
+            // The logic for isIntelligentAIModeActive is handled by setting isCustomPromptActive and customPromptText directly.
+            // So, if isCustomPromptActive is true, it means either a user-defined prompt or Intelligent AI Mode is active.
             else if (isCustomPromptActive && customPromptText.trim() !== '') {
                 promptPrefix = customPromptText.trim();
             } 
@@ -9325,8 +9319,35 @@ Criteria:
 
         // NEW: Function to update the custom prompt button's appearance (used to refresh UI after Firebase load/save)
         function updateCustomPromptButtonState() {
-            // --- Custom Prompt Button Logic ---
-            if (isCustomPromptActive && customPromptText.trim() !== '') {
+            // --- Intelligent AI Mode Button Logic (Highest Precedence) ---
+            if (isIntelligentAIModeActive) {
+                if (intelligentAIModeIndicator) {
+                    intelligentAIModeIndicator.classList.remove('hidden');
+                    intelligentAIModeIndicator.style.boxShadow = `0 0 5px var(--accent-secondary), 0 0 10px var(--accent-secondary)`;
+                    intelligentAIModeIndicator.style.animation = 'prompt-pulse 1.5s infinite alternate';
+                }
+                intelligentAIModeBtn.classList.remove('bg-secondary', 'text-primary');
+                intelligentAIModeBtn.classList.add('glow-button');
+                intelligentAIModeBtn.style.backgroundColor = 'var(--accent-secondary)'; // Different glow color
+                intelligentAIModeBtn.style.color = 'black';
+                intelligentAIModeBtn.innerHTML = `<span data-lucide="brain" class="w-5 h-5 mr-2"></span> Intelligent AI Mode Active`;
+                customPromptStatus.textContent = "Intelligent AI Mode is active. This overrides Custom Prompt & Personality.";
+
+                // Ensure Custom Prompt button reflects it's being overridden
+                if (customPromptIndicator) {
+                    customPromptIndicator.classList.add('hidden');
+                    customPromptIndicator.style.boxShadow = 'none';
+                    customPromptIndicator.style.animation = 'none';
+                }
+                toggleCustomPromptBtn.classList.remove('glow-button');
+                toggleCustomPromptBtn.classList.add('bg-secondary', 'text-primary');
+                toggleCustomPromptBtn.style.backgroundColor = 'var(--bg-secondary)';
+                toggleCustomPromptBtn.style.color = 'var(--text-primary)';
+                toggleCustomPromptBtn.innerHTML = `<span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt`;
+                toggleCustomPromptBtn.title = "Intelligent AI Mode is active and overrides custom prompt.";
+
+            } else if (isCustomPromptActive && customPromptText.trim() !== '') {
+                // --- Custom Prompt Button Logic (Second Precedence) ---
                 if (customPromptIndicator) {
                     customPromptIndicator.classList.remove('hidden');
                     customPromptIndicator.style.boxShadow = `0 0 5px var(--accent-primary), 0 0 10px var(--accent-primary)`;
@@ -9338,7 +9359,22 @@ Criteria:
                 toggleCustomPromptBtn.style.color = 'black';
                 toggleCustomPromptBtn.innerHTML = `<span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Custom Prompt Active`;
                 customPromptStatus.textContent = "Custom prompt is active. This overrides personality settings.";
+                toggleCustomPromptBtn.title = ""; // Clear title override
+                
+                // Ensure Intelligent AI Mode button is off
+                if (intelligentAIModeIndicator) {
+                    intelligentAIModeIndicator.classList.add('hidden');
+                    intelligentAIModeIndicator.style.boxShadow = 'none';
+                    intelligentAIModeIndicator.style.animation = 'none';
+                }
+                intelligentAIModeBtn.classList.remove('glow-button');
+                intelligentAIModeBtn.classList.add('bg-secondary', 'text-primary');
+                intelligentAIModeBtn.style.backgroundColor = 'var(--bg-secondary)';
+                intelligentAIModeBtn.style.color = 'var(--text-primary)';
+                intelligentAIModeBtn.innerHTML = `<span data-lucide="brain" class="w-5 h-5 mr-2"></span> Intelligent AI Mode`;
+
             } else {
+                // --- Default State (No Custom Prompt or Intelligent AI Mode) ---
                 if (customPromptIndicator) {
                     customPromptIndicator.classList.add('hidden');
                     customPromptIndicator.style.boxShadow = 'none';
@@ -9349,42 +9385,20 @@ Criteria:
                 toggleCustomPromptBtn.style.backgroundColor = 'var(--bg-secondary)';
                 toggleCustomPromptBtn.style.color = 'var(--text-primary)';
                 toggleCustomPromptBtn.innerHTML = `<span data-lucide="sparkles" class="w-5 h-5 mr-2"></span> Set Custom Prompt`;
-                // Only show this status if AI Prompt Engineer is NOT active
-                if (!isAIPromptEngineerActive) {
-                    customPromptStatus.textContent = "No custom prompt set or active.";
-                } else {
-                    customPromptStatus.textContent = ""; // Clear if AI Prompt Engineer is active
-                }
-            }
+                customPromptStatus.textContent = "No custom prompt set or active.";
+                toggleCustomPromptBtn.title = "";
 
-            // --- NEW: AI Prompt Engineer Button Logic ---
-            if (isAIPromptEngineerActive) {
-                if (aiPromptEngineerIndicator) {
-                    aiPromptEngineerIndicator.classList.remove('hidden');
-                    aiPromptEngineerIndicator.style.boxShadow = `0 0 5px var(--accent-secondary), 0 0 10px var(--accent-secondary)`;
-                    aiPromptEngineerIndicator.style.animation = 'prompt-pulse 1.5s infinite alternate';
+                // Ensure Intelligent AI Mode button is off
+                if (intelligentAIModeIndicator) {
+                    intelligentAIModeIndicator.classList.add('hidden');
+                    intelligentAIModeIndicator.style.boxShadow = 'none';
+                    intelligentAIModeIndicator.style.animation = 'none';
                 }
-                aiPromptEngineerBtn.classList.remove('bg-secondary', 'text-primary');
-                aiPromptEngineerBtn.classList.add('glow-button');
-                aiPromptEngineerBtn.style.backgroundColor = 'var(--accent-secondary)'; // Use accent-secondary for a different glow
-                aiPromptEngineerBtn.style.color = 'black';
-                aiPromptEngineerBtn.innerHTML = `<span data-lucide="cpu" class="w-5 h-5 mr-2"></span> AI Prompt Engineer Active`;
-                customPromptStatus.textContent = "AI Prompt Engineer is active. This overrides Custom Prompt & Personality.";
-            } else {
-                if (aiPromptEngineerIndicator) {
-                    aiPromptEngineerIndicator.classList.add('hidden');
-                    aiPromptEngineerIndicator.style.boxShadow = 'none';
-                    aiPromptEngineerIndicator.style.animation = 'none';
-                }
-                aiPromptEngineerBtn.classList.remove('glow-button');
-                aiPromptEngineerBtn.classList.add('bg-secondary', 'text-primary');
-                aiPromptEngineerBtn.style.backgroundColor = 'var(--bg-secondary)';
-                aiPromptEngineerBtn.style.color = 'var(--text-primary)';
-                aiPromptEngineerBtn.innerHTML = `<span data-lucide="cpu" class="w-5 h-5 mr-2"></span> AI Prompt Engineer`;
-                // If custom prompt is not active, set default status
-                if (!isCustomPromptActive) {
-                    customPromptStatus.textContent = "No custom prompt set or active.";
-                }
+                intelligentAIModeBtn.classList.remove('glow-button');
+                intelligentAIModeBtn.classList.add('bg-secondary', 'text-primary');
+                intelligentAIModeBtn.style.backgroundColor = 'var(--bg-secondary)';
+                intelligentAIModeBtn.style.color = 'var(--text-primary)';
+                intelligentAIModeBtn.innerHTML = `<span data-lucide="brain" class="w-5 h-5 mr-2"></span> Intelligent AI Mode`;
             }
 
             createIcons(); 
@@ -9394,10 +9408,10 @@ Criteria:
         // NEW: Function to toggle personality selector's disabled state
         function togglePersonalitySelector() {
             if (personalitySelect) {
-                // NEW: If AI Prompt Engineer is active, disable it completely
-                if (isAIPromptEngineerActive) {
+                // NEW: If Intelligent AI Mode is active, disable it completely
+                if (isIntelligentAIModeActive) {
                     personalitySelect.disabled = true;
-                    personalitySelect.title = "Personality is overridden by AI Prompt Engineer mode.";
+                    personalitySelect.title = "Personality is overridden by Intelligent AI Mode.";
                 } else if (isCustomPromptActive && customPromptText.trim() !== '') {
                     personalitySelect.disabled = true;
                     personalitySelect.title = "Personality is overridden by custom prompt.";
@@ -9464,31 +9478,38 @@ Criteria:
             customPromptModal.classList.remove('hidden'); 
         });
 
-        // NEW: Event listener for AI Prompt Engineer button
-        aiPromptEngineerBtn.addEventListener('click', () => {
+        // NEW: Event listener for Intelligent AI Mode button
+        intelligentAIModeBtn.addEventListener('click', () => {
             if (!currentUser) {
-                showError("Please sign in to use AI Prompt Engineer.");
+                showError("Please sign in to use Intelligent AI Mode.");
                 return;
             }
 
             // Toggle the state
-            isAIPromptEngineerActive = !isAIPromptEngineerActive;
+            isIntelligentAIModeActive = !isIntelligentAIModeActive;
             
-            // If activating AI Prompt Engineer, ensure Custom Prompt is deactivated
-            if (isAIPromptEngineerActive) {
-                if (isCustomPromptActive) {
-                    isCustomPromptActive = false;
-                    customPromptText = '';
-                    saveUserSetting(CUSTOM_PROMPT_TEXT_KEY, customPromptText);
-                    saveUserSetting(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive);
-                }
-                showCopyMessage("AI Prompt Engineer activated! AI will now generate prompts.", "var(--accent-secondary)");
+            if (isIntelligentAIModeActive) {
+                // When activating Intelligent AI Mode:
+                // 1. Set its specific prompt as the custom prompt
+                customPromptText = INTELLIGENT_AI_MODE_PROMPT;
+                // 2. Mark custom prompt as active
+                isCustomPromptActive = true;
+                
+                showCopyMessage("Intelligent AI Mode activated! AI will now answer concisely.", "var(--accent-secondary)");
             } else {
-                showCopyMessage("AI Prompt Engineer deactivated. Returning to previous prompt mode.", "var(--accent-error)");
+                // When deactivating Intelligent AI Mode:
+                // 1. Clear the custom prompt
+                customPromptText = '';
+                // 2. Mark custom prompt as inactive
+                isCustomPromptActive = false;
+
+                showCopyMessage("Intelligent AI Mode deactivated. Returning to previous prompt mode.", "var(--accent-error)");
             }
 
-            // Save the new state to Firebase
-            saveUserSetting('isAIPromptEngineerActive', isAIPromptEngineerActive);
+            // Save the new states to Firebase
+            saveUserSetting(CUSTOM_PROMPT_TEXT_KEY, customPromptText);
+            saveUserSetting(CUSTOM_PROMPT_ACTIVE_KEY, isCustomPromptActive);
+            saveUserSetting('isIntelligentAIModeActive', isIntelligentAIModeActive);
             
             // Update UI
             updateCustomPromptButtonState();
@@ -9753,7 +9774,7 @@ Criteria:
             chatInput.placeholder = enabled ? "Type your message or ask a question..." : "Please sign in to start chatting.";
             newChatButton.disabled = !enabled;
             toggleCustomPromptBtn.disabled = !enabled;
-            aiPromptEngineerBtn.disabled = !enabled; // NEW: Disable AI Prompt Engineer button
+            intelligentAIModeBtn.disabled = !enabled; // NEW: Disable Intelligent AI Mode button
             manageTemplatesBtn.disabled = !enabled;
             conversationModeToggleBtn.disabled = !enabled;
             exportMarkdownBtn.disabled = !enabled; // Disable export if not logged in
@@ -10690,6 +10711,9 @@ Criteria:
                 }
             });
         });
+
+
+
     </script>
 
     <!-- GLOBAL TOOLTIP CONTAINER -->
