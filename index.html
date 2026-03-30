@@ -178,6 +178,9 @@
                     width: 100%; /* Make dropdown menu full width */
                     right: 0; /* Align right */
                     left: 0; /* And left to stretch */
+                    top: auto; /* Reset top for dropup */
+                    bottom: 100%; /* Position above the button */
+                    margin-bottom: 0.5rem; /* Add gap */
                 }
             }
 
@@ -3970,7 +3973,53 @@
             color: var(--text-primary);
         }
 
-        /* NEW: Image Zoom Overlay Styles */
+        /* NEW: Quick AI Actions Styling */
+        .quick-ai-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed color-mix(in srgb, var(--border-color) 40%, transparent);
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        .chat-message:hover .quick-ai-actions {
+            opacity: 1;
+        }
+        .quick-ai-action-btn {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.5rem;
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            box-shadow: var(--shadow-subtle);
+        }
+        .quick-ai-action-btn:hover {
+            background-color: var(--accent-primary);
+            color: black;
+            border-color: var(--accent-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+        }
+        .quick-ai-action-btn:active {
+            transform: translateY(0);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* NEW: Styles for raw message view */
         #image-zoom-overlay {
             position: fixed;
             top: 0;
@@ -4594,7 +4643,7 @@
                         <span data-lucide="chevron-down" class="w-4 h-4 ml-1"></span>
                     </button>
                     
-                    <div id="download-format-dropdown" class="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg hidden z-50" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+                    <div id="download-format-dropdown" class="origin-bottom-right absolute right-0 bottom-full mb-2 w-40 rounded-md shadow-lg hidden z-50" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
                         <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="download-options-btn">
                             <button id="download-pdf-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
                                 <span data-lucide="file-text" class="w-4 h-4"></span> .pdf (Best)
@@ -4604,6 +4653,9 @@
                             </button>
                             <button id="download-txt-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
                                 <span data-lucide="file" class="w-4 h-4"></span> .txt (Plain Text)
+                            </button>
+                            <button id="download-html-btn" class="w-full text-left px-4 py-2 text-sm hover:bg-[var(--sidebar-item-hover)] flex items-center gap-2" role="menuitem">
+                                <span data-lucide="code" class="w-4 h-4"></span> .html (Web Page)
                             </button>
                         </div>
                     </div>
@@ -5683,6 +5735,7 @@ ${commandTable}
         const downloadFormatDropdown = document.getElementById('download-format-dropdown');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
         const downloadTxtBtn = document.getElementById('download-txt-btn'); 
+        const downloadHtmlBtn = document.getElementById('download-html-btn');
 
         // ADDED: Scroll & Search Elements
         const jumpToTopBtn = document.getElementById('jump-to-top-btn');
@@ -6848,7 +6901,17 @@ ${commandTable}
 
         function renderSidebarChats(query = '') {
             sidebarChatList.innerHTML = '';
-            const sortedSessions = Object.values(allChatSessions).sort((a, b) => b.timestamp - a.timestamp);
+            
+            // SORTING LOGIC: Pinned chats first, then by timestamp descending
+            const sortedSessions = Object.values(allChatSessions).sort((a, b) => {
+                const aPinned = a.pinned || false;
+                const bPinned = b.pinned || false;
+                
+                if (aPinned && !bPinned) return -1;
+                if (!aPinned && bPinned) return 1;
+                
+                return b.timestamp - a.timestamp;
+            });
             
             const filterQuery = query.toLowerCase().trim();
             const filteredSessions = sortedSessions.filter(session => 
@@ -6889,17 +6952,21 @@ ${commandTable}
                 // Format timestamp
                 const lastActivity = session.timestamp ? new Date(session.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                 
+                const isPinned = session.pinned || false;
+                
                 li.innerHTML = `
                     <div class="sidebar-chat-item-content flex-col items-start gap-1">
                         <div class="flex items-center justify-between w-full">
-                            <span data-lucide="message-square" class="w-5 h-5 flex-shrink-0 mr-2" style="color: inherit;"></span>
+                            <span data-lucide="${isPinned ? 'pin' : 'message-square'}" class="w-5 h-5 flex-shrink-0 mr-2" style="color: ${isPinned ? 'var(--accent-primary)' : 'inherit'};"></span>
                             <span class="sidebar-chat-item-title text-base font-semibold truncate flex-1" title="${session.title}">${session.title}</span>
                             <span class="text-xs ml-auto flex-shrink-0" style="color: var(--text-tertiary);">${lastActivity}</span>
                         </div>
                         <p class="text-xs truncate w-full pl-7" style="color: var(--text-secondary);">${lastMessageText}</p>
                     </div>
                     <div class="sidebar-chat-item-actions">
-                        <!-- ADDED: Rename Button -->
+                        <button class="pin-chat-btn" title="${isPinned ? 'Unpin' : 'Pin'} chat">
+                            <span data-lucide="${isPinned ? 'pin-off' : 'pin'}"></span>
+                        </button>
                         <button class="rename-chat-btn" title="Rename chat">
                             <span data-lucide="pencil"></span>
                         </button>
@@ -7055,6 +7122,23 @@ ${commandTable}
             
             await saveChatToDB(session);
             renderSidebarChats(); 
+        }
+
+        async function togglePinChat(sessionId) {
+            if (!currentUser || !allChatSessions[sessionId]) return;
+
+            const session = allChatSessions[sessionId];
+            session.pinned = !session.pinned;
+
+            // Sync to Firebase
+            try {
+                await saveChatToDB(session);
+                renderSidebarChats();
+                showCopyMessage(session.pinned ? 'Chat pinned to top.' : 'Chat unpinned.', 'var(--accent-primary)');
+            } catch (error) {
+                console.error("Error toggling pin:", error);
+                showError("Failed to update chat pin status.");
+            }
         }
 
         async function deleteChatSession(sessionIdToDelete) {
@@ -7306,11 +7390,27 @@ ${commandTable}
 
                 return `
                     <div class="code-block-container" style="background-color: var(--bg-secondary); border-color: var(--border-color);">
-                        <div class="code-block-header" style="background-color: var(--code-block-header-bg); color: var(--text-secondary); border-bottom-color: var(--code-block-border);">
-                            ${languageDisplay}
-                            <button class="code-block-copy-button" data-copy-target="${uniqueId}" style="color: var(--text-secondary);">
+                        <div class="code-block-header flex items-center justify-between" style="background-color: var(--code-block-header-bg); color: var(--text-secondary); border-bottom-color: var(--code-block-border); padding: 0.4rem 0.75rem;">
+                            <div class="flex items-center gap-3 overflow-x-auto no-scrollbar min-w-0 flex-1">
+                                ${languageDisplay}
+                                <div class="flex items-center gap-1.5 flex-shrink-0">
+                                    <button class="quick-ai-action-btn code-action-btn" data-action="explain" data-target="${uniqueId}" title="Explain this code">
+                                        <span data-lucide="help-circle" class="w-3 h-3"></span>
+                                        <span class="hidden sm:inline">Explain</span>
+                                    </button>
+                                    <button class="quick-ai-action-btn code-action-btn" data-action="refactor" data-target="${uniqueId}" title="Refactor this code">
+                                        <span data-lucide="wrench" class="w-3 h-3"></span>
+                                        <span class="hidden sm:inline">Refactor</span>
+                                    </button>
+                                    <button class="quick-ai-action-btn code-action-btn" data-action="debug" data-target="${uniqueId}" title="Find bugs in this code">
+                                        <span data-lucide="bug" class="w-3 h-3"></span>
+                                        <span class="hidden sm:inline">Debug</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="code-block-copy-button flex-shrink-0 ml-2" data-copy-target="${uniqueId}" style="color: var(--text-secondary);">
                                 <span data-lucide="clipboard" class="w-4 h-4"></span>
-                                Copy code
+                                <span class="hidden xs:inline">Copy</span>
                             </button>
                         </div>
                         <pre class="${langClass} hljs" style="color: var(--text-primary);"><code id="${uniqueId}" class="${langClass} hljs">${highlightedCode}</code></pre>
@@ -7483,6 +7583,20 @@ ${commandTable}
             let contentHTML = '';
             let rawMessageContentForCache = '';
 
+            const textActionsHtml = `
+                <div class="quick-ai-actions">
+                    <button class="quick-ai-action-btn text-action-btn" data-action="summarize" data-message-id="${messageId}">
+                        <span data-lucide="file-text" class="w-3 h-3"></span> Summarize
+                    </button>
+                    <button class="quick-ai-action-btn text-action-btn" data-action="translate" data-message-id="${messageId}">
+                        <span data-lucide="languages" class="w-3 h-3"></span> Translate
+                    </button>
+                    <button class="quick-ai-action-btn text-action-btn" data-action="elaborate" data-message-id="${messageId}">
+                        <span data-lucide="maximize-2" class="w-3 h-3"></span> Elaborate
+                    </button>
+                </div>
+            `;
+
             if (role === 'user') {
                 rawMessageContentForCache = text; // Removed "You: " prefix for clean copy
                 let userContentHtmlInner = `<span class="font-bold">You:</span> ${text}`;
@@ -7507,7 +7621,7 @@ ${commandTable}
                     userContentHtmlInner += `</div>`;
                 }
                 // Wrap user content in a message-content div for consistency
-                contentHTML = `<div class="message-content">${userContentHtmlInner}</div>`;
+                contentHTML = `<div class="message-content">${userContentHtmlInner}${textActionsHtml}</div>`;
             } else { // AI message
                 rawMessageContentForCache = text; // Removed "AI: " prefix for clean copy
                 
@@ -7515,7 +7629,7 @@ ${commandTable}
                 const markdownText = String(text); 
                 
                 // ADDED markdown-content class here
-                contentHTML = `<div class="message-content markdown-content">${marked.parse(markdownText)}</div>`;
+                contentHTML = `<div class="message-content markdown-content">${marked.parse(markdownText)}${textActionsHtml}</div>`;
                 
                 // IMPORTANT: Add KaTeX rendering for math equations
                 // Use setTimeout to ensure the element is fully appended before trying to render math
@@ -8423,6 +8537,49 @@ ${commandTable}
                 return;
             }
 
+            // NEW: Code Action Buttons
+            const codeActionBtn = event.target.closest('.code-action-btn');
+            if (codeActionBtn) {
+                const action = codeActionBtn.dataset.action;
+                const targetId = codeActionBtn.dataset.target;
+                const codeElement = document.getElementById(targetId);
+                if (codeElement) {
+                    const code = codeElement.textContent;
+                    let prompt = "";
+                    switch(action) {
+                        case 'explain': prompt = "Explain the following code in detail, breaking down how it works step-by-step:\n\n```\n" + code + "\n```"; break;
+                        case 'refactor': prompt = "Analyze the following code and suggest refactoring improvements for better performance, readability, or best practices:\n\n```\n" + code + "\n```"; break;
+                        case 'debug': prompt = "Review the following code for potential bugs, logical errors, or security vulnerabilities and provide fixes:\n\n```\n" + code + "\n```"; break;
+                    }
+                    chatInput.value = prompt;
+                    adjustChatInputHeight();
+                    chatInput.focus();
+                    showCopyMessage(`Prompt for ${action} ready!`, 'var(--accent-secondary)');
+                }
+                return;
+            }
+
+            // NEW: Text Action Buttons
+            const textActionBtn = event.target.closest('.text-action-btn');
+            if (textActionBtn) {
+                const action = textActionBtn.dataset.action;
+                const messageId = textActionBtn.dataset.messageId;
+                const messageContent = messageTextCache.get(messageId);
+                if (messageContent) {
+                    let prompt = "";
+                    switch(action) {
+                        case 'summarize': prompt = "Please provide a concise summary of the key points in the following text:\n\n\"" + messageContent + "\""; break;
+                        case 'translate': prompt = "Translate the following text into [target language - please specify]:\n\n\"" + messageContent + "\""; break;
+                        case 'elaborate': prompt = "Could you elaborate more on the concepts discussed in this text and provide deeper insights?\n\n\"" + messageContent + "\""; break;
+                    }
+                    chatInput.value = prompt;
+                    adjustChatInputHeight();
+                    chatInput.focus();
+                    showCopyMessage(`Prompt for ${action} ready!`, 'var(--accent-secondary)');
+                }
+                return;
+            }
+
             const dictateButton = event.target.closest('.dictate-message-btn');
             if (dictateButton) {
                 const messageId = dictateButton.dataset.messageId;
@@ -8515,17 +8672,18 @@ ${commandTable}
             if (chatItem) {
                 const sessionId = chatItem.dataset.sessionId;
                 const deleteBtn = event.target.closest('.delete-chat-btn');
-                // ADDED: Rename Button check
                 const renameBtn = event.target.closest('.rename-chat-btn'); 
+                const pinBtn = event.target.closest('.pin-chat-btn');
 
                 if (deleteBtn) {
                     event.stopPropagation(); 
                     deleteChatSession(sessionId);
-                } else if (renameBtn) { // Handle Rename click
+                } else if (renameBtn) {
                     event.stopPropagation();
-                    // *** MODIFIED LINE ***
                     openRenameChatModal(sessionId); 
-                    // *** END MODIFIED LINE ***
+                } else if (pinBtn) {
+                    event.stopPropagation();
+                    togglePinChat(sessionId);
                 } else {
                     loadChatSession(sessionId);
                 }
@@ -10954,6 +11112,108 @@ Criteria:
                 });
         }
 
+        /**
+         * Exports the chat as a standalone HTML file with basic theme styling.
+         */
+        function exportChatToHtml() {
+            if (!currentUser || !currentSessionId || !allChatSessions[currentSessionId]) {
+                showError("No active chat session found to export.");
+                return;
+            }
+
+            // Ensure preview tab is active for content retrieval
+            switchMarkdownTab('preview');
+
+            const currentSession = allChatSessions[currentSessionId];
+            const filename = `${currentSession.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.html`;
+
+            // Clean up interactive elements from the preview
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = markdownExportPreview.innerHTML;
+            tempDiv.querySelectorAll('.message-actions, .code-block-copy-button').forEach(el => el.remove());
+            const chatContent = tempDiv.innerHTML;
+            
+            // Extract current theme styles for the exported file
+            const style = getComputedStyle(document.body);
+            const bg = style.getPropertyValue('--bg-primary').trim() || '#fafbfc';
+            const cardBg = style.getPropertyValue('--bg-secondary').trim() || '#ffffff';
+            const text = style.getPropertyValue('--text-primary').trim() || '#0f172a';
+            const accent = style.getPropertyValue('--accent-primary').trim() || '#6366f1';
+            const font = style.getPropertyValue('--font-body').trim() || 'sans-serif';
+
+            const htmlDocument = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${currentSession.title} - ${appName} Export</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: ${bg};
+            --card-bg: ${cardBg};
+            --text: ${text};
+            --accent: ${accent};
+        }
+        body {
+            font-family: ${font};
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
+        .export-meta { font-size: 0.85rem; opacity: 0.7; margin-bottom: 2rem; }
+        .markdown-content img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .markdown-content pre { background: #0f172a; color: #f1f5f9; padding: 1.5rem; border-radius: 0.75rem; overflow-x: auto; margin: 1.5rem 0; font-family: monospace; }
+        .markdown-content code { background: rgba(0,0,0,0.05); padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; }
+        .markdown-content pre code { background: none; padding: 0; font-size: 1em; }
+        .markdown-content blockquote { border-left: 4px solid var(--accent); padding-left: 1.5rem; font-style: italic; opacity: 0.9; margin: 1.5rem 0; }
+        .markdown-content table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; }
+        .markdown-content th, .markdown-content td { border: 1px solid rgba(0,0,0,0.1); padding: 12px; text-align: left; }
+        .markdown-content th { background-color: rgba(0,0,0,0.05); font-weight: bold; }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 { color: var(--accent); margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>${currentSession.title}</h1>
+        <div class="export-meta">Generated by ${appName} on ${new Date().toLocaleString()}</div>
+        <hr style="opacity: 0.1; margin: 2rem 0;">
+        <div class="markdown-content">
+            ${chatContent}
+        </div>
+    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([htmlDocument], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showCopyMessage('HTML file downloaded!', 'var(--accent-success)');
+            closeMarkdownModal();
+        }
+
         // --- NEW: Attachment Editor Logic ---
 
         // --- Attachment Editor: Convert to Text Input Logic ---
@@ -11172,6 +11432,7 @@ Criteria:
         // NEW: Specific format download buttons
         if (downloadPdfBtn) downloadPdfBtn.addEventListener('click', exportChatToPdf);
         if (downloadTxtBtn) downloadTxtBtn.addEventListener('click', downloadPlaintextFile);
+        if (downloadHtmlBtn) downloadHtmlBtn.addEventListener('click', exportChatToHtml);
 
 
         // NEW: Documentation Modal Event Listener
