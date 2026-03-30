@@ -6748,6 +6748,31 @@ ${commandTable}
             return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
         }
 
+        /**
+         * Helper to find the correct index in session.history for a given message element.
+         * Accounts for the initial greeting which might be hidden from the DOM list.
+         */
+        function getHistoryIndex(messageDiv, session) {
+            if (!messageDiv || !session) return -1;
+            const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
+            let index = messagesInDom.indexOf(messageDiv);
+            if (index === -1) return -1;
+
+            // Check if history starts with the default greeting
+            const historyHasGreeting = session.history.length > 0 && 
+                                      session.history[0].role === 'model' && 
+                                      session.history[0].parts[0].text === INITIAL_AI_MESSAGE_TEXT;
+            
+            // Check if DOM's first bubble is NOT the greeting
+            const domMissingGreeting = messagesInDom.length > 0 && 
+                                       messagesInDom[0].innerText.indexOf(INITIAL_AI_MESSAGE_TEXT) === -1;
+
+            if (historyHasGreeting && domMissingGreeting) {
+                return index + 1;
+            }
+            return index;
+        }
+
         // --- Core UI Rendering Helpers ---
         
         // Remove the old initialMessage constant if it still exists from previous turns
@@ -7542,6 +7567,11 @@ ${commandTable}
             
             const actionsHTML = `
                 <div class="message-actions">
+                ${role === 'user' ? `
+                <button class="retry-message-btn" title="Retry this message" data-message-id="${messageId}">
+                    <span data-lucide="refresh-cw" class="w-4 h-4"></span>
+                </button>
+                ` : ''}
                 <button class="edit-message-btn" title="Edit message" data-message-id="${messageId}">
                     <span data-lucide="edit-3" class="w-4 h-4"></span>
                 </button>
@@ -7677,8 +7707,7 @@ ${commandTable}
             const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${messageId}"]`);
             if (!messageDiv) return;
 
-            const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
-            const index = messagesInDom.indexOf(messageDiv);
+            const index = getHistoryIndex(messageDiv, session);
 
             if (index !== -1 && session.history[index]) {
                 const messageObj = session.history[index];
@@ -7751,9 +7780,8 @@ ${commandTable}
             
             if (!messageDiv) return;
 
-            // Identify index in history relative to the DOM order
-            const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
-            const index = messagesInDom.indexOf(messageDiv);
+            // Identify index in history
+            const index = getHistoryIndex(messageDiv, session);
 
             if (index !== -1) {
                 // Remove from local session history and cache
@@ -7788,8 +7816,7 @@ ${commandTable}
             if (!messageDiv || !messageDiv.classList.contains('ai')) return;
 
             // 1. Identify index of this AI message in history
-            const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
-            const index = messagesInDom.indexOf(messageDiv);
+            const index = getHistoryIndex(messageDiv, session);
 
             if (index !== -1 && session.history[index] && session.history[index].role === 'model') {
                 // To regenerate, we need a user message before this AI message
@@ -7802,99 +7829,141 @@ ${commandTable}
 
                     showCopyMessage("Regenerating response...", "var(--accent-secondary)");
                     
-                    // Trigger the loading state and API call using currentSessionHistory
-                    sendChatBtn.disabled = true;
-                    sendChatBtn.classList.add('hidden');
-                    stopChatBtn.classList.remove('hidden');
-                    isAIGenerating = true;
-                    
-                    abortController = new AbortController();
-                    
-                    const loadingMessage = document.createElement('div');
-                    loadingMessage.id = 'chat-loading';
-                    loadingMessage.classList.add('chat-message', 'ai', 'p-4', 'text-sm', 'max-w-xs', 'mx-auto');
-                    loadingMessage.innerHTML = `
-                        <div class="loader-container h-8">
-                            <div class="loader-typing-bar"></div>
-                            <div class="loader-typing-bar"></div>
-                            <div class="loader-typing-bar"></div>
-                        </div>
-                        <div id="loading-status" class="mt-2 block font-medium text-center" style="color: var(--accent-secondary);">Regenerating...</div>
-                    `;
-                    chatHistoryDiv.appendChild(loadingMessage);
-                    chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
-                    
-                    const statusMessages = isStreamingEnabled 
-                        ? ["Initiating stream...", "Connecting...", "AI is typing..."]
-                        : ["AI is thinking...", "Processing request...", "Crafting response...", "Analyzing data...", "Consulting the nexus..."];
-                    let statusIndex = 0;
-                    const statusInterval = setInterval(() => {
-                        const statusElement = document.getElementById('loading-status');
-                        if (statusElement) {
-                            statusElement.textContent = statusMessages[statusIndex];
-                            statusIndex = (statusIndex + 1) % statusMessages.length;
-                        }
-                    }, 2000);
-                    loadingMessage.dataset.statusInterval = statusInterval;
-
-                    try {
-                        const payload = { contents: session.history };
-                        let responseText = "";
-
-                        if (isStreamingEnabled) {
-                            const response = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal, true);
-                            const aiMsgId = `msg-${Date.now()}-regen`;
-                            appendChatMessage('ai', '...', [], aiMsgId); 
-                            
-                            clearInterval(statusInterval);
-                            loadingMessage.remove();
-
-                            responseText = await processStreamingResponse(response, aiMsgId);
-                            messageTextCache.set(aiMsgId, responseText);
-                            
-                            const aiMessageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${aiMsgId}"]`);
-                            if (aiMessageDiv) {
-                                const aiContentDiv = aiMessageDiv.querySelector('.message-content');
-                                aiContentDiv.innerHTML = marked.parse(responseText);
-                                if (window.renderMathInElement) {
-                                    renderMathInElement(aiContentDiv, {
-                                        delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
-                                        throwOnError: false
-                                    });
-                                }
-                                updateMessageStatus(aiMessageDiv, 'processed');
-                            }
-                            session.history.push({ role: 'model', parts: [{ text: responseText }] });
-                        } else {
-                            responseText = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal, false); 
-                            session.history.push({ role: 'model', parts: [{ text: responseText }] });
-                            appendChatMessage('ai', responseText);
-                            const lastAiMessage = chatHistoryDiv.lastChild;
-                            if (lastAiMessage) updateMessageStatus(lastAiMessage, 'processed');
-                        }
-                        
-                        await updateCurrentSessionHistory(); 
-                    } catch (error) {
-                        console.error('Regeneration API call failed:', error);
-                        showError(`Regeneration error: ${error.message}`);
-                    } finally {
-                        sendChatBtn.disabled = false;
-                        sendChatBtn.classList.remove('hidden');
-                        stopChatBtn.classList.add('hidden');
-                        isAIGenerating = false;
-                        abortController = null;
-                        const loadingDiv = document.getElementById('chat-loading');
-                        if (loadingDiv) {
-                            clearInterval(loadingDiv.dataset.statusInterval);
-                            loadingDiv.remove();
-                        }
-                        chatInput.focus();
-                        collectCodeBlocks();
-                        refreshActiveChatSearch();
-                    }
+                    // Trigger the loading state and API call
+                    await triggerAiGeneration(session);
                 } else {
                     showError("No preceding user message found to regenerate from.");
                 }
+            }
+        }
+
+        /**
+         * Re-sends a specific user message and clears all subsequent history.
+         */
+        async function handleRetryMessage(messageId) {
+            if (!currentSessionId || !allChatSessions[currentSessionId] || isAIGenerating) return;
+
+            const session = allChatSessions[currentSessionId];
+            const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${messageId}"]`);
+            if (!messageDiv || !messageDiv.classList.contains('user')) return;
+
+            const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
+            const domIndex = messagesInDom.indexOf(messageDiv);
+            const historyIndex = getHistoryIndex(messageDiv, session);
+
+            if (historyIndex !== -1 && session.history[historyIndex] && session.history[historyIndex].role === 'user') {
+                if (!confirm("Retrying will delete all subsequent messages in this conversation. Continue?")) return;
+
+                // 1. Truncate history after this message
+                session.history = session.history.slice(0, historyIndex + 1);
+
+                // 2. Truncate DOM and Cache after this message
+                for (let i = messagesInDom.length - 1; i > domIndex; i--) {
+                    const msgToDelete = messagesInDom[i];
+                    messageTextCache.delete(msgToDelete.dataset.messageId);
+                    msgToDelete.remove();
+                }
+
+                showCopyMessage("Retrying message branch...", "var(--accent-secondary)");
+
+                // 3. Trigger generation
+                await triggerAiGeneration(session);
+            }
+        }
+
+        /**
+         * Helper to centralize AI generation logic for regeneration and retry.
+         */
+        async function triggerAiGeneration(session) {
+            sendChatBtn.disabled = true;
+            sendChatBtn.classList.add('hidden');
+            stopChatBtn.classList.remove('hidden');
+            isAIGenerating = true;
+            
+            abortController = new AbortController();
+            
+            const loadingMessage = document.createElement('div');
+            loadingMessage.id = 'chat-loading';
+            loadingMessage.classList.add('chat-message', 'ai', 'p-4', 'text-sm', 'max-w-xs', 'mx-auto');
+            loadingMessage.innerHTML = `
+                <div class="loader-container h-8">
+                    <div class="loader-typing-bar"></div>
+                    <div class="loader-typing-bar"></div>
+                    <div class="loader-typing-bar"></div>
+                </div>
+                <div id="loading-status" class="mt-2 block font-medium text-center" style="color: var(--accent-secondary);">Processing...</div>
+            `;
+            chatHistoryDiv.appendChild(loadingMessage);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+            
+            const statusMessages = isStreamingEnabled 
+                ? ["Initiating stream...", "Connecting...", "AI is typing..."]
+                : ["AI is thinking...", "Processing request...", "Crafting response...", "Analyzing data...", "Consulting the nexus..."];
+            let statusIndex = 0;
+            const statusInterval = setInterval(() => {
+                const statusElement = document.getElementById('loading-status');
+                if (statusElement) {
+                    statusElement.textContent = statusMessages[statusIndex];
+                    statusIndex = (statusIndex + 1) % statusMessages.length;
+                }
+            }, 2000);
+            loadingMessage.dataset.statusInterval = statusInterval;
+
+            try {
+                const payload = { contents: session.history };
+                let responseText = "";
+
+                if (isStreamingEnabled) {
+                    const response = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal, true);
+                    const aiMsgId = `msg-${Date.now()}-gen`;
+                    appendChatMessage('ai', '...', [], aiMsgId); 
+                    
+                    clearInterval(statusInterval);
+                    loadingMessage.remove();
+
+                    responseText = await processStreamingResponse(response, aiMsgId);
+                    messageTextCache.set(aiMsgId, responseText);
+                    
+                    const aiMessageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${aiMsgId}"]`);
+                    if (aiMessageDiv) {
+                        const aiContentDiv = aiMessageDiv.querySelector('.message-content');
+                        aiContentDiv.innerHTML = marked.parse(responseText);
+                        if (window.renderMathInElement) {
+                            renderMathInElement(aiContentDiv, {
+                                delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
+                                throwOnError: false
+                            });
+                        }
+                        updateMessageStatus(aiMessageDiv, 'processed');
+                    }
+                    session.history.push({ role: 'model', parts: [{ text: responseText }] });
+                } else {
+                    responseText = await callGeminiAPI(payload, selectedPersonality, selectedModel, null, abortController.signal, false); 
+                    session.history.push({ role: 'model', parts: [{ text: responseText }] });
+                    appendChatMessage('ai', responseText);
+                    const lastAiMessage = chatHistoryDiv.lastChild;
+                    if (lastAiMessage) updateMessageStatus(lastAiMessage, 'processed');
+                }
+                
+                await updateCurrentSessionHistory(); 
+                autoGenerateChatTitle(session.id);
+            } catch (error) {
+                console.error('API call failed during generation:', error);
+                showError(`Generation error: ${error.message}`);
+            } finally {
+                sendChatBtn.disabled = false;
+                sendChatBtn.classList.remove('hidden');
+                stopChatBtn.classList.add('hidden');
+                isAIGenerating = false;
+                abortController = null;
+                const loadingDiv = document.getElementById('chat-loading');
+                if (loadingDiv) {
+                    clearInterval(loadingDiv.dataset.statusInterval);
+                    loadingDiv.remove();
+                }
+                chatInput.focus();
+                collectCodeBlocks();
+                refreshActiveChatSearch();
             }
         }
         
@@ -8399,6 +8468,13 @@ ${commandTable}
             if (regenerateMessageBtn) {
                 const messageId = regenerateMessageBtn.dataset.messageId;
                 handleRegenerateResponse(messageId);
+                return;
+            }
+
+            const retryMessageBtn = event.target.closest('.retry-message-btn');
+            if (retryMessageBtn) {
+                const messageId = retryMessageBtn.dataset.messageId;
+                handleRetryMessage(messageId);
                 return;
             }
 
@@ -9000,50 +9076,80 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             }
         }
 
-        // --- NEW: Auto-Title Generation (Request 1) ---
+        // --- NEW: Auto-Title Generation (Modified for Heading-First Logic) ---
 
+        /**
+         * Intelligently renames the chat. First priority: Biggest Markdown Heading.
+         * Second priority: AI generated context summary title (fallback).
+         */
         async function autoGenerateChatTitle(sessionId) {
             const session = allChatSessions[sessionId];
-            
-            // Check if title is default AND if the history has reached the length corresponding 
-            // to 3 full user exchanges (7 messages: AI Welcome + U1/A1 + U2/A2 + U3/A3).
-            const isDefaultTitle = session.title === 'New Chat' || session.title === 'Welcome Chat';
-            if (!session || !isDefaultTitle || session.history.length < 7) return;
+            if (!session) return;
 
-            // Get the first 6 messages (AI Welcome, U1, A1, U2, A2, U3) to use as context.
-            const historyForTitle = session.history.slice(0, 6).map(msg => {
-                // Simplify history for the title request to save tokens
-                const textPart = msg.parts.find(p => p.text);
-                return {
-                    role: msg.role,
-                    parts: [{ text: textPart ? textPart.text.substring(0, 250) : '[Attachment]' }] 
-                };
-            });
+            const isDefaultTitle = session.title === 'New Chat' || session.title === 'Welcome Chat' || session.title === 'Welcome Session';
             
-            // Highly optimized prompt for auto-title generation (Request 2)
-            const systemInstruction = "Analyze the content of the first three user turns and the preceding AI responses in this conversation. Generate a single, concise title for the chat (max 8 words). Respond ONLY with the title text, nothing else.";
+            // Priority 1: Search for the "Biggest" Markdown Heading (# > ## > ###)
+            let bestHeading = null;
+            let currentBestLevel = 7; // H1 is level 1, H6 is 6
 
-            try {
-                const payload = {
-                    contents: historyForTitle,
-                    generationConfig: {
-                        temperature: 0.1,
-                        maxOutputTokens: 20,
+            session.history.forEach(msg => {
+                msg.parts.forEach(part => {
+                    if (part.text) {
+                        const lines = part.text.split('\n');
+                        lines.forEach(line => {
+                            const trimmed = line.trim();
+                            // Check for markdown headings
+                            const match = trimmed.match(/^(#+)\s+(.+)$/);
+                            if (match) {
+                                const level = match[1].length;
+                                const text = match[2].trim();
+                                
+                                // Lower level number means "bigger" heading
+                                if (level < currentBestLevel && text.length > 2) {
+                                    currentBestLevel = level;
+                                    bestHeading = text;
+                                }
+                            }
+                        });
                     }
-                };
-                
-                // Use a fast model for title generation
-                const title = await callGeminiAPI(payload, null, selectedModel, systemInstruction);
-                const cleanTitle = title.replace(/["'“”]/g, '').trim();
+                });
+            });
 
-                if (cleanTitle && cleanTitle.length > 0) {
-                    session.title = cleanTitle.substring(0, 100);
+            if (bestHeading) {
+                // Strip markdown artifacts from heading text for the title
+                const cleanTitle = bestHeading.substring(0, 80).replace(/[#*`_~]/g, '').trim();
+                if (cleanTitle && session.title !== cleanTitle) {
+                    session.title = cleanTitle;
                     await saveChatToDB(session);
                     renderSidebarChats();
-                    console.log(`Chat title auto-generated: ${session.title}`);
+                    console.log(`Chat renamed to biggest heading: ${session.title}`);
+                    return; // Heading found and applied, exit.
                 }
-            } catch (error) {
-                console.error("Failed to auto-generate chat title:", error);
+            }
+
+            // Priority 2: AI Fallback logic (only if still default and enough history exists)
+            if (isDefaultTitle && session.history.length >= 7) {
+                const historyForTitle = session.history.slice(0, 6).map(msg => {
+                    const textPart = msg.parts.find(p => p.text);
+                    return {
+                        role: msg.role,
+                        parts: [{ text: textPart ? textPart.text.substring(0, 250) : '[Media]' }] 
+                    };
+                });
+                
+                const systemInstruction = "Identify the core topic of this conversation. Generate a single, highly concise title (max 6-8 words). Output ONLY the title text.";
+
+                try {
+                    const payload = { contents: historyForTitle, generationConfig: { temperature: 0.1, maxOutputTokens: 25 } };
+                    const title = await callGeminiAPI(payload, null, selectedModel, systemInstruction);
+                    const cleanTitle = title.replace(/["'“”\.]/g, '').trim();
+
+                    if (cleanTitle && cleanTitle.length > 1) {
+                        session.title = cleanTitle.substring(0, 100);
+                        await saveChatToDB(session);
+                        renderSidebarChats();
+                    }
+                } catch (e) { console.error("Title fallback generation failed:", e); }
             }
         }
 
@@ -9143,9 +9249,8 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
             // Handle Message Editing
             if (editingMessageId) {
                 const session = allChatSessions[currentSessionId];
-                const messagesInDom = Array.from(chatHistoryDiv.querySelectorAll('.chat-message'));
                 const messageDiv = chatHistoryDiv.querySelector(`.chat-message[data-message-id="${editingMessageId}"]`);
-                const index = messagesInDom.indexOf(messageDiv);
+                const index = getHistoryIndex(messageDiv, session);
 
                 if (index !== -1 && session.history[index]) {
                     // Update History and Cache
@@ -9333,16 +9438,8 @@ Output ONLY the improved, single, structured prompt text. Do not include any pre
                     updateMessageStatus(lastUserMessage, 'processed');
                 }
                 
-                // R1: Check if this was the THIRD full exchange (history length is now 7: AI + 3x(U/A)) and needs a title.
-                // The historyLengthBeforeUserMessage will be 5 when the history contains: 
-                // [AI Welcome, U1, A1, U2, A2]. The user message U3 makes it 6, and this AI response makes it 7.
-                const title = allChatSessions[currentSessionId].title;
-                const isDefaultTitle = title === 'New Chat' || title === 'Welcome Chat';
-                
-                if (isDefaultTitle && historyLengthBeforeUserMessage === 5) {
-                    console.log("Triggering auto-title generation after 3rd user message turn.");
-                    autoGenerateChatTitle(currentSessionId);
-                }
+                // Automatically attempt to update title based on content/headings
+                autoGenerateChatTitle(currentSessionId);
                 
             } catch (error) {
                 console.error('Chat API call failed:', error);
