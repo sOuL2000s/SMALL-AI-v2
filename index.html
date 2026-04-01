@@ -5963,7 +5963,7 @@ ${commandTable}
         // NEW: Intelligent AI Mode State and Prompt
         let isIntelligentAIModeActive = false;
         const INTELLIGENT_AI_MODE_PROMPT = "you are a very intelligent ai. you answer short and to the point in the most effective way.";
-        
+        let isAIPromptEngineerActive = false; // Define missing global variable to resolve ReferenceError
 
 
         // F1: State for Multiple API Keys
@@ -7725,18 +7725,6 @@ ${commandTable}
             `;
             
             messageDiv.innerHTML = contentHTML + metadataHTML + actionsHTML;
-            
-            // Apply initial feedback UI state if provided
-            if (feedback && role === 'ai') {
-                const posBtn = messageDiv.querySelector('.feedback-positive');
-                const negBtn = messageDiv.querySelector('.feedback-negative');
-                if (feedback === 'positive' && posBtn) {
-                    posBtn.querySelector('.lucide').style.color = 'var(--accent-success)';
-                } else if (feedback === 'negative' && negBtn) {
-                    negBtn.querySelector('.lucide').style.color = 'var(--accent-error)';
-                }
-            }
-
             chatHistoryDiv.appendChild(messageDiv);
             
             setTimeout(() => {
@@ -7745,7 +7733,21 @@ ${commandTable}
             
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
             
+            // Generate icons first so .lucide class exists for the feedback logic below
             createIcons();
+
+            // Apply initial feedback UI state if provided (Moved after createIcons to prevent null pointer error)
+            if (feedback && role === 'ai') {
+                const posBtn = messageDiv.querySelector('.feedback-positive');
+                const negBtn = messageDiv.querySelector('.feedback-negative');
+                if (feedback === 'positive' && posBtn) {
+                    const icon = posBtn.querySelector('.lucide');
+                    if (icon) icon.style.color = 'var(--accent-success)';
+                } else if (feedback === 'negative' && negBtn) {
+                    const icon = negBtn.querySelector('.lucide');
+                    if (icon) icon.style.color = 'var(--accent-error)';
+                }
+            }
             
             // ADDED: Refresh search and code blocks when a new message is appended
             refreshActiveChatSearch();
